@@ -1,0 +1,56 @@
+.account-container {
+  position: relative;
+  display: inline-block;
+}
+
+.account-button {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: 160%;
+  right: -50%;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 99;
+  min-width: 200px;
+  text-align: left;
+}
+
+.account-dropdown p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #2d3748;
+}
+
+.account-dropdown button {
+  background-color: #5e8c61;
+  color: white;
+  border: none;
+  padding: 1rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  margin-bottom: 0.5rem; /* <-- Espacio entre botones */
+}
+
+.account-dropdown button:hover{
+  background-color: #a06000;
+}
+
+.account-dropdown button:last-child {
+  margin-bottom: 0; /* Evita margen en el último botón */
+}

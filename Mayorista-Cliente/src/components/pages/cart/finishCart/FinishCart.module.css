@@ -1,0 +1,149 @@
+.finishCart {
+  min-height: 100vh;
+  background-color: #d4edda;
+  background-image: url("https://es.vecteezy.com/foto/8030262-whatsapp-logo-sobre-fondo-verde-3d-render" );
+  background: linear-gradient(135deg, #e5f5ec, #d4edda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contactClose {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+
+.container {
+  background: white;
+  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 128, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.container h1 {
+  color: #075e54;
+  margin-bottom: 1.5rem;
+}
+
+.checkoutForm label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+.checkoutForm input,
+.checkoutForm select,
+.checkoutForm textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.checkoutForm button {
+  background-color: #25d366;
+  color: white;
+  padding: 0.9rem 1.5rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.checkoutForm button:hover {
+  background-color: #1ebe5d;
+}
+
+.checkoutSummary {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #075e54;
+}
+
+.whatsappLogo {
+  width: 50px;
+  margin-bottom: 1rem;
+}
+
+.selected {
+  border: 2px solid green;
+  background-color: #e6ffe6;
+}
+.contactButton:hover {
+  transform: scale(1.05);
+  border-color: #25d366;
+}
+
+.contactButtonSelected {
+  border: 2px solid #25d366;
+  background-color: #e1fbe6;
+}
+
+.selectedMessage {
+  margin-top: 1rem;
+  color: #075e54;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.contactOptions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.contactButton {
+  width: 110px; /* Fijo y compacto */
+  padding: 0.6rem 0.3rem;
+  font-size: 0.85rem;
+}
+
+.contactImage {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+
+.copyMessageContainer {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.copyButton {
+  width: 100%;
+  margin: 1rem auto 0 auto;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  padding: 1rem 1.25rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 30px;
+}
+
+
+.copyButton:hover {
+  background-color: #1ebe5d;
+}
+
+.buttonClose{
+  position: absolute;
+
+}

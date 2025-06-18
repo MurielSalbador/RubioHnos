@@ -1,0 +1,436 @@
+/* Contenedor general flexible, limpio y espacioso */
+.content {
+  padding-top: 50px;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  padding: 2rem 2rem;
+  flex-wrap: wrap;
+  background-color: #f4f4f4;
+  color: #000000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  justify-content: flex-start;
+}
+
+
+/* Productos ocupan más espacio */
+.products-wrapper {
+  flex: 3 1 600px;
+  min-width: 300px;
+  color: #000000;
+  border-radius: 8px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Header con flex simple y limpio */
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+/* Sección con flexbox para imagen y texto */
+/* Alineación centrada y espacio entre elementos */
+.granola-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem;
+  flex-wrap: wrap; /* Para que se adapte en pantallas pequeñas */
+}
+
+/* Imagen alineada a la izquierda */
+.granola-img {
+  flex: 1;
+  min-width: 250px;
+}
+
+.hero-granola {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 1rem;
+  object-fit: cover;
+}
+
+/* Texto alineado a la derecha */
+.granola-text {
+  flex: 2;
+  min-width: 300px;
+}
+
+.granola-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.granola-description {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.6;
+}
+
+/* Logo con menos tamaño y espacio */
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.logo-line-1 {
+  font-size: 1.5rem;
+}
+
+.logo-line-2 {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+/* Centro de navegación minimalista */
+.nav-center {
+  flex: 2 1 280px;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+  margin-left: 80px;
+  flex-wrap: wrap;
+  font-weight: 500;
+  color: #070707; /* verde claro suave */
+}
+
+/* Derecha de navegación */
+.nav-right {
+  flex: 1 1 140px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+  color: #000000;
+}
+
+/* Carrito con colores suaves y menos saturados */
+.cart {
+  padding: 1.2rem;
+  padding-top: 3rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-height: 1500px;
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: 500;
+}
+
+/* Grid de productos simplificado */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem 0;
+  align-items: stretch;
+}
+
+/* Tarjeta producto minimalista */
+.product-card {
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  color: #0f0f0f;
+  font-weight: 500;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* Imagen producto */
+.product-img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+  border-radius: 6px;
+  padding: 0.4rem;
+}
+
+/* Título producto */
+.product-title {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+  min-height: 2.4rem;
+  word-break: break-word;
+}
+
+/* Precio */
+.product-price {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #020202; 
+  margin-bottom: 0.7rem;
+}
+
+/* Botón agregar, más plano y minimalista */
+.add-btn {
+  margin-top: auto;
+  background-color: #5e8c61;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.25s ease;
+  user-select: none;
+  box-shadow: none;
+}
+
+.add-btn:hover {
+  background-color: rgb(73, 21, 10);
+  color: #000000;
+}
+
+/* Filtros minimalistas */
+.filters-box {
+  flex: 1 1 220px;
+  background-color: #ffffff;
+  padding: 1.5rem 1rem;
+  color: #1d1d1d;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  height: fit-content;
+}
+
+/* Etiquetas filtros */
+.filter-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-label input {
+  margin-top: 0.4rem;
+}
+
+/* Inputs filtros */
+.filter-select,
+.filter-slider {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: #f7f7f7;
+  transition: border-color 0.3s ease;
+}
+
+.filter-select:focus,
+.filter-slider:focus {
+  outline: none;
+  border-color: #ffffff;
+}
+
+.filter-slider {
+  width: 160px;
+}
+
+.filter-range-text {
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #444;
+  margin-top: 0.4rem;
+}
+
+/* Carrito */
+.cart-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #0a0a0a;
+}
+
+.cart-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 350px;
+  padding-right: 6px;
+  color: #000000;
+}
+
+/* Scroll del carrito */
+.cart-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-list::-webkit-scrollbar-thumb {
+  background-color: #0c0c0c;
+  border-radius: 4px;
+}
+
+.cart-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Item carrito */
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #55332c;
+  gap: 1rem;
+  color: #000000;
+}
+
+.item-name {
+  flex: 3;
+  font-size: 0.95rem;
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
+}
+
+.item-controls {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-controls button {
+  background-color: #5e8c61;
+  color: whitesmoke;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.item-controls button:hover {
+  background-color: #73bb79;
+}
+
+.item-controls span {
+  font-weight: 600;
+  color: whitesmoke;
+  min-width: 25px;
+  text-align: center;
+}
+
+.item-total {
+  flex: 1;
+  text-align: right;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Resumen carrito */
+.cart-summary {
+  margin-top: 1.2rem;
+  border-top: 1px solid #55332c;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #141414;
+}
+
+.cart-summary p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.cart-summary div {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Botones Finalizar y Volver */
+.classButton {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+  gap: 1rem;
+}
+
+.classButton a {
+  margin-top: 20px;
+  flex: 1;
+  text-align: center;
+  padding: 0.7rem 0;
+  background-color: #942a1b ;
+  color: whitesmoke;
+  letter-spacing: 1px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  user-select: none;
+  box-shadow: none;
+}
+
+.classButton a:hover {
+  background-color:  #661e15;
+}
+
+.classButtonAdd {
+  margin: 50px 20px;
+  text-align: center;
+}
+
+.classButtonAdd a {
+  display: inline-block;
+  padding: 10px 25px;
+  color: whitesmoke;
+  background-color: rgb(17, 163, 231);
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  border: rgb(17, 163, 231) 3px solid;
+}
+
+.classButtonAdd a:hover{
+  background-color: #2884fd;
+  border: #2884fd 3px solid;
+  color: whitesmoke;
+}
+
+
+.cart-title{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

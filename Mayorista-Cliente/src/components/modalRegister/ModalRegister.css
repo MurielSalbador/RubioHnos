@@ -1,0 +1,27 @@
+.icon-check {
+  color: #5f1c75;
+  margin-right: 8px;
+  font-size: 1.4rem;
+}
+
+.custom-modal {
+    max-width: 500px;
+  }
+  
+  .custom-modal-content {
+    background-color: #e9f7ef;
+    border-radius: 16px;
+    padding: 20px;
+    color: #5f1c75;
+    border: 2px solid #c3e6cb;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  
+  .custom-modal-content .modal-header {
+    border-bottom: none;
+  }
+  
+  .custom-modal-content .modal-footer {
+    border-top: none;
+  }
+  

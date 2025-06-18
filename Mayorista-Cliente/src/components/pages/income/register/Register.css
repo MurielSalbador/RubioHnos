@@ -1,0 +1,190 @@
+.register-background {
+ background: linear-gradient(70deg, rgb(134, 74, 0), rgb(150, 90, 5));
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+
+.register-container {
+  transform: scale(0.85);
+  transform-origin: center;
+  display: flex;
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 720px;
+  background-color: whitesmoke;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.back-arrow {
+  position: absolute;
+  top: 30px;
+  right: 30px; /* Cambiar de right a left si querés estilo común de volver */
+  background: rgba(0, 0, 0, 0.527); /* Fondo semitransparente para mejor visibilidad */
+  border: none;
+  border-radius: 10%;
+  padding: 20px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s ease;
+}
+
+.back-arrow:hover {
+  background: rgba(0, 0, 0, 0.747);
+}
+
+.back-arrow i {
+  font-size: 24px;
+  color: white;
+}
+
+
+.register-left {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.register-right {
+  flex: 1;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.register-form {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+h3.text-center.mb-4 {
+  font-size: 32px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #414141;
+  text-align: center;
+}
+
+.form-row {
+  display: flex;
+  gap: 30px;
+}
+
+.form-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-control {
+  border-radius: 25px;
+  padding: 12px 18px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #18b6be;
+  outline: none;
+  box-shadow: 0 0 8px rgba(196, 127, 218, 0.4);
+}
+
+.form-control.is-invalid {
+  border-color: #e74c3c;
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #0e0e0e;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.my-custom-button.custom-button-ingresar  {
+  background-color: rgb(158, 95, 14);
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 25px;
+  font-size: 17px;
+  margin-top: 10px;
+  width: 100%;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.select-button {
+  border-radius: 25px;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+
+.my-custom-button.custom-button-ingresar:hover {
+  background-color: #693e0c;
+  border-color: #642f0b;
+}
+
+.text-danger {
+  font-weight: 600;
+  margin-top: 15px;
+  text-align: center;
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .register-container {
+    flex-direction: column;
+    height: auto;
+    max-width: 400px;
+    margin: 30px 15px;
+  }
+
+  .register-left {
+    height: 200px;
+  }
+
+  .register-right {
+    padding: 20px 15px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+}

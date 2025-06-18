@@ -1,0 +1,119 @@
+
+
+.products-container {
+  margin-top: 6rem; /* un poco más de espacio del header */
+  max-width: 1200px; /* ancho mayor */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #4a3c31;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-title {
+  width: 100%;       /* que ocupe toda la fila */
+  text-align: center; /* centramos el texto */
+  margin-bottom: 1.5rem; /* espacio entre título y productos */
+}
+
+.products-container h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #6b4c24;
+  text-align: center;
+}
+
+.product-list-marcaPage {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(300px, 1fr)); /* 2 columnas, más anchas */
+  gap: 1.5rem;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .product-list {
+    grid-template-columns: 1fr; /* 1 columna en pantallas pequeñas */
+  }
+}
+
+.product-card-marcaPage {
+  background: #f5e6b8;
+  border: 2px solid #c49e45;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgb(101 67 33 / 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card-marcaPage:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgb(101 67 33 / 0.3);
+}
+
+.product-image {
+  width: 100%;
+  height: 200px; /* más alto para tarjeta más grande */
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background-color: white;
+}
+
+.product-title {
+  margin: 0;
+  margin-bottom: 0.5rem;
+  color: #7a5c22;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.product-brand,
+.product-price,
+.product-stock {
+  margin: 0.2rem 0;
+  color: #5d4a1f;
+  font-weight: 600;
+}
+
+.stock-alert {
+  color: #b3561e;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+.product-buttons {
+  margin-top: auto;
+  display: flex;
+  gap: 0.7rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.product-buttons button {
+  flex: 1;
+  padding: 0.5rem 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  background-color: #c49e45;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.product-buttons button:hover:not(:disabled) {
+  background-color: #a67c1a;
+}
+
+.product-buttons button:disabled {
+  background-color: #a9a9a9;
+  cursor: not-allowed;
+}

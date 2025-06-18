@@ -1,0 +1,472 @@
+/* =========================== */
+/*      CONTACT SECTION        */
+/* =========================== */
+/* Contenedor principal de imagen + formulario */
+
+.hero-section {
+   background: linear-gradient(to left, rgb(254, 228, 127), rgb(254, 223, 104));
+  position: relative;
+  overflow: hidden;
+  padding: 2.85rem 0rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-button{
+  padding: 5px;
+  width: 130px;
+  color: rgb(100, 60, 23);
+  font-weight: 600;
+  background-color: transparent;
+  letter-spacing: 1px;
+  border-radius: 30px;
+  border: 2px solid rgb(85, 47, 11);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hero-button:hover{
+  background-color: #88a78a;
+  color: whitesmoke;
+}
+
+.hero-content {
+  color: #311e04;
+  margin-left: 40px;
+  max-width: 600px;
+  z-index: 10;
+}
+
+.hero-dog {
+  max-width: 800px; /* ancho máximo para la imagen */
+  flex-shrink: 0; /* que no se encoja */
+  height: auto; /* altura automática para mantener la proporción */
+}
+
+.hero-bottom-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 60px;
+  width: 100%;
+  background: whitesmoke;
+  z-index: 5;
+}
+
+
+.contact-section-two-columns {
+  display: flex;
+  gap: 3rem;
+  padding: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.contact-info-left {
+  padding: 4rem;
+  flex: 1;
+  min-width: 300px;
+}
+
+.contact-info-left h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.contact-info-left p {
+  margin-bottom: 2rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.contact-item i {
+  font-size: 1.5rem;
+  color: rgb(254, 207, 76);
+  margin-right: 1rem;
+}
+
+.contact-form-right {
+  padding-right: 7rem;
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form-right input,
+.contact-form-right textarea {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: #f1f1f1;
+}
+
+.contact-form-right button {
+  background-color: rgb(241, 190, 49);
+  color: white;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form-right button:hover{
+  background-color: rgb(194, 150, 29);
+}
+
+.contact-form-right label {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+
+/* ===================== FAQ Section ===================== */
+.faq-section {
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 2rem;
+  border-radius: 1rem;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.faq-section h2.title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+.faq-section details {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.faq-section summary {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #555;
+  list-style: none;
+}
+
+.faq-section details[open] {
+  border-color: rgb(254, 207, 76); /* Light purple */
+  background-color: #fcf0ae;
+}
+
+.faq-section details p {
+  margin-top: 0.8rem;
+  color: #444;
+}
+
+/* ===================== Location Section ===================== */
+.location-section {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.location-section h2.title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.location-section p {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.location-section iframe {
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* =========================== */
+/*      CARDS INFORMATIVAS     */
+/* =========================== */
+
+.contact-info-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px 20px;
+  flex-wrap: wrap;
+  background-color: #f7f7f7;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  padding: 30px;
+  width: 280px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: rgb(214, 169, 44);
+}
+
+.card h3 {
+  margin: 10px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.card p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* =========================== */
+/*      FOOTER ESTILO DOG      */
+/* =========================== */
+
+.footer {
+  background-color: #333;
+  color: #f3f4f6;
+  padding: 1rem 1rem 0.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeInUp 1s ease-in-out;
+}
+
+.footer-logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white; /* o el color que uses en el footer */
+  font-weight: bold;
+  line-height: 1;
+}
+
+.footer-logo-text .logo-line-1 {
+  font-size: 1.4rem;
+}
+
+.footer-logo-text .logo-line-2 {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+
+.footer-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.footer-info {
+  flex: 2;
+  min-width: 260px;
+}
+
+.footer-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+}
+
+.footer-text {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: white;
+  max-width: 400px;
+  opacity: 0.85;
+}
+
+.footer-socials {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  font-size: 2rem; 
+  flex: 1;
+  min-width: 120px;
+  justify-items: center;
+}
+
+.footer-socials a {
+  color: whitesmoke;
+  transition: transform 0.2s ease, color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.footer-socials a:hover {
+  color: #7c7c7c;
+  transform: scale(1.2);
+  text-shadow: 0 0 10px #ffb6ff;
+}
+
+.footer-bottom {
+  margin-top: 1rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.5rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #ffb6ff;
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-socials {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .footer-links {
+    justify-content: center;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Adaptabilidad móvil en footer */
+@media (max-width: 768px) {
+  .footer-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-image,
+  .footer-content {
+    flex: 1 1 100%;
+  }
+
+  .footer-content {
+    padding: 20px 0;
+  }
+}
+
+/* =========================== */
+/*       HEADER Y NAVBAR       */
+/* =========================== */
+
+.main-header {
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1300px;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.logo-line-1 {
+  font-size: 1.5rem;
+}
+
+.logo-line-2 {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+
+.nav-center,
+.nav-right {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-center li .link,
+.nav-right li .link {
+  text-decoration: none;
+  font-weight: 500;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.nav-center li .link:hover,
+.nav-right li .link:hover {
+  color: #5e8c61;
+}

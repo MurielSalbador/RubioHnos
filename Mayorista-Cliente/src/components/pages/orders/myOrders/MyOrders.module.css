@@ -1,0 +1,104 @@
+.contactClose {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.myOrders {
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f0f4ff, #d9e6ff);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+.container {
+  max-width: 850px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 1.2rem;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.3s ease;
+}
+
+.container:hover {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.ordersList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.orderItem {
+  border: none;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  background: #f7f9ff;
+  box-shadow: 8px 8px 15px #cbd9ff, -8px -8px 15px #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.orderItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 12px 12px 20px #a1b0ff, -12px -12px 20px #ffffff;
+}
+
+.orderItem h3 {
+  margin-top: 0;
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+}
+
+.orderItem p {
+  margin: 0.4rem 0;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.orderItem details summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #2563eb;
+  user-select: none;
+  list-style: none;
+  transition: color 0.2s ease;
+}
+
+.orderItem details summary:hover {
+  color: #1e40af;
+}
+
+.orderItem details ul {
+  padding-left: 1.75rem;
+  margin-top: 0.75rem;
+  color: #334155;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Flechas para <summary> */
+.orderItem details[open] summary::after {
+  content: "▲";
+  float: right;
+  font-size: 0.7rem;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.orderItem details summary::after {
+  content: "▼";
+  float: right;
+  font-size: 0.7rem;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}

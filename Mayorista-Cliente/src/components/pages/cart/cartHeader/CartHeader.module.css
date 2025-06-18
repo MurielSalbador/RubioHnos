@@ -1,0 +1,70 @@
+.main {
+  min-height: 100vh;
+  background-color: #eafcc1; ;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.container {
+  background-color: white;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 500px;
+}
+
+.contactClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.pageTitle {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.containerCart {
+  margin-bottom: 2rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.containerCart::-webkit-scrollbar {
+  width: 8px;
+}
+
+.containerCart::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.classButton {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.classButton a {
+  flex: 1;
+  background-color: #f35454;
+  color: white;
+  padding: 0.8rem 1rem;
+  text-align: center;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.classButton a:hover {
+  background-color: rgb(214, 27, 27);
+}

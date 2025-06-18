@@ -1,0 +1,41 @@
+.category-box {
+  background: linear-gradient(145deg, #ffffff, #f1f1f1);
+  padding: 24px 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  min-height: 300px;
+  border: 1px solid #eee;
+}
+
+.category-box:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(145deg, #f9f9f9, #ffffff);
+}
+
+.category-box img {
+  object-fit: cover;
+  border-radius: 50%; /* esto las hace redondas */
+  margin-bottom: 16px;
+  transition: transform 0.3s ease;
+  border: 3px solid #ddd; /* opcional, para un borde sutil */
+}
+
+
+.category-box:hover img {
+  transform: rotate(2deg) scale(1.05);
+}
+
+.category-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: auto;
+}
