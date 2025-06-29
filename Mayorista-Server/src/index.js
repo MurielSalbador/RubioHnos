@@ -8,6 +8,7 @@ import cors from "cors";
 // db
 import { sequelize } from "./db.js";           // DB productos
 import { sequelize as userDB } from "./dbUser.js"; // DB usuarios
+import { seedProducts } from './seeders/seedProducts.js';
 
 // rutas
 import authRoutes from "./routes/auth.js";
@@ -54,6 +55,7 @@ const startServer = async () => {
 
     await sequelize.sync({ alter: true });
     await userDB.sync({ alter: true });
+    await seedProducts();
 
     app.listen(PORT, () => {
       console.log(`Servidor escuchando en http://localhost:${PORT}`);
