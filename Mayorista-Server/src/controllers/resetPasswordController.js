@@ -26,7 +26,7 @@ export const sendResetEmail = async (req, res) => {
     console.log("[sendResetEmail] Enlace de reset:", resetLink);
 
     console.log("MAIL_USER:", process.env.MAIL_USER);
-console.log("MAIL_PASS:", process.env.MAIL_PASS);
+    console.log("MAIL_PASS:", process.env.MAIL_PASS);
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {

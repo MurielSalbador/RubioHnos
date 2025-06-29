@@ -42,6 +42,7 @@ app.use("/api/users", userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use("/api/password", resetPasswordRoutes);
 
+
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
@@ -63,3 +64,7 @@ const startServer = async () => {
 };
 
 startServer();
+
+app.get('/', (req, res) => {
+  res.send('El backend funciona');
+});
