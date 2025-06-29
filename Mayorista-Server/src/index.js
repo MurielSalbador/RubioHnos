@@ -42,7 +42,7 @@ app.use("/api/users", userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use("/api/password", resetPasswordRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
