@@ -31,13 +31,13 @@ export const Products = sequelize.define('Products', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
-  categoryId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'Categories',
-      key: 'id',
-    },
-  },
+  // categoryId: {
+  //   type: DataTypes.INTEGER,
+  //   references: {
+  //     model: 'Categories',
+  //     key: 'id',
+  //   },
+  // },
   createdAt: {
     type: DataTypes.DATE,
     allowNull: false,
