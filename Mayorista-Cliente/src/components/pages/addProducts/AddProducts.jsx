@@ -4,6 +4,8 @@ import CloseButton from "react-bootstrap/CloseButton";
 import { useNavigate } from "react-router-dom";
 import "./addProducts.css";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 function ProductForm({ productId, onSuccess }) {
   const [formData, setFormData] = useState({
     title: "",
@@ -12,17 +14,17 @@ function ProductForm({ productId, onSuccess }) {
     stock: "",
     imageUrl: "",
     available: false,
-    categoryId: "", // 🆕 categoría
+    categoryId: "", // categoría
   });
 
-  const [categorias, setCategorias] = useState([]); // 🆕 categorías desde backend
+  const [categorias, setCategorias] = useState([]); // categorías desde backend
   const [newCategory, setNewCategory] = useState(""); // Añadir un estado para categoría nueva
   const navigate = useNavigate();
 
   useEffect(() => {
     // Obtener categorías
     axios
-      .get("http://localhost:3000/api/categories")
+      .get(`${API_URL}/api/categories`)
       .then((res) => setCategorias(res.data))
       .catch((error) => console.error("Error al obtener categorías:", error));
   }, []);
@@ -30,7 +32,7 @@ function ProductForm({ productId, onSuccess }) {
   useEffect(() => {
     if (productId) {
       axios
-        .get(`http://localhost:3000/api/products/${productId}`)
+        .get(`${API_URL}/api/products/${productId}`)
         .then((res) => {
           setFormData(res.data);
         });
