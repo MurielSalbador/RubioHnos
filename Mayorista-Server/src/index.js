@@ -32,7 +32,10 @@ console.log("Reset password routes cargadas");
 
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({
+  origin: ["http://localhost:5173", "https://rubio-hnos.vercel.app"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Rutas existentes
