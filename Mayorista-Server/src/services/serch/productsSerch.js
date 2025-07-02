@@ -1,10 +1,8 @@
 // src/services/serch/productsSerch.js
-import dotenv from "dotenv";
-dotenv.config();
 
 export const searchProducts = async ({ search }) => {
   try {
-    const res = await fetch(`${process.env.URL}/api/products`) // corregido
+   const res = await fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/products`);
     const allProducts = await res.json()
 
     if (!search.trim()) return []
