@@ -6,6 +6,8 @@ import styles from "./Orders.module.css";
 
 const statusFlow = ["Pendiente", "En progreso", "Completado"];
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -32,7 +34,7 @@ const Orders = () => {
 
   const token = localStorage.getItem("token");
 
-  fetch("http://localhost:3000/api/orders", {
+  fetch(`${API_URL}/api/orders`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -55,7 +57,7 @@ const Orders = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/orders/${orderId}/status`,
+        `${API_URL}/api/orders/${orderId}/status`,
         {
           method: "PATCH",
           headers: {
@@ -97,7 +99,7 @@ const Orders = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+      const res = await fetch(`${API_URL}/api/orders/${orderId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

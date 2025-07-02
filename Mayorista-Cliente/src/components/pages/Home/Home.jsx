@@ -19,6 +19,10 @@ import CategoriesCarousel from "../Home/categoriesCarousel/CategoriesCarousel.js
 
 import Barrita from "../../../assets/img/barritaCereal.png"; // o la ruta correcta
 
+
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
+
 export default function Home() {
   const [search, setSearch] = useState("");
   const { products, getProducts, loading } = useProducts({
@@ -62,7 +66,7 @@ export default function Home() {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/products");
+        const response = await fetch(`${API_URL}/api/products`);
         const data = await response.json();
         setFeaturedProducts(data.slice(0, 6));
       } catch (error) {

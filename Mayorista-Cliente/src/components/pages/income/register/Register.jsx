@@ -6,6 +6,8 @@ import "./Register.css";
 import ModalSuccess from "../../../modalRegister/ModalRegister.jsx";
 import RegisterImg from "../../../../assets/register/imgRegister.png";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 function Register() {
   const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,7 +40,7 @@ function Register() {
 console.log("Datos recibidos para registro:", formData);
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/register", {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

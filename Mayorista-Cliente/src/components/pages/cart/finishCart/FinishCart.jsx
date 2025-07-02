@@ -6,6 +6,8 @@ import ModalPurchase from "../../../modal/ModalPurchase.jsx";
 import CloseButton from "react-bootstrap/CloseButton";
 import styles from "./FinishCart.module.css";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 const FinishCart = () => {
   const contacts = [
     {
@@ -108,7 +110,7 @@ const addToCart = (product) => {
       quantity: item.quantity,
     }));
 
-    await fetch("http://localhost:3000/api/products/decrement-multiple", {
+    await fetch(`${API_URL}/api/products/decrement-multiple`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -177,7 +179,7 @@ const addToCart = (product) => {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.post("http://localhost:3000/api/orders", newOrder, {
+      await axios.post(`${API_URL}/api/orders`, newOrder, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

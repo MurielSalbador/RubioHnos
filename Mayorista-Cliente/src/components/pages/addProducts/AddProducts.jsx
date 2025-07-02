@@ -87,7 +87,7 @@ function ProductForm({ productId, onSuccess }) {
 
       // Crear categoría nueva en backend
       const res = await axios.post(
-        "http://localhost:3000/api/categories",
+        `${API_URL}/api/categories`,
         { nombre: newCategory.trim() },
         config
       );
@@ -117,13 +117,13 @@ function ProductForm({ productId, onSuccess }) {
 
     if (productId) {
       await axios.put(
-        `http://localhost:3000/api/products/${productId}`,
+        `${API_URL}/api/products/${productId}`,
         payload,
         config
       );
       alert("✅ Producto actualizado");
     } else {
-      await axios.post("http://localhost:3000/api/products", payload, config);
+      await axios.post(`${API_URL}/api/products`, payload, config);
       alert("✅ Producto agregado");
     }
 

@@ -3,7 +3,10 @@ import CloseButton from "react-bootstrap/CloseButton";
 import { useNavigate } from "react-router-dom";
 import "./UserManagement.css";
 
-const API_URL = "http://localhost:3000/api/users";
+
+const API_URL_ENV= import.meta.env.VITE_BASE_SERVER_URL;
+
+const API_URL = `${API_URL_ENV}/api/users`;
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);

@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import LoginImg from "../../../../assets/login/imgLogin.jpeg";
 import "./Login.css";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +27,7 @@ function Login() {
     setValidated(true);
 
    try {
-    const res = await fetch("http://localhost:3000/api/auth/login", {
+    const res = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

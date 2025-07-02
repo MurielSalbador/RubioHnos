@@ -6,6 +6,9 @@ import CloseButton from "react-bootstrap/CloseButton";
 import "react-toastify/dist/ReactToastify.css";
 import "./ForgotPassword.css";
 
+
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [validated, setValidated] = useState(false);
@@ -24,7 +27,7 @@ const ForgotPassword = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/password/forgot-password",
+        `${API_URL}/api/password/forgot-password`,
         { email }
       );
 

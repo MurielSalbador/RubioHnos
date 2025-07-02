@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import "./VerifyEmail.css";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 const VerifyEmail = () => {
   const { token } = useParams();
   const [status, setStatus] = useState("Verificando...");
@@ -11,7 +13,7 @@ const VerifyEmail = () => {
   useEffect(() => {
     const verifyAccount = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/auth/verify/${token}`);
+        const res = await axios.get(`${API_URL}/api/auth/verify/${token}`);
         setStatus(res.data.message);
         setSuccess(true);
       } catch (err) {

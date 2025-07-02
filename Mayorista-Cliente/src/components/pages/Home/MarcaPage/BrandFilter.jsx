@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 export default function BrandFilter() {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/brands")
+    fetch(`${API_URL}/api/brands`)
       .then((res) => res.json())
       .then((data) => setBrands(data))
       .catch((err) => console.error(err));

@@ -6,6 +6,8 @@ import CloseButton from "react-bootstrap/CloseButton";
 import styles from "./AllOrders.module.css";
 import axios from "axios";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 const AllOrders = () => {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ const AllOrders = () => {
     }
 
     axios
-      .get("http://localhost:3000/api/orders", {
+      .get(`${API_URL}/api/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -3,6 +3,8 @@ import axios from "axios";
 import ProductForm from "./AddProducts.jsx";
 import "./addProductsList.css";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 function ProductList() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -10,7 +12,7 @@ function ProductList() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/products");
+      const res = await axios.get(`${API_URL}/api/products`);
       setProducts(res.data);
     } catch (err) {
       console.error("Error al obtener productos:", err);
@@ -19,7 +21,7 @@ function ProductList() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/categories");
+      const res = await axios.get(`${API_URL}/api/categories`);
       setCategories(res.data);
     } catch (err) {
       console.error("Error al obtener categorías:", err);
@@ -41,7 +43,7 @@ function ProductList() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3000/api/products/${id}`, {
+      await axios.delete(`${API_URL}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("✅ Producto eliminado");

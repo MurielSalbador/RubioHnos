@@ -6,6 +6,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./PasswordReset.css";
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 const PasswordReset = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const PasswordReset = () => {
 
     // Aquí podrías llamar al backend con axios para enviar el mail
     axios
-      .post("http://localhost:3000/api/password/forgot-password", { email })
+      .post(`${API_URL}/api/password/forgot-password`, { email })
       .then(() => {
         toast.success(
           `Si el correo está registrado, te enviamos un enlace a ${email}`
@@ -64,7 +66,7 @@ const PasswordReset = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/password/reset-password",
+        `${API_URL}/api/password/reset-password`,
         {
           token,
           newPassword,

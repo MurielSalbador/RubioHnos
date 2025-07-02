@@ -5,10 +5,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
 
 import "./MarcaPage.css";
-import AccountButton from "../../income/account/AccountButton.jsx";
-import { isSuperAdmin } from "../../../../utils/auth.js";
 import { useCart } from "../../../../store.js";
 import { getAdjustedStock } from "../../../../utils/calculateStock.js";
+
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
 
 export default function MarcaPage() {
   const { slug } = useParams();
@@ -25,7 +25,7 @@ export default function MarcaPage() {
   } = useQuery({
     queryKey: ["products", slug],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:3000/api/products/brand/${slug}`);
+      const res = await fetch(`${API_URL}/api/products/brand/${slug}`);
       if (!res.ok) throw new Error("No se pudieron obtener los productos");
       return res.json();
     },
