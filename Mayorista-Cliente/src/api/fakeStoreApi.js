@@ -1,5 +1,7 @@
 // src/api/fakeStoreApi.js
 
+const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+
 export async function getAllProducts(filters = {}) {
   const query = new URLSearchParams();
 
@@ -15,7 +17,7 @@ export async function getAllProducts(filters = {}) {
     query.append("minPrice", filters.minPrice);
   }
 
-  const url = `http://localhost:3000/api/products?${query.toString()}`;
+  const url = `${API_URL}/api/products?${query.toString()}`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -36,7 +38,7 @@ export async function getAllProducts(filters = {}) {
 
 // ✅ NUEVA función para obtener un producto por ID
 export async function getProductById(id) {
-  const response = await fetch(`http://localhost:3000/api/products/${id}`);
+  const response = await fetch(`${API_URL}/api/products/${id}`);
   if (!response.ok) {
     throw new Error("Error al obtener el producto");
   }
