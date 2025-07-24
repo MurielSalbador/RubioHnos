@@ -12,6 +12,8 @@ import {
   getProductsByBrand
 } from "../controllers/productsController.js";
 import { verifyToken, isAdminOrSuperAdmin } from "../middlewares/authMiddleware.js";
+import { upload } from "../middlewares/uploadMiddleware.js";
+
 
 
 const router = express.Router();
@@ -34,8 +36,8 @@ router.get("/brand/:slug", getProductsByBrand);
 
 
 // Rutas protegidas para admin y superAdmin
-router.post("/", verifyToken, isAdminOrSuperAdmin, createProduct);
-router.put("/:id", verifyToken, isAdminOrSuperAdmin, updateProduct);
+router.post("/", verifyToken, isAdminOrSuperAdmin, upload.single("image"), createProduct);
+router.put("/:id", verifyToken, isAdminOrSuperAdmin, upload.single("image"), updateProduct);
 router.delete("/:id", verifyToken, isAdminOrSuperAdmin, deleteProduct);
 
 

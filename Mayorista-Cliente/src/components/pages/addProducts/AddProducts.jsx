@@ -4,7 +4,7 @@ import CloseButton from "react-bootstrap/CloseButton";
 import { useNavigate } from "react-router-dom";
 import "./addProducts.css";
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 function ProductForm({ productId, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -12,13 +12,15 @@ function ProductForm({ productId, onSuccess }) {
     brand: "",
     price: "",
     stock: "",
-    imageUrl: "",
+    image: null,
     available: false,
     categoryId: "", // categoría
   });
 
   const [categorias, setCategorias] = useState([]); // categorías desde backend
   const [newCategory, setNewCategory] = useState(""); // Añadir un estado para categoría nueva
+  const [previewImage, setPreviewImage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,20 +33,27 @@ function ProductForm({ productId, onSuccess }) {
 
   useEffect(() => {
     if (productId) {
-      axios
-        .get(`${API_URL}/api/products/${productId}`)
-        .then((res) => {
-          setFormData(res.data);
+      axios.get(`${API_URL}/api/products/${productId}`).then((res) => {
+        setFormData({
+          ...res.data,
+          image: null, // importante: limpiamos el File
         });
+
+        // guardamos la URL actual para previsualizar
+        if (res.data.imageUrl) {
+          setPreviewImage(`${API_URL}/${res.data.imageUrl}`);
+        }
+      });
     } else {
+      setPreviewImage(null);
       setFormData({
         title: "",
         brand: "",
         price: "",
         stock: "",
-        imageUrl: "",
+        image: null,
         available: false,
-        categoryId: "",
+        categoryId: "",   
       });
     }
   }, [productId]);
@@ -58,92 +67,103 @@ function ProductForm({ productId, onSuccess }) {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const priceParsed = parseFloat(parseFloat(formData.price).toFixed(2));
-  const stockParsed = Number(formData.stock);
+    const priceParsed = parseFloat(parseFloat(formData.price).toFixed(2));
+    const stockParsed = Number(formData.stock);
 
-  if (isNaN(priceParsed) || priceParsed < 0) {
-    alert("Ingrese un precio válido mayor o igual a 0");
-    return;
-  }
+    if (isNaN(priceParsed) || priceParsed < 0) {
+      alert("Ingrese un precio válido mayor o igual a 0");
+      return;
+    }
 
-  if (isNaN(stockParsed) || stockParsed < 0) {
-    alert("Ingrese un stock válido mayor o igual a 0");
-    return;
-  }
+    if (isNaN(stockParsed) || stockParsed < 0) {
+      alert("Ingrese un stock válido mayor o igual a 0");
+      return;
+    }
 
-  // Aquí definimos categoryIdToSend con categoría seleccionada o nueva
-  let categoryIdToSend = formData.categoryId;
+    // Aquí definimos categoryIdToSend con categoría seleccionada o nueva
+    let categoryIdToSend = formData.categoryId;
 
-  if (newCategory.trim() !== "") {
+    if (newCategory.trim() !== "") {
+      
+      try {
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        // Crear categoría nueva en backend
+        const res = await axios.post(
+          `${API_URL}/api/categories`,
+          { nombre: newCategory.trim() },
+          config
+        );
+
+        categoryIdToSend = res.data.id;
+      } catch (error) {
+        alert("Error al crear la nueva categoría");
+        return;
+      }
+    }
+
+    const formToSend = new FormData();
+    formToSend.append("title", formData.title);
+    formToSend.append("brand", formData.brand);
+    formToSend.append("price", priceParsed);
+    formToSend.append("stock", stockParsed);
+    formToSend.append("available", formData.available);
+    formToSend.append("categoryId", categoryIdToSend);
+
+    // Si hay imagen, agregarla
+    if (formData.image) {
+      formToSend.append("image", formData.image);
+    }
+
+    const token = localStorage.getItem("token");
+
+    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       };
 
-      // Crear categoría nueva en backend
-      const res = await axios.post(
-        `${API_URL}/api/categories`,
-        { nombre: newCategory.trim() },
-        config
-      );
+      if (productId) {
+        await axios.put(
+          `${API_URL}/api/products/${productId}`,
+          formToSend,
+          config
+        );
+        alert("✅ Producto actualizado");
+      } else {
+        await axios.post(`${API_URL}/api/products`, formToSend, config);
+        alert("✅ Producto agregado");
+      }
 
-      categoryIdToSend = res.data.id;
+      setFormData({
+        title: "",
+        brand: "",
+        price: "",
+        stock: "",
+        image: null,
+        available: false,
+        categoryId: "",
+      });
+      setNewCategory(""); // Limpiar el input de nueva categoría
+
+      onSuccess?.();
     } catch (error) {
-      alert("Error al crear la nueva categoría");
-      return;
-    }
-  }
-
-  const payload = {
-    ...formData,
-    price: priceParsed,
-    stock: stockParsed,
-    categoryId: categoryIdToSend,
+      console.error(error);
+      alert("❌ Error al guardar el producto");
+    }finally {
+  setLoading(false); 
+}
   };
-
-  const token = localStorage.getItem("token");
-
-  try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
-    if (productId) {
-      await axios.put(
-        `${API_URL}/api/products/${productId}`,
-        payload,
-        config
-      );
-      alert("✅ Producto actualizado");
-    } else {
-      await axios.post(`${API_URL}/api/products`, payload, config);
-      alert("✅ Producto agregado");
-    }
-
-    setFormData({
-      title: "",
-      brand: "",
-      price: "",
-      stock: "",
-      imageUrl: "",
-      available: false,
-      categoryId: "",
-    });
-    setNewCategory("");  // Limpiar el input de nueva categoría
-
-    onSuccess?.();
-  } catch (error) {
-    console.error(error);
-    alert("❌ Error al guardar el producto");
-  }
-};
 
   return (
     <div className="container-formAdd">
@@ -194,12 +214,31 @@ function ProductForm({ productId, onSuccess }) {
           required
         />
 
-        <label>URL de imagen:</label>
+        <label>Imagen:</label>
         <input
-          name="imageUrl"
-          value={formData.imageUrl}
-          onChange={handleChange}
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            setFormData({ ...formData, image: e.target.files[0] });
+
+            // mostrar preview instantánea si se carga una nueva
+            const file = e.target.files[0];
+            if (file) {
+              setPreviewImage(URL.createObjectURL(file));
+            }
+          }}
         />
+
+        {previewImage && (
+  <div className="preview-container">
+    <p>Vista previa de la imagen:</p>
+    <img
+      src={previewImage}
+      alt="Vista previa"
+      className="preview-image"
+    />
+  </div>
+)}
 
         <label>Categoría existente:</label>
         <select
@@ -233,9 +272,9 @@ function ProductForm({ productId, onSuccess }) {
           Disponible
         </label>
 
-        <button type="submit">
-          {productId ? "Actualizar" : "Guardar"} Producto
-        </button>
+        <button type="submit" disabled={loading}>
+  {loading ? "Guardando..." : productId ? "Actualizar" : "Guardar"} Producto
+</button>
       </form>
     </div>
   );

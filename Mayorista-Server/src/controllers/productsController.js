@@ -78,7 +78,14 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ error: "Stock inválido" });
     }
 
-    const product = await Products.create(req.body);
+    // Si se subió archivo, construir la URL local
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const product = await Products.create({
+      ...req.body,
+      imageUrl, // agregamos la imagen al crear
+    });
+
     res.status(201).json(product);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -183,8 +190,15 @@ export const getProductById = async (req, res) => {
 // Actualizar producto
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const [updated] = await Products.update(req.body, { where: { id } });
+  const updatedData = req.body;
+
+  if (req.file) {
+    updatedData.imageUrl = `/uploads/${req.file.filename}`;
+  }
+
+  const [updated] = await Products.update(updatedData, { where: { id } });
   if (!updated) return res.status(404).json({ error: "No se pudo actualizar" });
+
   res.json({ message: "Producto actualizado" });
 };
 

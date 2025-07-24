@@ -44,8 +44,8 @@ const Shop = () => {
               data-aos-duration="600"
               data-aos-delay="200"
             >
-              <div className="logo-line-1">PetCare</div>
-              <div className="logo-line-2">Shop</div>
+              <div className="logo-line-1">RubioHnos</div>
+              <div className="logo-line-2">-Tienda Natural-</div>
             </a>
           </div>
 
