@@ -204,14 +204,22 @@ export const updateProduct = async (req, res) => {
   const { id } = req.params;
   const updatedData = req.body;
 
+  console.log("Datos recibidos en updateProduct:", updatedData);
+  console.log("Archivo recibido:", req.file);
+
   if (req.file) {
     updatedData.imageUrl = `/uploads/${req.file.filename}`;
   }
 
-  const [updated] = await Products.update(updatedData, { where: { id } });
-  if (!updated) return res.status(404).json({ error: "No se pudo actualizar" });
+  try {
+    const [updated] = await Products.update(updatedData, { where: { id } });
+    if (!updated) return res.status(404).json({ error: "No se pudo actualizar" });
 
-  res.json({ message: "Producto actualizado" });
+    res.json({ message: "Producto actualizado" });
+  } catch (err) {
+    console.error("❌ Error en updateProduct:", err);
+    res.status(500).json({ error: "Error al actualizar el producto", detalle: err.message });
+  }
 };
 
 // Eliminar producto
