@@ -200,27 +200,66 @@ export const getProductById = async (req, res) => {
 };
 
 // Actualizar producto
+
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const updatedData = req.body;
-
-  console.log("Datos recibidos en updateProduct:", updatedData);
-  console.log("Archivo recibido:", req.file);
-
-  if (req.file) {
-    updatedData.imageUrl = `/uploads/${req.file.filename}`;
-  }
+  const { title, price, stock, brand, categoryId, available } = req.body;
 
   try {
-    const [updated] = await Products.update(updatedData, { where: { id } });
-    if (!updated) return res.status(404).json({ error: "No se pudo actualizar" });
+    // Buscar producto
+    const product = await Products.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
 
-    res.json({ message: "Producto actualizado" });
+    // Validaciones y parseos
+    if (price !== undefined) {
+      const parsedPrice = parseFloat(price);
+      if (isNaN(parsedPrice) || parsedPrice < 0) {
+        return res.status(400).json({ error: "Precio inválido" });
+      }
+      product.price = parsedPrice;
+    }
+
+    if (stock !== undefined) {
+      const parsedStock = parseInt(stock);
+      if (isNaN(parsedStock) || parsedStock < 0) {
+        return res.status(400).json({ error: "Stock inválido" });
+      }
+      product.stock = parsedStock;
+    }
+
+    if (categoryId !== undefined) {
+      const parsedCategoryId = parseInt(categoryId);
+      if (isNaN(parsedCategoryId)) {
+        return res.status(400).json({ error: "Categoría inválida" });
+      }
+      product.categoryId = parsedCategoryId;
+    }
+
+    if (available !== undefined) {
+      product.available = available === "true" || available === true;
+    }
+
+    if (title !== undefined) product.title = title;
+    if (brand !== undefined) product.brand = brand;
+
+    // Imagen
+    if (req.file) {
+      product.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    await product.save();
+
+    res.json({ message: "Producto actualizado correctamente", product });
+
   } catch (err) {
     console.error("❌ Error en updateProduct:", err);
     res.status(500).json({ error: "Error al actualizar el producto", detalle: err.message });
   }
 };
+
+
 
 // Eliminar producto
 export const deleteProduct = async (req, res) => {

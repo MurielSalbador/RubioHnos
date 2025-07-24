@@ -115,8 +115,8 @@ function ProductForm({ productId, onSuccess }) {
     formToSend.append("brand", formData.brand);
     formToSend.append("price", priceParsed);
     formToSend.append("stock", stockParsed);
-    formToSend.append("available", formData.available);
-    formToSend.append("categoryId", categoryIdToSend);
+    formToSend.append("available", formData.available ? "true" : "false");
+    formToSend.append("categoryId", String(formData.categoryId));
 
     // Si hay imagen, agregarla
     if (formData.image) {
