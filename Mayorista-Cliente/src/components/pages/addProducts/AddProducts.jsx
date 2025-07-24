@@ -160,6 +160,7 @@ function ProductForm({ productId, onSuccess }) {
       onSuccess?.();
     } catch (error) {
       console.error(error);
+      console.error("Error al crear el producto:", error.response?.data);
       alert("❌ Error al guardar el producto");
     }finally {
   setLoading(false); 

@@ -60,9 +60,10 @@ export const decrementMultipleStock = async (req, res) => {
 };
 
 // Crear producto
+
 export const createProduct = async (req, res) => {
   try {
-    const { title, price, brand, stock } = req.body;
+    const { title, price, brand, stock, categoryId, available } = req.body;
 
     if (!title || !brand) {
       return res
@@ -70,11 +71,16 @@ export const createProduct = async (req, res) => {
         .json({ error: "Faltan campos obligatorios: título o marca" });
     }
 
-    if (typeof price !== "number" || isNaN(price) || price < 0) {
+    const parsedPrice = parseFloat(price);
+    const parsedStock = parseInt(stock);
+    const parsedCategoryId = parseInt(categoryId);
+    const parsedAvailable = available === "true";
+
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
       return res.status(400).json({ error: "Precio inválido" });
     }
 
-    if (typeof stock !== "number" || isNaN(stock) || stock < 0) {
+    if (isNaN(parsedStock) || parsedStock < 0) {
       return res.status(400).json({ error: "Stock inválido" });
     }
 
@@ -82,8 +88,13 @@ export const createProduct = async (req, res) => {
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     const product = await Products.create({
-      ...req.body,
-      imageUrl, // agregamos la imagen al crear
+      title,
+      price: parsedPrice,
+      stock: parsedStock,
+      brand,
+      categoryId: parsedCategoryId,
+      available: parsedAvailable,
+      imageUrl,
     });
 
     res.status(201).json(product);
@@ -91,6 +102,7 @@ export const createProduct = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 // Obtener productos con filtros
 
