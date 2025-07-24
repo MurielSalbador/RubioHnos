@@ -3,6 +3,6 @@ import { Sequelize } from "sequelize";
 
 export const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: './PetCareShop_User.sqlite',
+  storage: './RubioHnosUser.sqlite',
   logging: false,
 });
