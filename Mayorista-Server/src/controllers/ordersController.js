@@ -1,13 +1,13 @@
-import Orders from "../models/orders.js";
+import Order from "../mongoModels/orders.mongo.js";
 
-// Obtener todos los pedidos (solo admin)
+// Obtener todos los pedidos (solo admin o superAdmin)
 export const getAllOrders = async (req, res) => {
   try {
     if (req.user.role !== "admin" && req.user.role !== "superAdmin") {
       return res.status(403).json({ error: "No autorizado para ver todos los pedidos" });
     }
 
-    const allOrders = await Orders.findAll();
+    const allOrders = await Order.find();
     res.json(allOrders);
   } catch (error) {
     console.error("Error al obtener pedidos:", error);
@@ -15,19 +15,20 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-
-
 // Obtener pedidos de un usuario específico
 export const getOrdersByUserEmail = async (req, res) => {
   try {
     const { email } = req.params;
 
-    // Opcional: verificar que el usuario que hace la consulta coincide con el email, o es admin
-    if (req.user.email !== email && req.user.role !== "admin" && req.user.role !== "superAdmin") {
+    if (
+      req.user.email !== email &&
+      req.user.role !== "admin" &&
+      req.user.role !== "superAdmin"
+    ) {
       return res.status(403).json({ error: "No autorizado para ver estos pedidos" });
     }
 
-    const userOrders = await Orders.findAll({ where: { email } });
+    const userOrders = await Order.find({ email });
     res.json(userOrders);
   } catch (error) {
     console.error("Error al obtener los pedidos del usuario:", error);
@@ -45,7 +46,7 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ error: "Faltan datos del pedido" });
     }
 
-    const newOrder = await Orders.create({
+    const newOrder = await Order.create({
       name,
       city,
       address,
@@ -53,6 +54,7 @@ export const createOrder = async (req, res) => {
       items,
       total,
       email: userEmail,
+      status: "Pendiente", // valor por defecto
     });
 
     res.status(201).json(newOrder);
@@ -62,8 +64,7 @@ export const createOrder = async (req, res) => {
   }
 };
 
-
-// Actualizar estado de un pedido (solo admin)
+// Actualizar estado de un pedido (solo admin o superAdmin)
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +79,7 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ error: "Estado inválido" });
     }
 
-    const order = await Orders.findByPk(id);
+    const order = await Order.findById(id);
     if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
 
     order.status = status;
@@ -91,7 +92,7 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Borrar pedido por id (solo admin y pedido completado)
+// Borrar pedido por id (solo superAdmin y si está completado)
 export const deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,14 +101,14 @@ export const deleteOrder = async (req, res) => {
       return res.status(403).json({ error: "No autorizado para eliminar pedidos" });
     }
 
-    const order = await Orders.findByPk(id);
+    const order = await Order.findById(id);
     if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
 
     if (order.status !== "Completado") {
       return res.status(400).json({ error: "Solo se pueden eliminar pedidos completados" });
     }
 
-    await order.destroy();
+    await Order.deleteOne({ _id: id });
 
     res.json({ message: "Pedido eliminado correctamente" });
   } catch (error) {

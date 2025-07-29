@@ -1,16 +1,73 @@
-import { Sequelize, Op } from "sequelize";
-import { sequelize } from "../db.js";
-import { Products } from "../models/products.js";
-import { Categories } from "../models/categories.js";
+import Product from "../mongoModels/products.mongo.js";
+import Category from "../mongoModels/categories.mongo.js";
 
-// Decerementar stock
+// 🔻 Crear producto
+export const createProduct = async (req, res) => {
+  try {
+    const { title, price, brand, stock, categoryId, available } = req.body;
+
+    if (!title || !brand) {
+      return res.status(400).json({ error: "Faltan campos obligatorios: título o marca" });
+    }
+
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const product = await Product.create({
+      title,
+      price: parseFloat(price),
+      stock: parseInt(stock),
+      brand,
+      category: categoryId,
+      available: available === "true" || available === true,
+      imageUrl,
+    });
+
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// 🔻 Obtener todos los productos con filtros
+export const getAllProducts = async (req, res) => {
+  try {
+    const { brand, category, minPrice, maxPrice, sortByPrice } = req.query;
+
+    const query = {};
+    if (brand && brand !== "all") {
+      query.brand = { $regex: new RegExp(`^${brand}$`, "i") };
+    }
+
+    if (category && category !== "all") {
+      const cat = await Category.findOne({ nombre: { $regex: new RegExp(`^${category}$`, "i") } });
+      if (!cat) return res.status(404).json({ error: "Categoría no encontrada" });
+      query.category = cat._id;
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+
+    const sort = {};
+    if (sortByPrice === "asc") sort.price = 1;
+    else if (sortByPrice === "desc") sort.price = -1;
+
+    const products = await Product.find(query).sort(sort).populate("category", "nombre");
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// 🔻 Decrementar stock individual
 export const decrementStock = async (req, res) => {
   const { productId, quantity } = req.body;
 
   try {
-    const product = await Products.findByPk(productId);
-    if (!product)
-      return res.status(404).json({ message: "Producto no encontrado" });
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
 
     if (product.stock < quantity) {
       return res.status(400).json({ message: "Stock insuficiente" });
@@ -25,278 +82,113 @@ export const decrementStock = async (req, res) => {
   }
 };
 
-//decrementacion multiple
+// 🔻 Decrementar múltiples productos
 export const decrementMultipleStock = async (req, res) => {
   const updates = req.body;
 
   try {
-    console.log("Recibido para actualizar stock:", updates);
-
     for (const { productId, quantity } of updates) {
-      const product = await Products.findByPk(productId);
-      if (!product) {
-        console.log(`Producto con ID ${productId} no encontrado`);
-        continue;
-      }
+      const product = await Product.findById(productId);
+      if (!product) continue;
 
       if (product.stock < quantity) {
-        return res
-          .status(400)
-          .json({ message: `Stock insuficiente para ${product.title}` });
+        return res.status(400).json({ message: `Stock insuficiente para ${product.title}` });
       }
 
       product.stock -= quantity;
       await product.save();
-      console.log(`Nuevo stock de ${product.title}: ${product.stock}`);
     }
 
     res.json({ message: "Stock de productos actualizado" });
   } catch (error) {
-    console.error("Error al actualizar el stock:", error);
-    res
-      .status(500)
-      .json({ message: "Error al actualizar múltiples productos", error });
+    res.status(500).json({ message: "Error al actualizar múltiples productos", error });
   }
 };
 
-// Crear producto
-
-export const createProduct = async (req, res) => {
-  try {
-    const { title, price, brand, stock, categoryId, available } = req.body;
-
-    if (!title || !brand) {
-      return res
-        .status(400)
-        .json({ error: "Faltan campos obligatorios: título o marca" });
-    }
-
-    const parsedPrice = parseFloat(price);
-    const parsedStock = parseInt(stock);
-    const parsedCategoryId = parseInt(categoryId);
-    const parsedAvailable = available === "true";
-
-    if (isNaN(parsedPrice) || parsedPrice < 0) {
-      return res.status(400).json({ error: "Precio inválido" });
-    }
-
-    if (isNaN(parsedStock) || parsedStock < 0) {
-      return res.status(400).json({ error: "Stock inválido" });
-    }
-
-    // Si se subió archivo, construir la URL local
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
-    const product = await Products.create({
-      title,
-      price: parsedPrice,
-      stock: parsedStock,
-      brand,
-      categoryId: parsedCategoryId,
-      available: parsedAvailable,
-      imageUrl,
-    });
-
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-
-// Obtener productos con filtros
-
-export const getAllProducts = async (req, res) => {
-  try {
-    const { brand, category, minPrice, maxPrice, sortByPrice } = req.query;
-    console.log("Filtros recibidos:", {
-      brand,
-      category,
-      minPrice,
-      maxPrice,
-      sortByPrice,
-    });
-
-    const where = {};
-
-    if (brand && brand !== "all") {
-      where.brand = Sequelize.where(
-        Sequelize.fn("lower", Sequelize.col("brand")),
-        brand.toLowerCase()
-      );
-    }
-
-    if (category && category !== "all") {
-      console.log("Categories:", Categories);
-
-      const cat = await Categories.findOne({
-        where: Sequelize.where(
-          Sequelize.fn("lower", Sequelize.col("nombre")),
-          category.toLowerCase()
-        ),
-      });
-
-      if (!cat) {
-        console.log("Categoría no encontrada:", category);
-        return res.status(404).json({ error: "Categoría no encontrada" });
-      }
-
-      where.categoryId = cat.id;
-    }
-
-    if (minPrice && maxPrice) {
-      where.price = { [Op.between]: [Number(minPrice), Number(maxPrice)] };
-    } else if (minPrice) {
-      where.price = { [Op.gte]: Number(minPrice) };
-    } else if (maxPrice) {
-      where.price = { [Op.lte]: Number(maxPrice) };
-    }
-
-    let order = [];
-    if (sortByPrice === "asc") order.push(["price", "ASC"]);
-    else if (sortByPrice === "desc") order.push(["price", "DESC"]);
-
-    console.log("Consulta Sequelize - where:", where, "order:", order);
-
-    const products = await Products.findAll({
-      where,
-      order,
-      include: [
-        {
-          model: Categories,
-          attributes: ["id", "nombre"],
-        },
-      ],
-    });
-
-    res.json(products);
-  } catch (err) {
-    console.error("❌ Error en getAllProducts:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Obtener marcas únicas
+// 🔻 Obtener marcas únicas
 export const getUniqueBrands = async (req, res) => {
   try {
-    const brands = await Products.findAll({
-      attributes: [[sequelize.fn("DISTINCT", sequelize.col("brand")), "brand"]],
-    });
-
-    const brandList = brands.map((b) => b.brand);
-    res.json(brandList);
+    const brands = await Product.distinct("brand");
+    res.json(brands);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Obtener producto por ID
+// 🔻 Obtener producto por ID
 export const getProductById = async (req, res) => {
-  const { id } = req.params;
-  const product = await Products.findByPk(id);
-  if (!product)
-    return res.status(404).json({ error: "Producto no encontrado" });
-  res.json(product);
-};
-
-// Actualizar producto
-
-export const updateProduct = async (req, res) => {
-  const { id } = req.params;
-  const { title, price, stock, brand, categoryId, available } = req.body;
-
   try {
-    // Buscar producto
-    const product = await Products.findByPk(id);
-    if (!product) {
-      return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    // Validaciones y parseos
-    if (price !== undefined) {
-      const parsedPrice = parseFloat(price);
-      if (isNaN(parsedPrice) || parsedPrice < 0) {
-        return res.status(400).json({ error: "Precio inválido" });
-      }
-      product.price = parsedPrice;
-    }
-
-    if (stock !== undefined) {
-      const parsedStock = parseInt(stock);
-      if (isNaN(parsedStock) || parsedStock < 0) {
-        return res.status(400).json({ error: "Stock inválido" });
-      }
-      product.stock = parsedStock;
-    }
-
-    if (categoryId !== undefined) {
-      const parsedCategoryId = parseInt(categoryId);
-      if (isNaN(parsedCategoryId)) {
-        return res.status(400).json({ error: "Categoría inválida" });
-      }
-      product.categoryId = parsedCategoryId;
-    }
-
-    if (available !== undefined) {
-      product.available = available === "true" || available === true;
-    }
-
-    if (title !== undefined) product.title = title;
-    if (brand !== undefined) product.brand = brand;
-
-    // Imagen
-    if (req.file) {
-      product.imageUrl = `/uploads/${req.file.filename}`;
-    }
-
-    await product.save();
-
-    res.json({ message: "Producto actualizado correctamente", product });
-
+    const { id } = req.params;
+    const product = await Product.findById(id).populate("category", "nombre");
+    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+    res.json(product);
   } catch (err) {
-    console.error("❌ Error en updateProduct:", err);
-    res.status(500).json({ error: "Error al actualizar el producto", detalle: err.message });
+    res.status(500).json({ error: "Error al obtener el producto" });
   }
 };
 
+// 🔻 Actualizar producto
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
 
+    if (updateData.price) updateData.price = parseFloat(updateData.price);
+    if (updateData.stock) updateData.stock = parseInt(updateData.stock);
+    if (updateData.available !== undefined) {
+      updateData.available = updateData.available === "true" || updateData.available === true;
+    }
 
-// Eliminar producto
-export const deleteProduct = async (req, res) => {
-  const { id } = req.params;
-  const deleted = await Products.destroy({ where: { id } });
-  if (!deleted) return res.status(404).json({ error: "No se pudo eliminar" });
-  res.json({ message: "Producto eliminado" });
+    if (req.file) {
+      updateData.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const product = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+
+    res.json({ message: "Producto actualizado correctamente", product });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-// Obtener productos por categoría
-export const getProductsByCategory = async (req, res) => {
-  const { categoryId } = req.params;
+// 🔻 Eliminar producto
+export const deleteProduct = async (req, res) => {
   try {
-    const products = await Products.findAll({
-      where: { categoryId },
-      include: [{ model: Categories }],
-    });
+    const { id } = req.params;
+    const result = await Product.deleteOne({ _id: id });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "No se pudo eliminar" });
+    }
+    res.json({ message: "Producto eliminado" });
+  } catch (err) {
+    res.status(500).json({ error: "Error al eliminar producto" });
+  }
+};
+
+// 🔻 Obtener productos por categoría
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const products = await Product.find({ category: categoryId }).populate("category");
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener productos por categoría" });
   }
 };
 
+// 🔻 Obtener productos por marca (slug en lowercase)
 export const getProductsByBrand = async (req, res) => {
-  const { slug } = req.params;
-
   try {
-    const products = await Products.findAll({
-      where: Sequelize.where(
-        Sequelize.fn("lower", Sequelize.col("brand")),
-        slug.toLowerCase()
-      ),
-      include: [{ model: Categories }],
-    });
+    const { slug } = req.params;
+    const products = await Product.find({
+      brand: { $regex: new RegExp(`^${slug}$`, "i") },
+    }).populate("category");
 
-    if (!products.length)
+    if (!products.length) {
       return res.status(404).json({ error: "No se encontraron productos para esa marca" });
+    }
 
     res.json(products);
   } catch (error) {

@@ -1,25 +1,26 @@
-import { Categories } from '../models/categories.js';
+import Category from '../mongoModels/categories.mongo.js';
 
 export const getAllCategories = async (req, res) => {
   try {
-    const categories = await Categories.findAll();
+    const categories = await Category.find(); // sin .findAll()
     res.json(categories);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener categorías' });
   }
 };
 
-// controllers/categoryController.js
 export const createCategory = async (req, res) => {
   try {
     const { nombre } = req.body;
     if (!nombre) return res.status(400).json({ error: "Nombre requerido" });
 
-    const [category, created] = await Categories.findOrCreate({
-      where: { nombre },
-    });
+    const existing = await Category.findOne({ nombre });
 
-    res.status(created ? 201 : 200).json(category);
+    if (existing) return res.status(200).json(existing);
+
+    const newCategory = await Category.create({ nombre });
+
+    res.status(201).json(newCategory);
   } catch (error) {
     res.status(500).json({ error: "Error al crear categoría" });
   }

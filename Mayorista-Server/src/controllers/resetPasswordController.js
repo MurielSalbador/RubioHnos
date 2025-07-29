@@ -1,32 +1,30 @@
 import nodemailer from "nodemailer";
-import User from "../models/user.js";
+import User from "../mongoModels/user.mongo.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 
 dotenv.config();
 
-// Enviar el email de recuperación
+// Enviar email de recuperación
 export const sendResetEmail = async (req, res) => {
   const { email } = req.body;
 
   try {
     console.log("[sendResetEmail] Recibido email:", email);
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email }); // Mongoose no usa .where
     if (!user) {
       console.log("[sendResetEmail] Usuario no encontrado.");
       return res.status(200).json({ message: "Si el correo está registrado, te enviamos un enlace." });
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || "rubio2025", { expiresIn: "1h" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "rubio2025", { expiresIn: "1h" });
     console.log("[sendResetEmail] Token generado:", token);
 
     const resetLink = `http://localhost:5173/reset-password/${token}`;
     console.log("[sendResetEmail] Enlace de reset:", resetLink);
 
-    console.log("MAIL_USER:", process.env.MAIL_USER);
-    console.log("MAIL_PASS:", process.env.MAIL_PASS);
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -34,8 +32,6 @@ export const sendResetEmail = async (req, res) => {
         pass: process.env.MAIL_PASS,
       },
     });
-
-    console.log("[sendResetEmail] Transporter creado");
 
     const mailOptions = {
       from: process.env.MAIL_USER,
@@ -49,8 +45,6 @@ export const sendResetEmail = async (req, res) => {
       `,
     };
 
-    console.log("[sendResetEmail] Opciones de mail listas");
-
     await transporter.sendMail(mailOptions);
     console.log("[sendResetEmail] Correo enviado");
 
@@ -62,14 +56,14 @@ export const sendResetEmail = async (req, res) => {
   }
 };
 
-// Cambiar la contraseña con token válido
+// Cambiar contraseña usando token
 export const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "rubio2025");
-    const user = await User.findByPk(decoded.id);
 
+    const user = await User.findById(decoded.id); // En Mongo usamos findById
     if (!user) {
       return res.status(400).json({ error: "Usuario no encontrado." });
     }
@@ -81,7 +75,7 @@ export const resetPassword = async (req, res) => {
     res.status(200).json({ message: "Contraseña actualizada correctamente." });
 
   } catch (error) {
-    console.error(error);
+    console.error("[resetPassword] Error:", error);
     res.status(400).json({ error: "Token inválido o expirado." });
   }
 };

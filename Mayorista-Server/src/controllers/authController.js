@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../mongoModels/user.mongo.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -7,20 +7,24 @@ import { UserRoles } from "../enums/enums.js";
 
 dotenv.config();
 
-// Parsear correos desde env (separados por coma)
-const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map(e => e.trim().toLowerCase());
-const superadminEmails = (process.env.SUPERADMIN_EMAILS || "").split(",").map(e => e.trim().toLowerCase());
+// Parsear emails de rol desde .env
+const adminEmails = (process.env.ADMIN_EMAILS || "")
+  .split(",")
+  .map(e => e.trim().toLowerCase());
 
-// Registro
+const superadminEmails = (process.env.SUPERADMIN_EMAILS || "")
+  .split(",")
+  .map(e => e.trim().toLowerCase());
+
+// === REGISTRO ===
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "Este email ya se encuentra registrado." });
+      return res.status(400).json({ message: "Este email ya está registrado." });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -35,7 +39,7 @@ export const register = async (req, res) => {
 
     const isTrustedEmail = [...adminEmails, ...superadminEmails].includes(email.toLowerCase());
 
-    const user = await User.create({
+    const newUser = new User({
       username,
       email,
       password: hash,
@@ -43,8 +47,10 @@ export const register = async (req, res) => {
       isVerified: isTrustedEmail,
     });
 
+    await newUser.save();
+
     if (!isTrustedEmail) {
-      const token = jwt.sign({ id: user.id }, process.env.JWT_EMAIL_SECRET, {
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_EMAIL_SECRET, {
         expiresIn: "1d",
       });
 
@@ -52,7 +58,7 @@ export const register = async (req, res) => {
 
       await sendEmail(
         email,
-        "Verificá tu cuenta en RubioHnos",
+        "Verificá tu cuenta en RubiHnos",
         `<h3>Hola ${username}!</h3>
          <p>Hacé clic en el siguiente enlace para verificar tu cuenta:</p>
          <a href="${verifyLink}">${verifyLink}</a>`
@@ -61,46 +67,37 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       message: isTrustedEmail
-        ? "Usuario creado exitosamente (BANDEJA DE SPAM!)."
-        : "Usuario creado. Revisá tu email para verificar tu cuenta.",
+        ? "Usuario creado exitosamente."
+        : "Usuario creado. Revisá tu email para verificar la cuenta.",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Registro error:", err);
     res.status(500).json({ error: "Error al registrar el usuario." });
   }
 };
 
-// Login
+// === LOGIN ===
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: "Usuario no encontrado" });
-    }
+    const user = await User.findOne({ email });
 
-    if (
-      user.isBlocked === 1 ||
-      user.isBlocked === true ||
-      user.isBlocked === "1"
-    ) {
+    if (!user) return res.status(401).json({ error: "Usuario no encontrado." });
+
+    if (user.isBlocked) {
       return res.status(403).json({ error: "Este usuario está bloqueado." });
     }
 
     if (!user.isVerified) {
-      return res.status(403).json({
-        error: "Tu cuenta no está verificada. Revisá tu email.",
-      });
+      return res.status(403).json({ error: "Tu cuenta no está verificada. Revisá tu email." });
     }
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      return res.status(401).json({ error: "Contraseña incorrecta" });
-    }
+    if (!valid) return res.status(401).json({ error: "Contraseña incorrecta." });
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
@@ -108,7 +105,7 @@ export const login = async (req, res) => {
     res.json({
       token,
       user: {
-        id: user.id,
+        id: user._id,
         username: user.username,
         email: user.email,
         role: user.role,
@@ -116,7 +113,27 @@ export const login = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
+    console.error("Login error:", err);
     res.status(500).json({ error: "Error al iniciar sesión." });
+  }
+};
+
+// === VERIFICACIÓN DE EMAIL ===
+export const verifyEmail = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "Cuenta verificada con éxito" });
+  } catch (err) {
+    console.error("Verificación fallida:", err);
+    res.status(400).json({ message: "Token inválido o expirado" });
   }
 };

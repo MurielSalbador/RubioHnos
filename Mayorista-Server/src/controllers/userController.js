@@ -1,11 +1,9 @@
-import User from "../models/user.js";
+import User from "../mongoModels/user.mongo.js";
 
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll({
-      attributes: ["id", "username", "email", "role", "isBlocked"],
-    });
+    const users = await User.find({}, "id username email role isBlocked");
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener los usuarios" });
@@ -22,14 +20,13 @@ export const updateUserRole = async (req, res) => {
   }
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
     user.role = role;
 
     // Modificar el dominio del email según el rol
     const usernameOnly = user.email.split("@")[0];
-
     if (role === "user") {
       user.email = `${usernameOnly}@gmail.com`;
     } else if (role === "admin") {
@@ -50,7 +47,7 @@ export const updateUserRole = async (req, res) => {
 export const toggleBlockUser = async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
     user.isBlocked = !user.isBlocked;
@@ -66,10 +63,9 @@ export const toggleBlockUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    await user.destroy();
     res.json({ message: "Usuario eliminado" });
   } catch (err) {
     res.status(500).json({ error: "Error al eliminar usuario" });
