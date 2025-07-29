@@ -12,15 +12,25 @@ export const createProduct = async (req, res) => {
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
+    console.log("Creando producto con datos:", {
+  title,
+  price,
+  stock,
+  brand,
+  categoryId,
+  available,
+  imageUrl
+});
+
     const product = await Product.create({
-      title,
-      price: parseFloat(price),
-      stock: parseInt(stock),
-      brand,
-      category: categoryId,
-      available: available === "true" || available === true,
-      imageUrl,
-    });
+  title,
+  price: parseFloat(price),
+  stock: parseInt(stock),
+  brand,
+  categoryId, // ✅ CORRECTO
+  available: available === "true" || available === true,
+  imageUrl,
+});
 
     res.status(201).json(product);
   } catch (err) {
