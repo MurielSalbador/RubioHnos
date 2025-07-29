@@ -1,5 +1,5 @@
 // src/seeders/seedProducts.js
-import { Products } from "../models/products.js";
+import { Products } from "../mongoModels/products.mongo.js";
 
 export const seedProducts = async () => {
   const count = await Products.count();
