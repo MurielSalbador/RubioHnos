@@ -88,4 +88,3 @@ startServer();
 app.get('/', (req, res) => {
   res.send('El backend funciona');
 });
-
