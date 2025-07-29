@@ -33,6 +33,7 @@ Products.belongsTo(Categories, { foreignKey: "categoryId" });
 console.log("Reset password routes cargadas");
 
 const app = express();
+app.use(express.json());
 app.use(cors());
 app.use((req, res, next) => {
   if (req.is('application/json')) {
