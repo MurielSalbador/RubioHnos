@@ -6,9 +6,11 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 
+import mongoose from "mongoose";  // <-- Importar mongoose
+
 // db
-import { sequelize } from "./db.js";           // DB productos
-import { sequelize as userDB } from "./dbUser.js"; // DB usuarios
+import { sequelize } from "./db.js";           // DB productos (SQL)
+import { sequelize as userDB } from "./dbUser.js"; // DB usuarios (SQL)
 import { seedProducts } from './seeders/seedProducts.js';
 
 // rutas
@@ -28,9 +30,7 @@ import "./models/user.js";
 Categories.hasMany(Products, { foreignKey: "categoryId" });
 Products.belongsTo(Categories, { foreignKey: "categoryId" });
 
-
 console.log("Reset password routes cargadas");
-
 
 const app = express();
 app.use(cors());
@@ -42,7 +42,6 @@ app.use((req, res, next) => {
   }
 });
 
-
 app.use("/uploads", express.static(path.resolve("uploads")));
 
 // Rutas existentes
@@ -53,20 +52,29 @@ app.use("/api/users", userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use("/api/password", resetPasswordRoutes);
 
-
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
+    // Conectar a MongoDB Atlas con Mongoose
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log("✅ Conectado a MongoDB Atlas");
+
+    // Autenticar Sequelize bases SQL
     await sequelize.authenticate();
-    await userDB.authenticate();   // autenticar también la base de usuarios
+    await userDB.authenticate();
 
-    console.log("Bases de datos conectadas.");
+    console.log("Bases de datos SQL conectadas.");
 
+    // Sincronizar esquemas y sembrar productos
     await sequelize.sync({ alter: true });
     await userDB.sync({ alter: true });
     await seedProducts();
 
+    // Iniciar servidor
     app.listen(PORT, () => {
       console.log(`Servidor escuchando en http://localhost:${PORT}`);
     });
@@ -80,3 +88,4 @@ startServer();
 app.get('/', (req, res) => {
   res.send('El backend funciona');
 });
+
