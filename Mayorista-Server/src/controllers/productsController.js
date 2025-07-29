@@ -33,9 +33,10 @@ export const createProduct = async (req, res) => {
 });
 
     res.status(201).json(product);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  }catch (err) {
+  console.log("Error en createProduct:", err); 
+  res.status(400).json({ error: err.message });
+}
 };
 
 // 🔻 Obtener todos los productos con filtros
@@ -51,7 +52,7 @@ export const getAllProducts = async (req, res) => {
     if (category && category !== "all") {
       const cat = await Category.findOne({ nombre: { $regex: new RegExp(`^${category}$`, "i") } });
       if (!cat) return res.status(404).json({ error: "Categoría no encontrada" });
-      query.category = cat._id;
+      query.categoryId = cat._id;
     }
 
     if (minPrice || maxPrice) {
@@ -64,7 +65,8 @@ export const getAllProducts = async (req, res) => {
     if (sortByPrice === "asc") sort.price = 1;
     else if (sortByPrice === "desc") sort.price = -1;
 
-    const products = await Product.find(query).sort(sort).populate("category", "nombre");
+    const products = await Product.find(query).sort(sort).populate("categoryId", "nombre"); 
+
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -129,7 +131,7 @@ export const getUniqueBrands = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id).populate("category", "nombre");
+    const product = await Product.findById(id).populate("categoryId", "nombre"); 
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
     res.json(product);
   } catch (err) {
@@ -181,7 +183,7 @@ export const deleteProduct = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const products = await Product.find({ category: categoryId }).populate("category");
+    const products = await Product.find({ category: categoryId }).populate("categoryId", "nombre"); 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener productos por categoría" });
@@ -194,7 +196,7 @@ export const getProductsByBrand = async (req, res) => {
     const { slug } = req.params;
     const products = await Product.find({
       brand: { $regex: new RegExp(`^${slug}$`, "i") },
-    }).populate("category");
+    }).populate("categoryId", "nombre"); 
 
     if (!products.length) {
       return res.status(404).json({ error: "No se encontraron productos para esa marca" });
