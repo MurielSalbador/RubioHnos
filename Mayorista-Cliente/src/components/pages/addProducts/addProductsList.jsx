@@ -83,7 +83,7 @@ function ProductList() {
                 </p>
                 <p>
                   <strong>Categoría:</strong>{" "}
-                  {getCategoryName(product.categoryId)}
+                  {product.categoryId?.nombre || "Sin categoría"}
                 </p>
                 <p>
                   <strong>Precio:</strong> $
@@ -99,7 +99,7 @@ function ProductList() {
                   <strong>Disponible:</strong> {product.available ? "Sí" : "No"}
                 </p>
                 {product.imageUrl && (
-                  <img src={product.imageUrl} alt={product.title} />
+                  <img src={`${API_URL}${product.imageUrl}`} alt={product.title} />
                 )}
               </div>
 

@@ -32,7 +32,7 @@ export default function Filters() {
         >
           <option value="all">Seleccionar categoría...</option>
           {categories.map((category) => (
-            <option key={category.id} value={category.nombre}>
+            <option key={category._id} value={category.nombre}>
               {category.nombre}
             </option>
           ))}

@@ -7,6 +7,9 @@ import { useFilters } from "../../../../hooks/useFilters.js";
 import { getAdjustedStock } from "../../../../utils/calculateStock.js";
 import "./ProductList.css";
 
+
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
+
 export default function ProductList() {
   // 👇 todos los hooks al principio
   const { filters } = useFilters();
@@ -31,9 +34,11 @@ export default function ProductList() {
   return (
     <div className="product-grid">
       {products.map((product) => (
-        <div key={product.id} className="product-card">
+       <div key={product._id} className="product-card">
           {/* 🔹 Imagen del producto */}
-          <img src={product.imageUrl} alt={product.title} />
+          {product.imageUrl && (
+  <img src={`${API_URL}${product.imageUrl}`} alt={product.title} />
+)}
           <h3 className="product-title">
             {product.title.length > 20
               ? `${product.title.slice(0, 80)}...`
@@ -69,7 +74,7 @@ export default function ProductList() {
               )}
 
               {/* 🔹 Nuevo botón "Ver más" */}
-              <button onClick={() => goToProductDetail(product.id)}>
+              <button onClick={() => goToProductDetail(product._id)}>
                 Ver más
               </button>
             </div>
