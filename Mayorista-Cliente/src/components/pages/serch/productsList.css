@@ -1,11 +1,12 @@
 /* Contenedor general */
-.products-container {
+.product-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr); /* ✅ 4 columnas fijas */
   gap: 2rem;
   padding: 2rem;
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
+  max-width: 1400px; /* limita el ancho total */
   background-color: #f0f0f0;
 }
 
@@ -14,18 +15,19 @@
   border-radius: 16px;
   background: #ffffff;
   padding: 1.5rem;
-  text-align: center;
-  height: 420px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-between; /* ✅ fuerza equilibrio vertical */
+  align-items: center;
+  height: 460px; /* ✅ altura fija real */
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #ddd; /* borde fino y suave */
-  position: relative;
+  border: 1px solid #ddd;
+  text-align: center;
   overflow: hidden;
 }
 
+/* Hover efecto */
 .product-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
@@ -33,28 +35,53 @@
 
 /* Imagen del producto */
 .product-card img {
-  max-width: 100%;
-  height: 180px;
+  height: 160px; /* ✅ altura fija */
+  width: 100%; /* ocupa ancho disponible */
+  max-height: 160px;
   object-fit: contain;
-  border-radius: 10px;
   margin-bottom: 1rem;
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
 /* Título */
 .product-card h3 {
-  font-size: 1.25rem;
+  min-height: 3.5rem; /* Espacio mínimo para 2 líneas aprox */
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 0.5rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  overflow-wrap: break-word; /* ✅ corta palabras largas si es necesario */
+  white-space: normal;        /* ✅ permite saltos de línea */
+  line-height: 1.3;           /* ✅ mejora legibilidad */
+  text-align: center;         /* Opcional, pero queda estético */
 }
 
 /* Texto */
 .product-card p {
   font-size: 1rem;
-  color: #6c4e1e; /* marrón suave, natural */
+  color: #6c4e1e;
   margin: 0.3rem 0;
   font-weight: 500;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@media (max-width: 1200px) {
+  .products-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .products-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .products-container {
+    grid-template-columns: 1fr;
+  }
 }

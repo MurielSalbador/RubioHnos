@@ -297,7 +297,7 @@ export default function Home() {
           {featuredProducts.slice(0, 5).map((product) => (
             <div className="category-card" key={product._id}>
               <img
-                src={product.imageUrl}
+                src={`${API_URL}${product.imageUrl}`}
                 alt={product.title}
                 className="category-image"
               />
