@@ -1,8 +1,11 @@
 import Product from "../mongoModels/products.mongo.js";
 import Category from "../mongoModels/categories.mongo.js";
+import mongoose from "mongoose";
 
 // 🔻 Crear producto
 export const createProduct = async (req, res) => {
+console.log("🛬 LLEGÓ LA REQUEST A createProduct");
+
   try {
     const { title, price, brand, stock, categoryId, available } = req.body;
 
@@ -10,34 +13,43 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ error: "Faltan campos obligatorios: título o marca" });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      return res.status(400).json({ error: "ID de categoría inválido" });
+    }
+
+    console.log("📩 req.body:", req.body);
+    console.log("📸 req.file:", req.file);
+
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    console.log("Creando producto con datos:", {
-  title,
-  price,
-  stock,
-  brand,
-  categoryId,
-  available,
-  imageUrl
-});
+    console.log("📤 Enviando al modelo:", {
+      title,
+      price,
+      stock,
+      brand,
+      categoryId,
+      available,
+      imageUrl,
+    });
 
     const product = await Product.create({
-  title,
-  price: parseFloat(price),
-  stock: parseInt(stock),
-  brand,
-  categoryId, // ✅ CORRECTO
-  available: available === "true" || available === true,
-  imageUrl,
-});
+      title,
+      price: parseFloat(price),
+      stock: parseInt(stock),
+      brand,
+      categoryId,
+      available: available === "true" || available === true,
+      imageUrl,
+    });
 
     res.status(201).json(product);
-  }catch (err) {
-  console.log("Error en createProduct:", err); 
-  res.status(400).json({ error: err.message });
-}
+  } catch (err) {
+    console.error("❌ Error en createProduct:", err.message);
+    console.error("🔍 Detalles:", err); // ❗️Este log es CLAVE
+    res.status(500).json({ error: err.message || "Error desconocido" });
+  }
 };
+
 
 // 🔻 Obtener todos los productos con filtros
 export const getAllProducts = async (req, res) => {
@@ -206,4 +218,5 @@ export const getProductsByBrand = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Error al obtener productos por marca" });
   }
+  
 };

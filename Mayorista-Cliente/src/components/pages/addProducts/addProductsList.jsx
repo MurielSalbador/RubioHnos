@@ -3,7 +3,7 @@ import axios from "axios";
 import ProductForm from "./AddProducts.jsx";
 import "./addProductsList.css";
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -38,7 +38,9 @@ function ProductList() {
   };
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm("¿Estás seguro que querés eliminar este producto?");
+    const confirm = window.confirm(
+      "¿Estás seguro que querés eliminar este producto?"
+    );
     if (!confirm) return;
 
     try {
@@ -60,10 +62,10 @@ function ProductList() {
   };
 
   // Función para obtener el nombre de la categoría desde el id
- const getCategoryName = (categoryId) => {
-  const category = categories.find((cat) => cat.id === categoryId);
-  return category ? category.nombre : "Sin categoría";
-};
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat._id === categoryId);
+    return category ? category.nombre : "Sin categoría";
+  };
 
   return (
     <div className="container-formAdd">
@@ -73,11 +75,16 @@ function ProductList() {
         <div className="admin-products">
           <h2>Productos Guardados</h2>
           {products.map((product) => (
-            <div key={product.id} className="admin-product-card">
+            <div key={product._id} className="admin-product-card">
               <div className="admin-product-info">
                 <h3>{product.title}</h3>
-                <p><strong>Marca:</strong> {product.brand}</p>
-                <p><strong>Categoría:</strong> {getCategoryName(product.categoryId)}</p>
+                <p>
+                  <strong>Marca:</strong> {product.brand}
+                </p>
+                <p>
+                  <strong>Categoría:</strong>{" "}
+                  {getCategoryName(product.categoryId)}
+                </p>
                 <p>
                   <strong>Precio:</strong> $
                   {Number(product.price).toLocaleString("es-AR", {
@@ -85,14 +92,24 @@ function ProductList() {
                     maximumFractionDigits: 2,
                   })}
                 </p>
-                <p><strong>Stock:</strong> {product.stock}</p>
-                <p><strong>Disponible:</strong> {product.available ? "Sí" : "No"}</p>
-                {product.imageUrl && <img src={product.imageUrl} alt={product.title} />}
+                <p>
+                  <strong>Stock:</strong> {product.stock}
+                </p>
+                <p>
+                  <strong>Disponible:</strong> {product.available ? "Sí" : "No"}
+                </p>
+                {product.imageUrl && (
+                  <img src={product.imageUrl} alt={product.title} />
+                )}
               </div>
 
               <div className="admin-product-actions">
-                <button onClick={() => handleEdit(product.id)}>✏️ Editar</button>
-                <button onClick={() => handleDelete(product.id)}>🗑️ Eliminar</button>
+                <button onClick={() => handleEdit(product._id)}>
+                  ✏️ Editar
+                </button>
+                <button onClick={() => handleDelete(product._id)}>
+                  🗑️ Eliminar
+                </button>
               </div>
             </div>
           ))}

@@ -6,6 +6,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import mongoose from "mongoose";
+import multer from "multer";
 
 // rutas
 import authRoutes from "./routes/auth.js";
@@ -14,6 +15,14 @@ import orderRoutes from "./routes/orders.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import categoryRoutes from './routes/category.routes.js';
 import resetPasswordRoutes from "./routes/resetPassword.routes.js";
+
+import fs from "fs";
+
+const uploadsDir = path.resolve("uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+  console.log("📂 Carpeta 'uploads' creada automáticamente");
+}
 
 console.log("Rutas cargadas correctamente");
 
@@ -31,6 +40,7 @@ app.use((req, res, next) => {
   }
 });
 
+// 📂 Servir archivos estáticos
 app.use("/uploads", express.static(path.resolve("uploads")));
 
 // Rutas de la API
@@ -40,6 +50,18 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/password", resetPasswordRoutes);
+
+
+// ⚠️ debe ir DESPUÉS de definir app.use("/api/...")
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError || err.message === "Formato de imagen no válido") {
+    console.error("❌ Error de Multer:", err.message);
+    return res.status(400).json({ error: err.message });
+  }
+
+  console.error("❌ Error inesperado:", err);
+  res.status(500).json({ error: "Error interno del servidor" });
+});
 
 const PORT = process.env.PORT || 3000;
 

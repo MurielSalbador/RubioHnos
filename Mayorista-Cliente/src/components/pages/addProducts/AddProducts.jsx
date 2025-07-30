@@ -53,7 +53,7 @@ function ProductForm({ productId, onSuccess }) {
         stock: "",
         image: null,
         available: false,
-        categoryId: "",   
+        categoryId: "",
       });
     }
   }, [productId]);
@@ -83,10 +83,9 @@ function ProductForm({ productId, onSuccess }) {
     }
 
     // Aquí definimos categoryIdToSend con categoría seleccionada o nueva
-    let categoryIdToSend = formData.categoryId;
+    let categoryIdToSend = formData.categoryId?._id || formData.categoryId;
 
     if (newCategory.trim() !== "") {
-      
       try {
         const token = localStorage.getItem("token");
         const config = {
@@ -103,12 +102,20 @@ function ProductForm({ productId, onSuccess }) {
           config
         );
 
-        categoryIdToSend = res.data.id;
+        categoryIdToSend = res.data._id;
       } catch (error) {
         alert("Error al crear la nueva categoría");
         return;
       }
     }
+
+    if (!categoryIdToSend || typeof categoryIdToSend !== "string") {
+      alert("Por favor seleccioná o escribí una categoría válida.");
+      setLoading(false);
+      return;
+    }
+
+console.log("📦 ID categoría final:", categoryIdToSend);
 
     const formToSend = new FormData();
     formToSend.append("title", formData.title);
@@ -116,11 +123,16 @@ function ProductForm({ productId, onSuccess }) {
     formToSend.append("price", priceParsed);
     formToSend.append("stock", stockParsed);
     formToSend.append("available", formData.available ? "true" : "false");
-    formToSend.append("categoryId", String(formData.categoryId));
+    formToSend.append("categoryId", categoryIdToSend);
 
     // Si hay imagen, agregarla
     if (formData.image) {
       formToSend.append("image", formData.image);
+    }
+
+    console.log("🧾 Datos a enviar:");
+    for (let [key, value] of formToSend.entries()) {
+      console.log(`${key}:`, value);
     }
 
     const token = localStorage.getItem("token");
@@ -159,12 +171,19 @@ function ProductForm({ productId, onSuccess }) {
 
       onSuccess?.();
     } catch (error) {
-      console.error(error);
-      console.error("Error al crear el producto:", error.response?.data);
-      alert("❌ Error al guardar el producto");
-    }finally {
-  setLoading(false); 
+      console.error("🛑 Error completo:", error);
+    console.error("❌ Error al crear el producto:");
+if (error.response) {
+  console.error("📨 Backend respondió:", error.response.data);
+  alert(`Error: ${error.response.data.error || "Error desconocido"}`);
+} else {
+  console.error("❌ Error inesperado:", error.message);
+  alert("Error inesperado al guardar el producto");
 }
+      alert("❌ Error al guardar el producto");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -232,15 +251,15 @@ function ProductForm({ productId, onSuccess }) {
         />
 
         {previewImage && (
-  <div className="preview-container">
-    <p>Vista previa de la imagen:</p>
-    <img
-      src={previewImage}
-      alt="Vista previa"
-      className="preview-image"
-    />
-  </div>
-)}
+          <div className="preview-container">
+            <p>Vista previa de la imagen:</p>
+            <img
+              src={previewImage}
+              alt="Vista previa"
+              className="preview-image"
+            />
+          </div>
+        )}
 
         <label>Categoría existente:</label>
         <select
@@ -250,7 +269,7 @@ function ProductForm({ productId, onSuccess }) {
         >
           <option value="">Selecciona una categoría</option>
           {categorias.map((cat) => (
-            <option key={cat.id} value={cat.id}>
+            <option key={cat._id} value={cat._id}>
               {cat.nombre}
             </option>
           ))}
@@ -275,8 +294,9 @@ function ProductForm({ productId, onSuccess }) {
         </label>
 
         <button type="submit" disabled={loading}>
-  {loading ? "Guardando..." : productId ? "Actualizar" : "Guardar"} Producto
-</button>
+          {loading ? "Guardando..." : productId ? "Actualizar" : "Guardar"}{" "}
+          Producto
+        </button>
       </form>
     </div>
   );
