@@ -125,8 +125,8 @@ const UserManagement = () => {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
+              <tr key={u._id}>
+                <td>{u._id}</td>
                 <td>{u.username}</td>
                 <td>{u.email}</td>
                 <td>{u.role}</td>
@@ -134,16 +134,16 @@ const UserManagement = () => {
                   <div className="actions">
                     <select
                       value={u.role}
-                      onChange={(e) => changeRole(u.id, e.target.value)}
+                      onChange={(e) => changeRole(u._id, e.target.value)}
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
                       <option value="superAdmin">SuperAdmin</option>
                     </select>
-                    <button onClick={() => toggleBlock(u.id)}>
+                    <button onClick={() => toggleBlock(u._id)}>
                       {u.isBlocked ? "Desbloquear" : "Bloquear"}
                     </button>
-                    <button onClick={() => deleteUser(u.id)}>Eliminar</button>
+                    <button onClick={() => deleteUser(u._id)}>Eliminar</button>
                   </div>
                 </td>
               </tr>

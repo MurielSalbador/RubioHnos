@@ -63,7 +63,7 @@ export const resetPassword = async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "rubio2025");
 
-    const user = await User.findById(decoded.id); // En Mongo usamos findById
+    const user = await User.findById(decoded._id); // En Mongo usamos findById
     if (!user) {
       return res.status(400).json({ error: "Usuario no encontrado." });
     }

@@ -4,7 +4,7 @@ function ListOfProducts({ products }) {
   return (
     <ul className='products-container'>
       {products.map(product => (
-        <li className='product-card' key={product.id}>
+        <li className='product-card' key={product._id}>
           <img src={product.imageUrl} alt={product.title} />
           <h3>{product.title}</h3>
           <p><strong>Marca:</strong> {product.brand}</p>

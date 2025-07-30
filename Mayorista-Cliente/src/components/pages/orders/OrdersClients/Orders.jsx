@@ -78,7 +78,7 @@ const Orders = () => {
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
+          order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
     } catch (error) {
@@ -112,7 +112,7 @@ const Orders = () => {
         return;
       }
 
-      setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
+      setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
     } catch (error) {
       alert("Error de red al eliminar pedido");
     } finally {
@@ -137,14 +137,14 @@ const Orders = () => {
     const prevStatus = getPrevStatus(order.status);
 
     return (
-      <div key={order.id} className={styles.orderCard}>
-        <strong>Pedido #{order.id}</strong> - {order.name}
+      <div key={order._id} className={styles.orderCard}>
+        <strong>Pedido #{order._id}</strong> - {order.name}
 
         <div className={styles.buttonsContainer}>
           {prevStatus && (
             <button
-              disabled={loadingIds.includes(order.id)}
-              onClick={() => changeStatus(order.id, prevStatus)}
+              disabled={loadingIds.includes(order._id)}
+              onClick={() => changeStatus(order._id, prevStatus)}
               title={`Volver a ${prevStatus}`}
             >
               {prevStatus}
@@ -153,8 +153,8 @@ const Orders = () => {
 
           {nextStatus && (
             <button
-              disabled={loadingIds.includes(order.id)}
-              onClick={() => changeStatus(order.id, nextStatus)}
+              disabled={loadingIds.includes(order._id)}
+              onClick={() => changeStatus(order._id, nextStatus)}
               title={`Avanzar a ${nextStatus}`}
             >
               {nextStatus}
@@ -165,8 +165,8 @@ const Orders = () => {
           {order.status === "Completado" && user?.role === "superAdmin" && (
             <button
               className={styles.trashButton}
-              onClick={() => handleDelete(order.id)}
-              disabled={loadingIds.includes(order.id)}
+              onClick={() => handleDelete(order._id)}
+              disabled={loadingIds.includes(order._id)}
               title="Eliminar pedido"
               style={{ marginLeft: "10px" }}
             >

@@ -34,7 +34,7 @@ export default function ProductList() {
   return (
     <div className="product-grid">
       {products.map((product) => (
-       <div key={product._id} className="product-card">
+       <div key={product._id || product.id} className="product-card">
           {/* 🔹 Imagen del producto */}
           {product.imageUrl && (
   <img src={`${API_URL}${product.imageUrl}`} alt={product.title} />

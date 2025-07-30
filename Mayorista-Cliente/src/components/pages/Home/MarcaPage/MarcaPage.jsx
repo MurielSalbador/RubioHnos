@@ -39,11 +39,11 @@ export default function MarcaPage() {
   };
 
   const handleRemoveFromCart = (product) => {
-    const productInCart = cart.find((item) => item.id === product.id);
+    const productInCart = cart.find((item) => item._id === product._id);
     const quantityInCart = productInCart ? productInCart.quantity : 0;
 
     if (quantityInCart > 0) {
-      removeCart(product.id);
+      removeCart(product._id);
       toast.info("Producto eliminado del carrito");
 
     } else {
@@ -63,11 +63,11 @@ export default function MarcaPage() {
 
       <ul className="product-list-marcaPage">
         {products.map((product) => {
-          const productInCart = cart.find((item) => item.id === product.id);
+          const productInCart = cart.find((item) => item._id === product._id);
           const quantityInCart = productInCart ? productInCart.quantity : 0;
 
           return (
-            <li key={product.id} className="product-card-marcaPage">
+            <li key={product._id} className="product-card-marcaPage">
               <img
                 src={
                   product.imageUrl ||

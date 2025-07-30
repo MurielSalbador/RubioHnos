@@ -76,13 +76,13 @@ const FinishCart = () => {
 
 // Agrega un producto al carrito, validando contra el stock disponible
 const addToCart = (product) => {
-  const existingProduct = cart.find((item) => item.id === product.id);
+  const existingProduct = cart.find((item) => item._id === product._id);
 
   if (existingProduct) {
     if (existingProduct.quantity < product.stock) {
       setCart(
         cart.map((item) =>
-          item.id === product.id
+          item._id === product._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
@@ -106,7 +106,7 @@ const addToCart = (product) => {
     const token = localStorage.getItem("token");
 
     const updates = cart.map((item) => ({
-      productId: item.id,
+      productId: item._id,
       quantity: item.quantity,
     }));
 

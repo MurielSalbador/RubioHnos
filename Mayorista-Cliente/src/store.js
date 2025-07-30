@@ -11,7 +11,7 @@ export const useCart = create(
       addCart: (item) =>
         set((state) => {
           const existingItem = state.cart.find(
-            (cartItem) => cartItem.id === item.id
+            (cartItem) => cartItem._id === item._id
           );
 
           if (existingItem) {
@@ -20,7 +20,7 @@ export const useCart = create(
               return {
                 count: state.count + 1,
                 cart: state.cart.map((cartItem) =>
-                  cartItem.id === item.id
+                  cartItem._id === item._id
                     ? { ...cartItem, quantity: cartItem.quantity + 1 }
                     : cartItem
                 ),
@@ -43,12 +43,12 @@ export const useCart = create(
 
       removeCart: (id) =>
         set((state) => {
-          const existingItem = state.cart.find((item) => item.id === id);
+          const existingItem = state.cart.find((item) => item._id === id);
           if (existingItem && existingItem.quantity > 1) {
             return {
               count: state.count - 1,
               cart: state.cart.map((cartItem) =>
-                cartItem.id === id
+                cartItem._id === id
                   ? { ...cartItem, quantity: cartItem.quantity - 1 }
                   : cartItem
               ),
@@ -56,7 +56,7 @@ export const useCart = create(
           }
           return {
             count: state.count - 1,
-            cart: state.cart.filter((item) => item.id !== id),
+            cart: state.cart.filter((item) => item._id !== id),
           };
         }),
 

@@ -33,7 +33,7 @@ export default function ProductDetail() {
   const cart = useCart((state) => state.cart);
 
   // Buscar el producto en el carrito para saber si está y cuántas unidades tiene
-  const productInCart = cart.find(item => item.id === product?.id);
+  const productInCart = cart.find(item => item._id === product?._id);
   const quantityInCart = productInCart ? productInCart.quantity : 0;
 
   // Función para agregar producto al carrito y actualizar stock
@@ -52,7 +52,7 @@ export default function ProductDetail() {
   // Nueva función para quitar producto del carrito y actualizar stock
   const handleRemoveFromCart = () => {
     if (quantityInCart > 0) {
-      removeCart(product.id);
+      removeCart(product._id);
       toast.info("Producto eliminado del carrito");
 
       queryClient.setQueryData(['product', id], (oldData) => {

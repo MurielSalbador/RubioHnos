@@ -34,7 +34,7 @@ export default function Cart() {
       <h3 className="cart-title">Cart:</h3>
       <ul className="cart-list">
         {filteredCart.map((item) => (
-          <li key={item.id + item.title} className="cart-item">
+          <li key={item._id + item.title} className="cart-item">
             <span className="item-name">
               {item.title.length > 20
                 ? `${item.title.slice(0, 80)}`
@@ -43,7 +43,7 @@ export default function Cart() {
             <div className="item-controls">
               <button
                 onClick={() => {
-                  removeCart(item.id);
+                  removeCart(item._id);
 
                   
                 }}
@@ -61,7 +61,7 @@ export default function Cart() {
                       ["products", filters],
                       (oldProducts) => {
                         return oldProducts.map((p) =>
-                          p.id === item.id ? { ...p, stock: p.stock - 1 } : p
+                          p._id === item._id ? { ...p, stock: p.stock - 1 } : p
                         );
                       }
                     );

@@ -295,7 +295,7 @@ export default function Home() {
         <h3 className="section-title">Algunos de nuestros productos</h3>
         <div className="category-grid">
           {featuredProducts.slice(0, 5).map((product) => (
-            <div className="category-card" key={product.id}>
+            <div className="category-card" key={product._id}>
               <img
                 src={product.imageUrl}
                 alt={product.title}
