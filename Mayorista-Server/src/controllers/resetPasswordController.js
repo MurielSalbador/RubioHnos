@@ -22,7 +22,7 @@ export const sendResetEmail = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "rubio2025", { expiresIn: "1h" });
     console.log("[sendResetEmail] Token generado:", token);
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
     console.log("[sendResetEmail] Enlace de reset:", resetLink);
 
     const transporter = nodemailer.createTransport({

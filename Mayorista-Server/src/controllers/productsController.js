@@ -20,7 +20,7 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
     console.log("📩 req.body:", req.body);
     console.log("📸 req.file:", req.file);
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? req.file.path : null; // ahora viene de Cloudinary
 
     console.log("📤 Enviando al modelo:", {
       title,
@@ -164,7 +164,7 @@ export const updateProduct = async (req, res) => {
     }
 
     if (req.file) {
-      updateData.imageUrl = `/uploads/${req.file.filename}`;
+       updateData.imageUrl = req.file.path; // URL de Cloudinary
     }
 
     const product = await Product.findByIdAndUpdate(id, updateData, { new: true });
