@@ -170,25 +170,40 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body };
+    const { title, price, brand, stock, categoryId, available } = req.body;
 
-    if (updateData.price) updateData.price = parseFloat(updateData.price);
-    if (updateData.stock) updateData.stock = parseInt(updateData.stock);
-    if (updateData.available !== undefined) {
-      updateData.available = updateData.available === "true" || updateData.available === true;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "ID de producto inválido" });
     }
 
-    if (req.file) {
-       updateData.imageUrl = req.file.path; // URL de Cloudinary
+    if (categoryId && !mongoose.Types.ObjectId.isValid(categoryId)) {
+      return res.status(400).json({ error: "ID de categoría inválido" });
     }
 
-    const product = await Product.findByIdAndUpdate(id, updateData, { new: true });
+    const imageUrl = getImageUrl(req);
 
-    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        ...(title && { title }),
+        ...(price && { price: parseFloat(price) }),
+        ...(stock && { stock: parseInt(stock) }),
+        ...(brand && { brand }),
+        ...(categoryId && { categoryId }),
+        ...(available !== undefined && { available: available === "true" || available === true }),
+        ...(imageUrl && { imageUrl }),
+      },
+      { new: true }
+    );
 
-    res.json({ message: "Producto actualizado correctamente", product });
+    if (!updatedProduct) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    res.status(200).json(updatedProduct);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Error en updateProduct:", err.message);
+    res.status(500).json({ error: err.message || "Error desconocido" });
   }
 };
 
