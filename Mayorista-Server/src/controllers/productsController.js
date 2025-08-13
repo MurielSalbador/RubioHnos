@@ -2,6 +2,20 @@ import Product from "../mongoModels/products.mongo.js";
 import Category from "../mongoModels/categories.mongo.js";
 import mongoose from "mongoose";
 
+const getImageUrl = (req) => {
+  if (!req.file) return null;
+
+  const path = req.file.path || req.file.url || "";
+
+  // Si ya es URL completa (Cloudinary, o algo que empiece con http)
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  // Si es ruta local, agregar dominio del backend
+  return `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+};
+
 // 🔻 Crear producto
 export const createProduct = async (req, res) => {
 console.log("🛬 LLEGÓ LA REQUEST A createProduct");
@@ -20,9 +34,7 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
     console.log("📩 req.body:", req.body);
     console.log("📸 req.file:", req.file);
 
-      const imageUrl = req.file
-      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-      : null;
+      const imageUrl = getImageUrl(req);
 
 
     console.log("📤 Enviando al modelo:", {
