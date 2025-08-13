@@ -20,7 +20,10 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
     console.log("📩 req.body:", req.body);
     console.log("📸 req.file:", req.file);
 
-    const imageUrl = req.file ? req.file.path : null; // ahora viene de Cloudinary
+      const imageUrl = req.file
+      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+      : null;
+
 
     console.log("📤 Enviando al modelo:", {
       title,
