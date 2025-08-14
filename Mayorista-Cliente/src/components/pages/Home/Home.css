@@ -491,8 +491,9 @@
 @media (max-width: 768px) {
   .home-hero-section {
     flex-direction: column-reverse;
-    justify-content: center;
-    text-align: center;
+    justify-content: flex-start; /* en vez de center */
+    align-items: center;
+    padding-top: 1rem; /* espacio desde arriba */
   }
 
   .home-hero-content {
@@ -532,5 +533,16 @@
 
   .barrita-img {
     margin: 0 auto;
+  }
+}
+
+/* Ocultar en celulares (pantallas de 768px o menos) */
+@media (max-width: 768px) {
+  .home-hero-image {
+    display: none !important;
+  }
+
+  .envios-info { /* clase que le vamos a agregar al Container */
+    display: none !important;
   }
 }

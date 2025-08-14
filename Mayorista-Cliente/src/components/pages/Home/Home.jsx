@@ -22,8 +22,7 @@ import Barrita from "../../../assets/img/barritaCereal.png"; // o la ruta correc
 import Header from "../../header/Header.jsx";
 
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
-
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 export default function Home() {
   const [search, setSearch] = useState("");
@@ -32,14 +31,17 @@ export default function Home() {
     sort: false,
   });
 
-
-  //wellcome
   const [userName, setUserName] = useState("");
-
-  //products
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  //redirigir a pages
+  // Detectar si es mobile
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   localStorage.setItem("fromPage", "home");
 
   useEffect(() => {
@@ -50,7 +52,6 @@ export default function Home() {
     setSearch(e.target.value);
   };
 
-  //welcome
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser && storedUser !== "undefined") {
@@ -65,7 +66,6 @@ export default function Home() {
     }
   }, []);
 
-  //productos en bbdd
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
@@ -76,7 +76,6 @@ export default function Home() {
         console.error("Error al cargar productos destacados:", error);
       }
     };
-
     fetchFeaturedProducts();
   }, []);
 
@@ -86,7 +85,7 @@ export default function Home() {
 
       <Header />
 
-      <section
+    <section
         className="home-hero-section"
         data-aos="fade-right"
         data-aos-duration="700"
@@ -104,15 +103,9 @@ export default function Home() {
           <p className="home-hero-slogan">✨ Comé rico. Comé natural.</p>
 
           <div className="home-hero-tags">
-            <p>
-              🍵 <strong>Infusiones artesanales</strong>
-            </p>
-            <p>
-              🌾 <strong>Productos sin TACC</strong>
-            </p>
-            <p>
-              🍫 <strong>Snacks saludables y ricos</strong>
-            </p>
+            <p>🍵 <strong>Infusiones artesanales</strong></p>
+            <p>🌾 <strong>Productos sin TACC</strong></p>
+            <p>🍫 <strong>Snacks saludables y ricos</strong></p>
           </div>
 
           <Link to="/shop">
@@ -120,58 +113,48 @@ export default function Home() {
           </Link>
         </div>
 
-        <img
-          src={backgroundHome}
-          alt="Mascota"
-          className="home-hero-image"
-          style={{ transform: "scaleX(1)" }}
-          data-aos="fade-left"
-          data-aos-duration="800"
-        />
+        {!isMobile && (
+          <img
+            src={backgroundHome}
+            alt="Mascota"
+            className="home-hero-image"
+            style={{ transform: "scaleX(1)" }}
+            data-aos="fade-left"
+            data-aos-duration="800"
+          />
+        )}
       </section>
 
-      <Container fluid className="bg-light py-3">
-        <Row className="text-center justify-content-center align-items-center">
-          <Col
-            xs={4}
-            md={3}
-            className="d-flex align-items-center justify-content-center gap-2"
-          >
-            <i className="fa-solid fa-truck-fast fa-2x text-dark"></i>
-            <div>
-              <strong>ENVÍOS A DOMICILIO</strong>
-              <br />
-              Sí, realizamos envíos a Rosario y alrededores con un costo
-              adicional.
-            </div>
-          </Col>
-          <Col
-            xs={4}
-            md={3}
-            className="d-flex align-items-center justify-content-center gap-2 border-start border-end"
-          >
-            <i className="fa-solid fa-wheat-awn fa-2x text-success"></i>
-            <div>
-              <strong>+100 PRODUCTOS</strong>
-              <br />
-              Infusiones, sin TACC, snacks saludables
-            </div>
-          </Col>
-
-          <Col
-            xs={4}
-            md={3}
-            className="d-flex align-items-center justify-content-center gap-2"
-          >
-            <i className="fa-solid fa-envelope-open-text fa-2x text-warning"></i>
-            <div>
-              <strong>CONSULTAS PERSONALIZADAS</strong>
-              <br />
-              Escribinos para recibir asesoramiento
-            </div>
-          </Col>
-        </Row>
-      </Container>
+       {!isMobile && (
+        <Container fluid className="bg-light py-3">
+          <Row className="text-center justify-content-center align-items-center">
+            <Col xs={4} md={3} className="d-flex align-items-center justify-content-center gap-2">
+              <i className="fa-solid fa-truck-fast fa-2x text-dark"></i>
+              <div>
+                <strong>ENVÍOS A DOMICILIO</strong>
+                <br />
+                Sí, realizamos envíos a Rosario y alrededores con un costo adicional.
+              </div>
+            </Col>
+            <Col xs={4} md={3} className="d-flex align-items-center justify-content-center gap-2 border-start border-end">
+              <i className="fa-solid fa-wheat-awn fa-2x text-success"></i>
+              <div>
+                <strong>+100 PRODUCTOS</strong>
+                <br />
+                Infusiones, sin TACC, snacks saludables
+              </div>
+            </Col>
+            <Col xs={4} md={3} className="d-flex align-items-center justify-content-center gap-2">
+              <i className="fa-solid fa-envelope-open-text fa-2x text-warning"></i>
+              <div>
+                <strong>CONSULTAS PERSONALIZADAS</strong>
+                <br />
+                Escribinos para recibir asesoramiento
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      )}
 
       <section className="info-section">
         <div className="barrita-img">

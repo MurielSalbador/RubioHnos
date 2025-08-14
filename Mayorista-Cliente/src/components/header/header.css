@@ -54,6 +54,9 @@ justify-content: center;
 }
 
 .link {
+    display: flex;
+    align-items: center;
+
   text-decoration: none;
   font-weight: 500;
   color: #333;
@@ -97,6 +100,18 @@ justify-content: center;
   border-radius: 2px;
 }
 
+
+.nav-center {
+  list-style: none;
+  gap: 2rem;
+  padding: 0;
+  margin: 0;
+  margin-right: 15rem; /* Solo escritorio */
+  flex-wrap: wrap;
+  font-weight: 500;
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .nav-menu {
@@ -123,8 +138,16 @@ justify-content: center;
     opacity: 1;
     pointer-events: auto;
   }
+      .nav-center {
+    margin-right: 0;         /* Quita el margen lateral en móvil */
+    align-items: center;     /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
 
-  .nav-center,
+ 
   .nav-right {
     display: flex;
     justify-content: center;
