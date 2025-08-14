@@ -5,17 +5,17 @@ import mongoose from "mongoose";
 const getImageUrl = (req) => {
   if (!req.file) return null;
 
-  // Multer-Cloudinary devuelve la URL en req.file.path
+
   if (req.file.path && req.file.path.startsWith("http")) {
     return req.file.path;
   }
 
-  // Fallback: si por algún motivo no está, intenta con secure_url
+
   if (req.file.secure_url) {
     return req.file.secure_url;
   }
 
-  // Último recurso: ruta local
+ 
   return `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 };
 
