@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AccountButton from "../pages/income/account/AccountButton.jsx";
 import { isSuperAdmin } from "../../utils/auth.js";
-import "./Header.css";
+import "./header.css";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
