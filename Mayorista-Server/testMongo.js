@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
-const uri = "mongodb+srv://MurielSalbador:lPV57COwRzyWtIq8@cluster0.qsuip80.mongodb.net/RubiHnos?retryWrites=true&w=majority&appName=Cluster0"; // poné tu string de conexión de MongoDB Atlas aquí
+const uri = process.env.MONGO_URI;
 
 const run = async () => {
   try {
@@ -14,7 +16,7 @@ const run = async () => {
     await doc.save();
 
     console.log("Documento guardado, colección creada.");
-    process.exit(0); // salir del proceso
+    process.exit(0);
   } catch (error) {
     console.error("Error:", error);
     process.exit(1);

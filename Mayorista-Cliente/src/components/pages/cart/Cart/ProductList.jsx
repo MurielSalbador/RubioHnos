@@ -37,7 +37,7 @@ export default function ProductList() {
        <div key={product._id || product.id} className="product-card">
           {/* 🔹 Imagen del producto */}
           {product.imageUrl && (
-  <img src={`${API_URL}${product.imageUrl}`} alt={product.title} />
+  <img src={product.imageUrl} alt={product.title} />
 )}
           <h3 className="product-title">
             {product.title.length > 20

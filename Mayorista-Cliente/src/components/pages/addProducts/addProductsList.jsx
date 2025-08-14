@@ -99,7 +99,7 @@ function ProductList() {
                   <strong>Disponible:</strong> {product.available ? "Sí" : "No"}
                 </p>
                 {product.imageUrl && (
-                  <img src={`${API_URL}${product.imageUrl}`} alt={product.title} />
+                  <img src={product.imageUrl} alt={product.title} />
                 )}
               </div>
 
