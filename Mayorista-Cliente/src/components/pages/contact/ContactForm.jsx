@@ -2,12 +2,11 @@ import React, { useRef } from "react";
 import emailjs from "@emailjs/browser";
 import "./ContactForm.css";
 import { useNavigate } from "react-router-dom";
-import AccountButton from "../income/account/AccountButton.jsx";
 import backgroundContact from "../../../assets/background/backgroundContact.jpeg";
 import { FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 //protected
-import { isSuperAdmin } from "../../../utils/auth.js";
+import Header from "../../header/Header.jsx";
 
 const ContactForm = () => {
   const form = useRef();
@@ -42,65 +41,7 @@ const ContactForm = () => {
   return (
     <>
       {/* ========== HEADER ========== */}
-      <header className="main-header">
-        <div className="header-actions">
-          <div className="nav-logo">
-            <a
-              href="/"
-              className="logo-text"
-              data-aos="fade-left"
-              data-aos-duration="600"
-              data-aos-delay="200"
-            >
-              <div className="logo-line-1">RubioHnos</div>
-              <div className="logo-line-2">mayorista</div>
-            </a>
-          </div>
-
-          <ul className="nav-center">
-            <li>
-              <a href="/" className="link">
-                <i className="fa-solid fa-house"></i> Home
-              </a>
-            </li>
-            <li>
-              <a href="/contact" className="link">
-                <i className="fa-solid fa-envelope"></i> Contactanos
-              </a>
-            </li>
-              <li>
-              <a href="/shop" className="link">
-                <i className="fa-solid fa-shop"></i> Tienda
-              </a>
-            </li>
-            <li>
-              <a href="/myOrders" className="link">
-                <i className="fa-solid fa-envelope"></i> Pedidos
-              </a>
-            </li>
-            {isSuperAdmin() && (
-              <li>
-                <a href="/httpClients" className="link">
-                  <i className="fa-solid fa-envelope"></i> Clientes
-                </a>
-              </li>
-            )}
-          </ul>
-
-          <ul className="nav-right">
-            <li>
-              <a href="/cart" className="link">
-                <i className="fa-solid fa-cart-shopping"></i> Mi carrito
-              </a>
-            </li>
-            <li>
-              <div className="link">
-                <AccountButton />
-              </div>
-            </li>
-          </ul>
-        </div>
-      </header>
+     <Header/>
 
       <section
         className="hero-section"

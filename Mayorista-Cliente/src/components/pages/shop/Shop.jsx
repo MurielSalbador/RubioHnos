@@ -10,10 +10,9 @@ import Cart from "../cart/Cart/Cart.jsx";
 import Filters from "../cart/Cart/Filters.jsx";
 
 //protected
-import { isAdminOrSuperAdmin, isSuperAdmin } from "../../../utils/auth.js";
+import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
 
-//account
-import AccountButton from "../income/account/AccountButton.jsx";
+import Header from "../../header/Header.jsx";
 
 //assets
 import Granola from "../../../assets/img/granola.png";
@@ -34,65 +33,7 @@ const Shop = () => {
 
   return (
     <>
-      <header className="main-header">
-        <div className="header-actions">
-          <div className="nav-logo">
-            <a
-              href="/"
-              className="logo-text"
-              data-aos="fade-left"
-              data-aos-duration="600"
-              data-aos-delay="200"
-            >
-              <div className="logo-line-1">RubioHnos</div>
-              <div className="logo-line-2">-Tienda Natural-</div>
-            </a>
-          </div>
-
-          <ul className="nav-center">
-            <li>
-              <a href="/" className="link">
-                <i className="fa-solid fa-house"></i> Home
-              </a>
-            </li>
-            <li>
-              <a href="/contact" className="link">
-                <i className="fa-solid fa-envelope"></i> Contactanos
-              </a>
-            </li>
-            <li>
-              <a href="/shop" className="link">
-                <i className="fa-solid fa-shop"></i> Tienda
-              </a>
-            </li>
-            <li>
-              <a href="/myOrders" className="link">
-                <i className="fa-solid fa-envelope"></i> Pedidos
-              </a>
-            </li>
-            {isSuperAdmin() && (
-              <li>
-                <a href="/httpClients" className="link">
-                  <i className="fa-solid fa-envelope"></i> Usuarios
-                </a>
-              </li>
-            )}
-          </ul>
-
-          <ul className="nav-right">
-            <li>
-              <a href="/cart" className="link">
-                <i className="fa-solid fa-cart-shopping"></i> Mi carrito
-              </a>
-            </li>
-            <li>
-              <div className="link">
-                <AccountButton />
-              </div>
-            </li>
-          </ul>
-        </div>
-      </header>
+      <Header />
 
       <QueryClientProvider client={queryClient}>
         <FiltersProvider>

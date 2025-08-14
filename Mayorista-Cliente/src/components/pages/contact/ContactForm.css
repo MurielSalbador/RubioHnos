@@ -449,24 +449,3 @@
   font-size: 1rem;
   font-weight: normal;
 }
-
-
-.nav-center,
-.nav-right {
-  list-style: none;
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-center li .link,
-.nav-right li .link {
-  text-decoration: none;
-  font-weight: 500;
-  color: #333;
-  transition: color 0.3s ease;
-}
-
-.nav-center li .link:hover,
-.nav-right li .link:hover {
-  color: #5e8c61;
-}

@@ -7,17 +7,19 @@ import backgroundHome from "../../../assets/background/backgroundHome.jpeg";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
 import { FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
+
 //account
-import AccountButton from "../income/account/AccountButton.jsx";
+
 
 //protected
-import { isSuperAdmin } from "../../../utils/auth.js";
+
 
 //corousel
 
 import CategoriesCarousel from "../Home/categoriesCarousel/CategoriesCarousel.jsx"; // o la ruta correcta
 
 import Barrita from "../../../assets/img/barritaCereal.png"; // o la ruta correcta
+import Header from "../../header/Header.jsx";
 
 
 const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
@@ -29,6 +31,7 @@ export default function Home() {
     search,
     sort: false,
   });
+
 
   //wellcome
   const [userName, setUserName] = useState("");
@@ -81,69 +84,7 @@ export default function Home() {
     <div className="home-container">
       {/* HEADER */}
 
-      <header className="main-header">
-        <div className="header-actions">
-          <div className="nav-logo">
-            <a
-              href="/"
-              className="logo-text"
-              data-aos="fade-left"
-              data-aos-duration="600"
-              data-aos-delay="200"
-            >
-              <div className="logo-line-1">RubioHnos</div>
-              <div className="logo-line-2">-Tienda Natural-</div>
-            </a>
-            
-          </div>
-
-          <ul className="nav-center">
-            <li>
-              <a href="/" className="link">
-                <i className="fa-solid fa-house"></i> Home
-              </a>
-            </li>
-            <li>
-              <a href="/contact" className="link">
-                <i className="fa-solid fa-envelope"></i> Contactanos
-              </a>
-            </li>
-            <li>
-              <a href="/shop" className="link">
-                <i className="fa-solid fa-shop"></i> Tienda
-              </a>
-            </li>
-            <li>
-              <a href="/myOrders" className="link">
-                <i className="fa-solid fa-envelope"></i> Pedidos
-              </a>
-            </li>
-            {isSuperAdmin() && (
-              <li>
-                <a href="/httpClients" className="link">
-                  <i className="fa-solid fa-envelope"></i> Clientes
-                </a>
-              </li>
-            )}
-          </ul>
-
-          <ul className="nav-right">
-            <li>
-              <div className="link"></div>
-            </li>
-            <li>
-              <a href="/cart" className="link">
-                <i className="fa-solid fa-cart-shopping"></i> Mi carrito
-              </a>
-            </li>
-            <li>
-              <div className="link">
-                <AccountButton />
-              </div>
-            </li>
-          </ul>
-        </div>
-      </header>
+      <Header />
 
       <section
         className="home-hero-section"
@@ -297,7 +238,7 @@ export default function Home() {
           {featuredProducts.slice(0, 5).map((product) => (
             <div className="category-card" key={product._id}>
               <img
-                src={`${API_URL}${product.imageUrl}`}
+                img src={product.imageUrl}
                 alt={product.title}
                 className="category-image"
               />
