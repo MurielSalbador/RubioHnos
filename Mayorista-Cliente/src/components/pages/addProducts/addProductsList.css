@@ -1,81 +1,122 @@
 
-/* Contenedor de todo */
+/* Contenedor principal tipo hoja */
 .admin-products {
-  max-width: 700px;
-  margin: 3rem auto;
-  padding: 0 1.5rem;
+  max-width: 95%; /* Aprovecha casi todo el ancho */
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+
+  /* Ahora es más flexible */
+  min-height: 80vh; /* Altura mínima */
+  overflow-x: auto; /* Scroll horizontal */
+  overflow-y: auto; /* Scroll vertical */
 }
 
-/* Título */
-.admin-products h2 {
-    margin-top: 200px;
-  text-align: center;
-  font-size: 2.5rem;
-  color: #555454;
-  margin-bottom: 2.5rem;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+/* Grilla de productos */
+.admin-products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Automático según ancho */
+  gap: 1.5rem;
+  min-width: 900px; /* Asegura que aparezca scroll horizontal si hay muchas columnas */
+  padding-top: 1rem;
 }
 
-/* Tarjeta de producto */
+/* Tarjeta individual */
 .admin-product-card {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  border: 4px solid transparent;
-  background-image:
-    linear-gradient(#fff, #fff),
-    linear-gradient(270deg,  #a8b8ca);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  animation: animate-border 10s linear infinite;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-/* Info del producto */
-.admin-product-info {
-  flex: 1;
-}
-
-.admin-product-info h3 {
-  margin-bottom: 0.5rem;
-  color: #222;
-  font-size: 1.3rem;
-}
-
-.admin-product-info p {
-  margin: 4px 0;
-  color: #444;
-  font-size: 0.95rem;
-}
-
-.admin-product-info img {
-  width: 120px;
   border-radius: 10px;
-  margin-top: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
-/* Botones */
-.admin-product-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
 }
 
-.admin-product-actions button {
-  padding: 0.6rem 1.2rem;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
+.admin-product-card:hover {
+  transform: scale(1.02);
 }
+
+/* Imagen centrada */
+.admin-product-info img {
+  width: 120px;
+  height: auto;
+  margin: 10px auto;
+}
+
+
+
+.admin-product-info h3 {
+  text-align: center;
+  margin: 5px 0;
+  max-width: 100%;          /* Que no supere el ancho de la tarjeta */
+  overflow: scroll;         /* Ocultar texto que se pase */
+  white-space: nowrap;      /* Evitar que salte de línea */
+  display: block;
+}
+
+
+/* Texto centrado */
+
+.admin-product-info p {
+  text-align: center;
+  margin: 5px 0;
+}
+
+/* Botones alineados */
+.admin-product-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 10px;
+}
+
+.img-product-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.title-product-list {
+  text-align: center;
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* Preparar para impresión */
+@media print {
+  body {
+    background: white;
+    margin: 0;
+  }
+
+  .admin-products {
+    box-shadow: none;
+    border: none;
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm;
+    page-break-after: always; /* Cada hoja = una página */
+  }
+
+  .admin-products-list {
+    grid-template-columns: repeat(2, 1fr); /* Mantener 2 columnas */
+    gap: 1rem;
+  }
+
+  .admin-product-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
+
+
 
 .admin-product-actions button:first-child {
   background-color: #2196f3;
@@ -95,6 +136,83 @@
   background-color: #8f0b0b;
 }
 
+/* Overlay oscuro atrás */
+.lowstock-overlay {
+  position: fixed;
+  inset: 0; /* top:0, right:0, bottom:0, left:0 */
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Modal principal */
+.lowstock-modal {
+  background: #fff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  width: 350px; /* tamaño fijo y compacto */
+  max-height: 70vh; /* no crece más del 70% de la pantalla */
+  overflow-y: auto; /* permite scrollear el contenido */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Título */
+.lowstock-modal h2 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #d9534f; /* rojo suave de alerta */
+  text-align: center;
+}
+
+/* Lista */
+.lowstock-modal ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.lowstock-modal li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Botón */
+.lowstock-modal button {
+  display: block;
+  margin: 0 auto;
+  padding: 8px 16px;
+  background: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.lowstock-modal button:hover {
+  background: #c9302c;
+}
+
+/* Animación entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
 /* Animación del borde */
 @keyframes animate-border {
   0% {
@@ -105,5 +223,118 @@
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+
+/* ============================= */
+/* 📱 Versión mobile / responsive */
+/* ============================= */
+
+@media (max-width: 768px) {
+  /* Contenedor principal */
+  .admin-products {
+    max-width: 100%;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+  }
+
+  /* Título más chico */
+  .admin-products h2 {
+    margin-top: 100px;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Tarjeta de producto: una columna en mobile */
+  .admin-product-card {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  /* Imagen más chica */
+  .admin-product-info img {
+    width: 90px;
+    margin: 0.5rem auto;
+    display: block;
+  }
+
+  /* Texto más compacto */
+  .admin-product-info h3 {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .admin-product-info p {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  /* Botones en fila en lugar de columna */
+  .admin-product-actions {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .admin-product-actions button {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  /* Modal */
+  .lowstock-modal {
+    width: 90%;
+    max-height: 65vh;
+    padding: 16px 18px;
+    border-radius: 10px;
+  }
+
+  .lowstock-modal h2 {
+    font-size: 16px;
+  }
+
+  .lowstock-modal li {
+    font-size: 13px;
+    padding: 4px 0;
+  }
+
+  .lowstock-modal button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+/* Extra pequeño (teléfonos < 480px) */
+@media (max-width: 480px) {
+  .admin-products h2 {
+    font-size: 1.5rem;
+  }
+
+  .admin-product-card {
+    padding: 0.8rem;
+    border-radius: 15px;
+  }
+
+  .admin-product-info h3 {
+    font-size: 1rem;
+  }
+
+  .admin-product-info p {
+    font-size: 0.8rem;
+  }
+
+  .admin-product-actions button {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+  }
+
+  .lowstock-modal {
+    max-height: 60vh;
   }
 }
