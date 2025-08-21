@@ -1,6 +1,6 @@
 /* Botón flotante visible solo en móvil */
 .floating-cart-btn {
-  position: absolute; 
+  position: fixed; 
   bottom: 20px;
   right: 20px;
   background-color: rgb(232, 17, 35);
@@ -380,9 +380,10 @@
 .item-name {
   flex: 3;
   font-size: 0.95rem;
-  white-space: normal;
+  white-space: normal; /* permitir varias líneas */
+  word-wrap: break-word; /* que corte solo si es necesario */
   overflow: visible;
-  word-break: break-word;
+  line-height: 1.4;
 }
 
 .item-controls {
