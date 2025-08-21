@@ -6,14 +6,12 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
 
-
 //cart
 import { FiltersProvider } from "../../../context/filters.jsx";
 import ProductList from "../cart/Cart/ProductList.jsx";
 import Cart from "../cart/Cart/Cart.jsx";
 import Filters from "../cart/Cart/Filters.jsx";
 import Header from "../../header/Header.jsx";
-
 
 //protected
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
@@ -40,16 +38,13 @@ const Shop = () => {
 
   localStorage.setItem("fromPage", "shop");
 
-useEffect(() => {
-  const isMobile = window.innerWidth <= 768; // 👈 ajuste según tu breakpoint
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 768; // 👈 ajuste según tu breakpoint
 
-  if (
-    isMobile &&
-    !sessionStorage.getItem("filtersAlertShown")
-  ) {
-    Swal.fire({
-      title: "✨ Tip de búsqueda",
-      html: `
+    if (isMobile && !sessionStorage.getItem("filtersAlertShown")) {
+      Swal.fire({
+        title: "✨ Tip de búsqueda",
+        html: `
         <p style="font-size:16px; color:#555;">
           Podés <b>filtrar</b> por 
           <span style="color:#4CAF50;">marca</span>, 
@@ -58,21 +53,21 @@ useEffect(() => {
           para encontrar más fácil tus productos con solo apretar el carrito.
         </p>
       `,
-      icon: "info",
-      confirmButtonText: "¡Entendido!",
-      confirmButtonColor: "#4CAF50",
-      background: "#fdfdfd",
-      color: "#333",
-      showClass: {
-        popup: "animate__animated animate__fadeInDown"
-      },
-      hideClass: {
-        popup: "animate__animated animate__fadeOutUp"
-      }
-    });
-    sessionStorage.setItem("filtersAlertShown", "true");
-  }
-}, []);
+        icon: "info",
+        confirmButtonText: "¡Entendido!",
+        confirmButtonColor: "#4CAF50",
+        background: "#fdfdfd",
+        color: "#333",
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
+      sessionStorage.setItem("filtersAlertShown", "true");
+    }
+  }, []);
 
   return (
     <>
@@ -80,19 +75,29 @@ useEffect(() => {
 
       <QueryClientProvider client={queryClient}>
         <FiltersProvider>
-          <main className="main" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="200">
+          <main
+            className="main"
+            data-aos="zoom-in"
+            data-aos-duration="600"
+            data-aos-delay="200"
+          >
             <div className="container">
               <section className="granola-section">
                 <div className="granola-img">
                   <img src={Granola} alt="mate" className="hero-granola" />
                 </div>
                 <div className="granola-text">
-                  <h1 className="granola-title">¡Bienvenido a nuestra tienda!</h1>
+                  <h1 className="granola-title">
+                    ¡Bienvenido a nuestra tienda!
+                  </h1>
                   <p className="granola-description">
-                    Aquí encontrarás una amplia variedad de productos para el cuidado de nuestra salud.
+                    Aquí encontrarás una amplia variedad de productos para el
+                    cuidado de nuestra salud.
                   </p>
                   <p>
-                    Explora nuestras categorías y descubre lo mejor para comenzar bien tu día. <strong>¡Disfruta de la calidad!</strong>
+                    Explora nuestras categorías y descubre lo mejor para
+                    comenzar bien tu día.{" "}
+                    <strong>¡Disfruta de la calidad!</strong>
                   </p>
                 </div>
               </section>
@@ -115,22 +120,28 @@ useEffect(() => {
 
               {/* Lista de productos filtrada */}
               <div className="content">
-                <div className="products-wrapper">
-                  <ProductList search={search} />
-                </div>
-                <div className="cart">
+                {/* Carrito arriba */}
+                <div className="cart-top">
                   <Filters />
                   <Cart />
                   <div className="classButton">
                     <Link to="/finish">Finalizar tu compra</Link>
                   </div>
                 </div>
+
+                {/* Lista de productos debajo */}
+                <div className="products-wrapper">
+                  <ProductList search={search} />
+                </div>
               </div>
             </div>
           </main>
 
           {/* Botón flotante solo en móviles */}
-          <button className="floating-cart-btn" onClick={() => setShowCartModal(true)}>
+          <button
+            className="floating-cart-btn"
+            onClick={() => setShowCartModal(true)}
+          >
             🛒
           </button>
 
@@ -145,11 +156,17 @@ useEffect(() => {
               <div className="footer-info">
                 <h3 className="footer-title">RubioHnos © 2025</h3>
                 <p className="footer-text">
-                  Somos una tienda dedicada a la venta de productos naturales y saludables. Nuestro objetivo es ofrecer lo mejor para su bienestar.
+                  Somos una tienda dedicada a la venta de productos naturales y
+                  saludables. Nuestro objetivo es ofrecer lo mejor para su
+                  bienestar.
                 </p>
               </div>
               <div className="footer-socials">
-                <a href="https://www.instagram.com/rubio.hnos" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://www.instagram.com/rubio.hnos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <FaInstagram />
                 </a>
               </div>
@@ -167,11 +184,18 @@ useEffect(() => {
           {showCartModal && (
             <div className="cart-modal">
               <div className="cart-modal-content">
-                <button className="close-cart-btn" onClick={() => setShowCartModal(false)}>✖</button>
+                <button
+                  className="close-cart-btn"
+                  onClick={() => setShowCartModal(false)}
+                >
+                  ✖
+                </button>
                 <Filters />
                 <Cart />
                 <div className="classButton">
-                  <Link to="/finish" onClick={() => setShowCartModal(false)}>Finalizar tu compra</Link>
+                  <Link to="/finish" onClick={() => setShowCartModal(false)}>
+                    Finalizar tu compra
+                  </Link>
                 </div>
               </div>
             </div>

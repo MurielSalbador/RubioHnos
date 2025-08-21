@@ -1,9 +1,9 @@
 /* Botón flotante visible solo en móvil */
 .floating-cart-btn {
-  position: fixed;
-  bottom: 80px; /* <-- Lo subimos un poco para evitar que lo tape la barra de navegación */
+  position: absolute; 
+  bottom: 20px;
   right: 20px;
-  background-color: #942a1b;
+  background-color: rgb(232, 17, 35);
   color: #fff;
   font-size: 1.5rem;
   padding: 14px 18px;
@@ -11,7 +11,7 @@
   border: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   cursor: pointer;
-  z-index: 999999; /* <-- Subimos la prioridad para que nunca quede debajo */
+   z-index: 9999; /* <- súbelo bastante */
   display: none;
 }
 
@@ -81,28 +81,31 @@
 
 /* Contenedor general flexible, limpio y espacioso */
 .content {
-  position: relative;
-  padding-top: 50px;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 2rem;
-  align-items: flex-start;
-  padding: 2rem 2rem;
-  flex-wrap: wrap;
+  padding: 2rem;
   background-color: #f4f4f4;
-  color: #000000;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  justify-content: flex-start;
+}
+
+.cart-top {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 800px; /* opcional */
+  width: 100%;
 }
 
 
 /* Productos ocupan más espacio */
 .products-wrapper {
-  flex: 3 1 600px;
-  min-width: 300px;
-  color: #000000;
-  border-radius: 8px;
-  padding: 1.2rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
 }
 
 
@@ -189,7 +192,7 @@
   padding: 1.2rem;
   padding-top: 3rem;
   box-shadow: 0 3px 10px rgba(0,0,0,0.12);
-  max-width: 500px;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -390,8 +393,8 @@
 }
 
 .item-controls button {
-  background-color: #5e8c61;
-  color: whitesmoke;
+  background-color: #29c7b4;
+  color: rgb(0, 0, 0);
   border: none;
   border-radius: 5px;
   padding: 5px 12px;
@@ -401,12 +404,12 @@
 }
 
 .item-controls button:hover {
-  background-color: #73bb79;
+  background-color: #088173;
 }
 
 .item-controls span {
   font-weight: 600;
-  color: whitesmoke;
+  color: rgb(0, 0, 0);
   min-width: 25px;
   text-align: center;
 }
@@ -452,7 +455,7 @@
   flex: 1;
   text-align: center;
   padding: 0.7rem 0;
-  background-color: #942a1b ;
+  background-color: rgb(232, 17, 35) ;
   color: whitesmoke;
   letter-spacing: 1px;
   border-radius: 10px;
@@ -476,17 +479,17 @@
   display: inline-block;
   padding: 10px 25px;
   color: whitesmoke;
-  background-color: rgb(17, 163, 231);
+  background-color: rgb(232, 17, 35);
   text-decoration: none;
   border-radius: 50px;
   font-weight: 600;
   transition: background-color 0.3s ease;
-  border: rgb(17, 163, 231) 3px solid;
+  border: rgb(232, 17, 35) 3px solid;
 }
 
 .classButtonAdd a:hover{
-  background-color: #2884fd;
-  border: #2884fd 3px solid;
+  background-color: rgb(232, 17, 35);
+  border: rgb(232, 17, 35) 3px solid;
   color: whitesmoke;
 }
 

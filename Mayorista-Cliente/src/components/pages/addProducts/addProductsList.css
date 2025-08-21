@@ -163,7 +163,7 @@
 .lowstock-modal h2 {
   font-size: 18px;
   margin-bottom: 12px;
-  color: #d9534f; /* rojo suave de alerta */
+  color: rgb(232, 17, 35); /* rojo suave de alerta */
   text-align: center;
 }
 
@@ -186,7 +186,7 @@
   display: block;
   margin: 0 auto;
   padding: 8px 16px;
-  background: #d9534f;
+  background: rgb(232, 17, 35);
   color: white;
   border: none;
   border-radius: 8px;

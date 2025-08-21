@@ -25,7 +25,7 @@ function ProductList() {
       console.log("Productos recibidos:", ordered);
 
       // 👉 filtrar productos con stock bajo
-      const lowStock = ordered.filter((p) => p.stock <= 3);
+      const lowStock = ordered.filter((p) => p.stock == 0);
       console.log("Productos con bajo stock:", lowStock);
 
       setProducts(ordered);
