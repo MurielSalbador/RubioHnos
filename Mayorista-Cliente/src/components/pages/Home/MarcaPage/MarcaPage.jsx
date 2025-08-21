@@ -8,7 +8,7 @@ import "./MarcaPage.css";
 import { useCart } from "../../../../store.js";
 import { getAdjustedStock } from "../../../../utils/calculateStock.js";
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 export default function MarcaPage() {
   const { slug } = useParams();
@@ -18,11 +18,7 @@ export default function MarcaPage() {
   const removeCart = useCart((state) => state.removeCart);
   const cart = useCart((state) => state.cart);
 
-  const {
-    data: products = [],
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: products = [], isLoading, error } = useQuery({
     queryKey: ["products", slug],
     queryFn: async () => {
       const res = await fetch(`${API_URL}/api/products/brand/${slug}`);
@@ -45,7 +41,6 @@ export default function MarcaPage() {
     if (quantityInCart > 0) {
       removeCart(product._id);
       toast.info("Producto eliminado del carrito");
-
     } else {
       toast.info("No hay unidades de este producto en el carrito");
     }
@@ -57,6 +52,10 @@ export default function MarcaPage() {
 
   return (
     <div className="products-container">
+      <button className="back-button" onClick={() => window.history.back()}>
+        ← Volver
+      </button>
+
       <div className="product-title">
         <h2>Productos de la marca: {slug}</h2>
       </div>
@@ -114,4 +113,3 @@ export default function MarcaPage() {
     </div>
   );
 }
-

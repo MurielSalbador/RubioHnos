@@ -1,18 +1,22 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
-import { useState } from "react";
+import { FaInstagram } from "react-icons/fa";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import "animate.css";
+
 
 //cart
 import { FiltersProvider } from "../../../context/filters.jsx";
 import ProductList from "../cart/Cart/ProductList.jsx";
 import Cart from "../cart/Cart/Cart.jsx";
 import Filters from "../cart/Cart/Filters.jsx";
+import Header from "../../header/Header.jsx";
+
 
 //protected
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
-
-import Header from "../../header/Header.jsx";
 
 //assets
 import Granola from "../../../assets/img/granola.png";
@@ -23,13 +27,52 @@ import "./Shop.css";
 const queryClient = new QueryClient();
 
 const Shop = () => {
-  const [showCart, setShowCart] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
+  const [search, setSearch] = useState(""); // <-- nuevo estado de búsqueda
 
-  //boton cerrar redirija a shop cuando esta en shop
+  useEffect(() => {
+    if (showCartModal) {
+      document.body.classList.add("cart-open");
+    } else {
+      document.body.classList.remove("cart-open");
+    }
+  }, [showCartModal]);
+
   localStorage.setItem("fromPage", "shop");
-  <Link to="/cart" state={{ from: "shop" }}>
-    🛒 Mi carrito
-  </Link>;
+
+useEffect(() => {
+  const isMobile = window.innerWidth <= 768; // 👈 ajuste según tu breakpoint
+
+  if (
+    isMobile &&
+    !sessionStorage.getItem("filtersAlertShown")
+  ) {
+    Swal.fire({
+      title: "✨ Tip de búsqueda",
+      html: `
+        <p style="font-size:16px; color:#555;">
+          Podés <b>filtrar</b> por 
+          <span style="color:#4CAF50;">marca</span>, 
+          <span style="color:#2196F3;">categoría</span> y 
+          <span style="color:#FF9800;">precio</span> 
+          para encontrar más fácil tus productos con solo apretar el carrito.
+        </p>
+      `,
+      icon: "info",
+      confirmButtonText: "¡Entendido!",
+      confirmButtonColor: "#4CAF50",
+      background: "#fdfdfd",
+      color: "#333",
+      showClass: {
+        popup: "animate__animated animate__fadeInDown"
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp"
+      }
+    });
+    sessionStorage.setItem("filtersAlertShown", "true");
+  }
+}, []);
 
   return (
     <>
@@ -37,12 +80,7 @@ const Shop = () => {
 
       <QueryClientProvider client={queryClient}>
         <FiltersProvider>
-          <main
-            className="main"
-            data-aos="zoom-in"
-            data-aos-duration="600"
-            data-aos-delay="200"
-          >
+          <main className="main" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="200">
             <div className="container">
               <section className="granola-section">
                 <div className="granola-img">
@@ -65,14 +103,23 @@ const Shop = () => {
                 </div>
               )}
 
+              {/* Buscador */}
+              <div className="search-bar">
+                <input
+                  type="text"
+                  placeholder="Buscar por producto o categoría.."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              {/* Lista de productos filtrada */}
               <div className="content">
                 <div className="products-wrapper">
-                  <ProductList />
+                  <ProductList search={search} />
                 </div>
                 <div className="cart">
-                  <div>
-                    <Filters />
-                  </div>
+                  <Filters />
                   <Cart />
                   <div className="classButton">
                     <Link to="/finish">Finalizar tu compra</Link>
@@ -82,45 +129,55 @@ const Shop = () => {
             </div>
           </main>
 
-            <footer className="footer">
-                  <div className="footer-container">
-                    <div className="footer-logo-container">
-                      <div className="footer-logo-text">
-                        <div className="logo-line-1">RubioHnos</div>
-                        <div className="logo-line-2">-Tienda Natural-</div>
-                      </div>
-                    </div>
-                    <div className="footer-info">
-                      <h3 className="footer-title">RubioHnos © 2025</h3>
-                      <p className="footer-text">
-                        Somos una tienda dedicada a la venta de productos naturales y
-                        saludables. Nuestro objetivo es ofrecer lo mejor para su
-                        bienestar.
-                      </p>
-                    </div>
-                    <div className="footer-socials">
-                      
-                      <a
-                        href="https://www.instagram.com/rubio.hnos?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FaInstagram />
-                      </a>
-                    </div>
-                  </div>
-                  <div className="footer-bottom">
-                    <div className="footer-links">
-                      <a href="#">Términos</a>
-                      <a href="#">Privacidad</a>
-                      <a href="#">Contacto</a>
-                    </div>
-                  </div>
-                </footer>
+          {/* Botón flotante solo en móviles */}
+          <button className="floating-cart-btn" onClick={() => setShowCartModal(true)}>
+            🛒
+          </button>
+
+          <footer className="footer">
+            <div className="footer-container">
+              <div className="footer-logo-container">
+                <div className="footer-logo-text">
+                  <div className="logo-line-1">RubioHnos</div>
+                  <div className="logo-line-2">-Tienda Natural-</div>
+                </div>
+              </div>
+              <div className="footer-info">
+                <h3 className="footer-title">RubioHnos © 2025</h3>
+                <p className="footer-text">
+                  Somos una tienda dedicada a la venta de productos naturales y saludables. Nuestro objetivo es ofrecer lo mejor para su bienestar.
+                </p>
+              </div>
+              <div className="footer-socials">
+                <a href="https://www.instagram.com/rubio.hnos" target="_blank" rel="noopener noreferrer">
+                  <FaInstagram />
+                </a>
+              </div>
+            </div>
+            <div className="footer-bottom">
+              <div className="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Contacto</a>
+              </div>
+            </div>
+          </footer>
+
+          {/* Modal carrito */}
+          {showCartModal && (
+            <div className="cart-modal">
+              <div className="cart-modal-content">
+                <button className="close-cart-btn" onClick={() => setShowCartModal(false)}>✖</button>
+                <Filters />
+                <Cart />
+                <div className="classButton">
+                  <Link to="/finish" onClick={() => setShowCartModal(false)}>Finalizar tu compra</Link>
+                </div>
+              </div>
+            </div>
+          )}
         </FiltersProvider>
       </QueryClientProvider>
-
-      
     </>
   );
 };

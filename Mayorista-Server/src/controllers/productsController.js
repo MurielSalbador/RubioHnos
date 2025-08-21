@@ -76,15 +76,15 @@ export const getAllProducts = async (req, res) => {
     const { brand, category, minPrice, maxPrice, sortByPrice } = req.query;
 
     const query = {};
-    if (brand && brand !== "all") {
-      query.brand = { $regex: new RegExp(`^${brand}$`, "i") };
-    }
+if (brand && brand !== "all") {
+  query.brand = { $regex: brand, $options: "i" }; // búsqueda parcial e insensible a mayúsculas
+}
 
-    if (category && category !== "all") {
-      const cat = await Category.findOne({ nombre: { $regex: new RegExp(`^${category}$`, "i") } });
-      if (!cat) return res.status(404).json({ error: "Categoría no encontrada" });
-      query.categoryId = cat._id;
-    }
+if (category && category !== "all") {
+  const cat = await Category.findOne({ nombre: { $regex: category, $options: "i" } });
+  if (!cat) return res.status(404).json({ error: "Categoría no encontrada" });
+  query.categoryId = cat._id;
+}
 
     if (minPrice || maxPrice) {
       query.price = {};

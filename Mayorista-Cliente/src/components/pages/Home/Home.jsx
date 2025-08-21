@@ -7,12 +7,9 @@ import backgroundHome from "../../../assets/background/backgroundHome.jpeg";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
 import { FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
-
 //account
 
-
 //protected
-
 
 //corousel
 
@@ -20,7 +17,6 @@ import CategoriesCarousel from "../Home/categoriesCarousel/CategoriesCarousel.js
 
 import Barrita from "../../../assets/img/barritaCereal.png"; // o la ruta correcta
 import Header from "../../header/Header.jsx";
-
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
@@ -85,7 +81,7 @@ export default function Home() {
 
       <Header />
 
-    <section
+      <section
         className="home-hero-section"
         data-aos="fade-right"
         data-aos-duration="700"
@@ -103,9 +99,15 @@ export default function Home() {
           <p className="home-hero-slogan">✨ Comé rico. Comé natural.</p>
 
           <div className="home-hero-tags">
-            <p>🍵 <strong>Infusiones artesanales</strong></p>
-            <p>🌾 <strong>Productos sin TACC</strong></p>
-            <p>🍫 <strong>Snacks saludables y ricos</strong></p>
+            <p>
+              🍵 <strong>Infusiones artesanales</strong>
+            </p>
+            <p>
+              🌾 <strong>Productos sin TACC</strong>
+            </p>
+            <p>
+              🍫 <strong>Snacks saludables y ricos</strong>
+            </p>
           </div>
 
           <Link to="/shop">
@@ -125,18 +127,27 @@ export default function Home() {
         )}
       </section>
 
-       {!isMobile && (
+      {!isMobile && (
         <Container fluid className="bg-light py-3">
           <Row className="text-center justify-content-center align-items-center">
-            <Col xs={4} md={3} className="d-flex align-items-center justify-content-center gap-2">
+            <Col
+              xs={4}
+              md={3}
+              className="d-flex align-items-center justify-content-center gap-2"
+            >
               <i className="fa-solid fa-truck-fast fa-2x text-dark"></i>
               <div>
                 <strong>ENVÍOS A DOMICILIO</strong>
                 <br />
-                Sí, realizamos envíos a Rosario y alrededores con un costo adicional.
+                Sí, realizamos envíos a Rosario y alrededores con un costo
+                adicional.
               </div>
             </Col>
-            <Col xs={4} md={3} className="d-flex align-items-center justify-content-center gap-2 border-start border-end">
+            <Col
+              xs={4}
+              md={3}
+              className="d-flex align-items-center justify-content-center gap-2 border-start border-end"
+            >
               <i className="fa-solid fa-wheat-awn fa-2x text-success"></i>
               <div>
                 <strong>+100 PRODUCTOS</strong>
@@ -144,7 +155,11 @@ export default function Home() {
                 Infusiones, sin TACC, snacks saludables
               </div>
             </Col>
-            <Col xs={4} md={3} className="d-flex align-items-center justify-content-center gap-2">
+            <Col
+              xs={4}
+              md={3}
+              className="d-flex align-items-center justify-content-center gap-2"
+            >
               <i className="fa-solid fa-envelope-open-text fa-2x text-warning"></i>
               <div>
                 <strong>CONSULTAS PERSONALIZADAS</strong>
@@ -221,10 +236,11 @@ export default function Home() {
           {featuredProducts.slice(0, 5).map((product) => (
             <div className="category-card" key={product._id}>
               <img
-                img src={product.imageUrl}
+                src={product.imageUrl}
                 alt={product.title}
                 className="category-image"
               />
+
               <div className="category-title">{product.title}</div>
             </div>
           ))}
@@ -254,7 +270,6 @@ export default function Home() {
             </p>
           </div>
           <div className="footer-socials">
-            
             <a
               href="https://www.instagram.com/rubio.hnos?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
@@ -262,8 +277,6 @@ export default function Home() {
             >
               <FaInstagram />
             </a>
-           
-           
           </div>
         </div>
         <div className="footer-bottom">

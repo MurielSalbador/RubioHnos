@@ -1,5 +1,87 @@
+/* Botón flotante visible solo en móvil */
+.floating-cart-btn {
+  position: fixed;
+  bottom: 80px; /* <-- Lo subimos un poco para evitar que lo tape la barra de navegación */
+  right: 20px;
+  background-color: #942a1b;
+  color: #fff;
+  font-size: 1.5rem;
+  padding: 14px 18px;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  z-index: 999999; /* <-- Subimos la prioridad para que nunca quede debajo */
+  display: none;
+}
+
+/* Solo mostrar en móviles */
+@media (max-width: 768px) {
+  .floating-cart-btn {
+    display: block !important;
+  }
+
+  /* Ocultar el carrito fijo en móviles */
+  .cart {
+    display: none;
+  }
+}
+
+/* Modal carrito */
+.cart-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.cart-modal-content {
+  background: #fff;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.close-cart-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Contenedor general flexible, limpio y espacioso */
 .content {
+  position: relative;
   padding-top: 50px;
   display: flex;
   gap: 2rem;
