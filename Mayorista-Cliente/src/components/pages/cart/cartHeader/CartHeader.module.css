@@ -1,6 +1,6 @@
 .main {
   min-height: 100vh;
-  background-color: #eafcc1; ;
+  background-color: #f7efe0; ;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,7 +55,7 @@
 
 .classButton a {
   flex: 1;
-  background-color: #f35454;
+  background-color: rgb(232, 17, 35);
   color: white;
   padding: 0.8rem 1rem;
   text-align: center;

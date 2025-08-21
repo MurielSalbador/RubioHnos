@@ -28,7 +28,9 @@ export default function ProductList({ search = "" }) {
   
 
   // 🔹 Filtrado según buscador
-  const filteredProducts = products.filter((product) => {
+const filteredProducts = products
+  .filter((product) => product.available) // 👈 solo productos disponibles
+  .filter((product) => {
     const title = product.title?.toLowerCase() || "";
     const brand = product.brand?.toLowerCase() || "";
     const category = product.category?.toLowerCase() || "";
