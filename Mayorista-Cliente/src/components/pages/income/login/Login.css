@@ -16,15 +16,39 @@
   width: 100%;
   max-width: 1000px;
   height: 700px;
-
-
   transform: scale(0.85);
   transform-origin: center;
-  
   background-color: whitesmoke;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;     /* de fila a columna */
+    height: auto;              /* altura automática */
+    max-width: 400px;          /* más compacto */
+    margin: 20px;
+    transform: scale(1);       /* quitar el scale que aplasta */
+  }
+
+  .login-left {
+    display: none; /* ocultamos la imagen */
+  }
+
+  .login-right {
+    padding: 20px 15px;
+  }
+
+  .login-form {
+    box-shadow: none; /* menos recargado en mobile */
+    padding: 16px;
+  }
+
+  .text-center.mb-4 {
+    font-size: 24px;
+  }
 }
 
 .login-left, .login-right {

@@ -172,19 +172,37 @@ h3.text-center.mb-4 {
     flex-direction: column;
     height: auto;
     max-width: 400px;
-    margin: 30px 15px;
+    margin: 20px;
+    transform: scale(1);
   }
 
   .register-left {
-    height: 200px;
+    display: none; /* ocultamos la imagen lateral */
   }
 
   .register-right {
     padding: 20px 15px;
   }
 
+  .register-form {
+    width: 100%;
+  }
+
   .form-row {
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+  }
+
+  h3.text-center.mb-4 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .back-arrow {
+   
+   
+    font-size: 20px;   /* más chico */
+    padding: 4px;      /* menos espacio clickeable */
   }
 }
