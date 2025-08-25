@@ -124,9 +124,19 @@ export const verifyEmail = async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
-    const user = await User.findById(decoded.id);
+    console.log("Token decodificado:", decoded);
 
-    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+    const user = await User.findById(decoded.id);
+    console.log("Usuario encontrado:", user);
+
+    if (!user) {
+      console.error("Usuario no encontrado para el ID:", decoded.id);
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    if (user.isVerified) {
+      return res.status(200).json({ message: "La cuenta ya estaba verificada." });
+    }
 
     user.isVerified = true;
     await user.save();
@@ -137,3 +147,4 @@ export const verifyEmail = async (req, res) => {
     res.status(400).json({ message: "Token inválido o expirado" });
   }
 };
+
