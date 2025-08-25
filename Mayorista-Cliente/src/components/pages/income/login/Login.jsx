@@ -54,16 +54,7 @@ function Login() {
     }
     return;
   }
-
-  // ⚠ Verificación de cuenta
-  if (!data.user.isVerified) {
-    toast.error("📩 Verificá tu cuenta desde el correo electrónico.", {
-      position: "top-right",
-      autoClose: 3000,
-      theme: "colored",
-    });
-    return;
-  }
+ 
 
   // Guardar token y user en localStorage
   localStorage.setItem("token", data.token);

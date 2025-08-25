@@ -55,9 +55,6 @@ import MarcaPage from "./components/pages/Home/MarcaPage/MarcaPage.jsx";
 //categories carousel
 import CategoriesCarousel from "./components/pages/Home/categoriesCarousel/CategoriesCarousel.jsx";
 
-//verifyEmail
-import VerifyEmail from "./components/pages/income/register/verifyEmail/VerifyEmail.jsx";
-
 //css
 import "./App.css";
 
@@ -90,7 +87,7 @@ function App() {
           <Route path="/allOrders" element={<Orders />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<PwReset />} />
-          <Route path="/verify/:token" element={<VerifyEmail />} />
+          
           <Route
             path="/addProducts"
             element={
