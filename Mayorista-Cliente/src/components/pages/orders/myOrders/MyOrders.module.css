@@ -102,3 +102,40 @@
   margin-left: 8px;
   transition: transform 0.3s ease;
 }
+
+
+
+/* --- Responsive para celulares --- */
+@media (max-width: 600px) {
+  .myOrders {
+    padding: 1.5rem 1rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+  }
+
+  .orderItem {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .orderItem h3 {
+    font-size: 1.1rem;
+  }
+
+  .orderItem p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .orderItem details summary {
+    font-size: 1rem;
+  }
+
+  .orderItem details ul {
+    font-size: 0.9rem;
+    padding-left: 1.25rem;
+  }
+}

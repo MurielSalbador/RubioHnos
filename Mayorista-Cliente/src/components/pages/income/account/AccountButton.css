@@ -54,3 +54,30 @@
 .account-dropdown button:last-child {
   margin-bottom: 0; /* Evita margen en el último botón */
 }
+
+/* --- Celulares (hasta 600px) --- */
+@media (max-width: 600px) {
+  .account-dropdown {
+    position: fixed;       /* fijo en pantalla */
+    top: 60px;             /* un poco más abajo del header/botón */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;            /* casi todo el ancho */
+    max-width: 350px;      /* límite para no ser exagerado */
+    padding: 1.5rem 1rem;
+    border-radius: 10px;
+    text-align: center;    /* que quede más centrado el contenido */
+  }
+
+  .account-dropdown button {
+    font-size: 1rem;
+    padding: 0.9rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+  }
+
+  .account-dropdown p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+}

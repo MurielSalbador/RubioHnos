@@ -84,3 +84,75 @@
   background-color: #2563eb; /* Azul más oscuro */
   box-shadow: 0 5px 12px rgba(37, 99, 235, 0.6);
 }
+
+/* ===================== */
+/* 📱 RESPONSIVIDAD */
+/* ===================== */
+
+/* Tablets y pantallas medianas */
+@media (max-width: 768px) {
+  .ordersContainer {
+    padding: 20px;
+  }
+
+  .statusColumns {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .statusColumn {
+    min-height: auto;
+  }
+
+  .orderCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 15px;
+  }
+
+  .buttonsContainer {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .buttonsContainer button {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 120px;
+  }
+}
+
+/* Celulares pequeños */
+@media (max-width: 480px) {
+  .ordersContainer {
+    padding: 15px 10px;
+  }
+
+  .statusColumn {
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .statusColumn h2 {
+    font-size: 1rem;
+  }
+
+  .orderCard {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .buttonsContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .buttonsContainer button {
+    width: 100%;
+    margin: 4px 0;
+    font-size: 0.9rem;
+  }
+}

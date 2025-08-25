@@ -44,3 +44,47 @@
 .notfound-button:hover {
   background-color: #ff4c4c;
 }
+
+/* --- Tablets (hasta 900px) --- */
+@media (max-width: 900px) {
+  .notfound-title {
+    font-size: 4.5rem;
+  }
+
+  .notfound-subtitle {
+    font-size: 1.6rem;
+  }
+
+  .notfound-description {
+    font-size: 1rem;
+    max-width: 350px;
+  }
+
+  .notfound-button {
+    font-size: 0.95rem;
+    padding: 0.65rem 1.25rem;
+  }
+}
+
+/* --- Celulares (hasta 600px) --- */
+@media (max-width: 600px) {
+  .notfound-title {
+    font-size: 3rem;
+  }
+
+  .notfound-subtitle {
+    font-size: 1.3rem;
+  }
+
+  .notfound-description {
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
+
+  .notfound-button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    width: 100%; /* Botón full width en mobile */
+    max-width: 280px;
+  }
+}
