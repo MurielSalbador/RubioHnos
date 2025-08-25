@@ -25,6 +25,12 @@ export const sendResetEmail = async (req, res) => {
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
     console.log("[sendResetEmail] Enlace de reset:", resetLink);
 
+
+    console.log("MAIL_USER:", process.env.MAIL_USER);
+console.log("MAIL_PASS:", process.env.MAIL_PASS ? "OK" : "MISSING");
+console.log("CLIENT_URL:", process.env.CLIENT_URL);
+
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -45,8 +51,14 @@ export const sendResetEmail = async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log("[sendResetEmail] Correo enviado");
+    try {
+  await transporter.sendMail(mailOptions);
+  console.log("[sendResetEmail] Correo enviado correctamente");
+} catch (err) {
+  console.error("[sendResetEmail] Error al enviar:", err);
+  return res.status(500).json({ error: "No se pudo enviar el correo." });
+}
+
 
     res.status(200).json({ message: "Correo de recuperación enviado." });
 
