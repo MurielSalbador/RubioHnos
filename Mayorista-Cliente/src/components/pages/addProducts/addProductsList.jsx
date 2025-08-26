@@ -10,6 +10,7 @@ function ProductList() {
   const [categories, setCategories] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null);
   const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [search, setSearch] = useState(""); // 🔍 estado para buscador
 
   const fetchProducts = async () => {
     try {
@@ -83,6 +84,11 @@ function ProductList() {
     return category ? category.nombre : "Sin categoría";
   };
 
+   // 🔎 Filtrado por buscador (case insensitive)
+  const filteredProducts = products.filter((p) =>
+    p.title?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <>
       <div className="container-formAdd">
@@ -91,6 +97,16 @@ function ProductList() {
 
           <div className="admin-products">
             <h2 className="title-product-list"> Productos Guardados</h2>
+
+             {/* 🔍 Buscador */}
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Buscar producto..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
             <div className="admin-products-list">
               {products.map((product) => (
@@ -135,6 +151,10 @@ function ProductList() {
                   </div>
                 </div>
               ))}
+
+              {filteredProducts.length === 0 && (
+                <p style={{ marginTop: "1rem" }}>No se encontraron productos</p>
+              )}
             </div>
           </div>
         </div>
