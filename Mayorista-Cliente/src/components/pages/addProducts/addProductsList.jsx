@@ -84,7 +84,7 @@ function ProductList() {
     return category ? category.nombre : "Sin categoría";
   };
 
-   // 🔎 Filtrado por buscador (case insensitive)
+  // 🔎 Filtrado por buscador (case insensitive)
   const filteredProducts = products.filter((p) =>
     p.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -98,7 +98,7 @@ function ProductList() {
           <div className="admin-products">
             <h2 className="title-product-list"> Productos Guardados</h2>
 
-             {/* 🔍 Buscador */}
+            {/* 🔍 Buscador */}
             <div className="search-bar">
               <input
                 type="text"
@@ -109,50 +109,50 @@ function ProductList() {
             </div>
 
             <div className="admin-products-list">
-              {products.map((product) => (
-                <div key={product._id} className="admin-product-card">
-                  <div className="admin-product-info">
-                    <h3>{product.title}</h3>
-                    <p>
-                      <strong>Marca:</strong> {product.brand}
-                    </p>
-                    <p>
-                      <strong>Categoría:</strong>{" "}
-                      {product.categoryId?.nombre || "Sin categoría"}
-                    </p>
-                    <p>
-                      <strong>Precio:</strong> $
-                      {Number(product.price).toLocaleString("es-AR", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                    <p>
-                      <strong>Stock:</strong> {product.stock}
-                    </p>
-                    <p>
-                      <strong>Disponible:</strong>{" "}
-                      {product.available ? "Sí" : "No"}
-                    </p>
-                    <div className="img-product-list">
-                    {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.title} />
-                    )}
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <div key={product._id} className="admin-product-card">
+                    <div className="admin-product-info">
+                      <h3>{product.title}</h3>
+                      <p>
+                        <strong>Marca:</strong> {product.brand}
+                      </p>
+                      <p>
+                        <strong>Categoría:</strong>{" "}
+                        {product.categoryId?.nombre || "Sin categoría"}
+                      </p>
+                      <p>
+                        <strong>Precio:</strong> $
+                        {Number(product.price).toLocaleString("es-AR", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                      <p>
+                        <strong>Stock:</strong> {product.stock}
+                      </p>
+                      <p>
+                        <strong>Disponible:</strong>{" "}
+                        {product.available ? "Sí" : "No"}
+                      </p>
+                      <div className="img-product-list">
+                        {product.imageUrl && (
+                          <img src={product.imageUrl} alt={product.title} />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="admin-product-actions">
+                      <button onClick={() => handleEdit(product._id)}>
+                        ✏️ Editar
+                      </button>
+                      <button onClick={() => handleDelete(product._id)}>
+                        🗑️ Eliminar
+                      </button>
                     </div>
                   </div>
-
-                  <div className="admin-product-actions">
-                    <button onClick={() => handleEdit(product._id)}>
-                      ✏️ Editar
-                    </button>
-                    <button onClick={() => handleDelete(product._id)}>
-                      🗑️ Eliminar
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {filteredProducts.length === 0 && (
+                ))
+              ) : (
                 <p style={{ marginTop: "1rem" }}>No se encontraron productos</p>
               )}
             </div>
