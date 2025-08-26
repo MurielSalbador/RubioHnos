@@ -6,6 +6,8 @@ import ModalPurchase from "../../../modal/ModalPurchase.jsx";
 import CloseButton from "react-bootstrap/CloseButton";
 import styles from "./FinishCart.module.css";
 
+import { useQueryClient } from "@tanstack/react-query"; // *
+
 const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
 
 const FinishCart = () => {
@@ -48,6 +50,9 @@ const FinishCart = () => {
 
   //sum cart
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  //react query
+  const queryClient = useQueryClient();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -187,6 +192,8 @@ const addToCart = (product) => {
 
       const stockUpdated = await finishPurchase();
       if (!stockUpdated) return;
+
+       queryClient.invalidateQueries(["products"]);
 
       const message = `🛒 Nuevo Pedido Realizado por ${
         user.name || "usuario"
