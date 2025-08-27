@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const getUserRole = () => {
   if (typeof window === "undefined") return null; // 🚩 evita errores en build
