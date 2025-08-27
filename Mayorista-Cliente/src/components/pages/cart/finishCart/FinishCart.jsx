@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { useCart } from "../../../../store.js";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -133,6 +134,13 @@ const addToCart = (product) => {
 };
 
 
+useEffect(() => {
+  if (localStorage.getItem("showPurchaseModal") === "true") {
+    setShowModal(true);
+    localStorage.removeItem("showPurchaseModal");
+  }
+}, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { name, city, address } = formData;
@@ -218,12 +226,14 @@ const addToCart = (product) => {
 
     ¡Gracias por tu compra! 🙌`;
 
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=${
-        selectedContact.phone
-      }&text=${encodeURIComponent(message)}`;
+    const whatsappUrl = /Android|iPhone/i.test(navigator.userAgent)
+  ? `whatsapp://send?phone=${selectedContact.phone}&text=${encodeURIComponent(message)}`
+  : `https://api.whatsapp.com/send?phone=${selectedContact.phone}&text=${encodeURIComponent(message)}`;
+
+       // Guardamos flag para mostrar el modal cuando vuelva
+    localStorage.setItem("showPurchaseModal", "true");
 
       clearCart();
-      setShowModal(true);
       window.open(whatsappUrl, "_blank");
     } catch (err) {
       console.error("Error al guardar pedido:", err);

@@ -13,6 +13,7 @@ import { FiltersProvider } from './context/filters.jsx';
 // 👇 imports para interceptores
 import axios from "axios";
 import { logout } from "./utils/auth";
+import { jwtDecode } from "jwt-decode";
 
 const queryClient = new QueryClient();
 
@@ -20,35 +21,29 @@ const queryClient = new QueryClient();
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      logout();
+    // Si el status es 401 o 403, verificamos si el token realmente expiró
+    if ((error.response?.status === 401 || error.response?.status === 403)) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        logout();
+      } else {
+        try {
+          const decoded = jwtDecode(token);
+          const now = Date.now() / 1000;
+
+          // Si realmente expiró, hacemos logout; si no, ignoramos
+          if (decoded.exp < now) {
+            logout();
+          }
+        } catch {
+          logout();
+        }
+      }
     }
     return Promise.reject(error);
   }
 );
 
-if (typeof window !== "undefined") {
-  // Axios interceptor
-  axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        logout();
-      }
-      return Promise.reject(error);
-    }
-  );
-
-  // Fetch interceptor
-  const originalFetch = window.fetch;
-  window.fetch = async (...args) => {
-    const res = await originalFetch(...args);
-    if (res.status === 401 || res.status === 403) {
-      logout();
-    }
-    return res;
-  };
-}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
