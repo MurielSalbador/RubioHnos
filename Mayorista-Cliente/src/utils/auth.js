@@ -1,11 +1,13 @@
 import jwtDecode from "jwt-decode";
 
 export const getUserRole = () => {
+  if (typeof window === "undefined") return null; // 🚩 evita errores en build
   const user = JSON.parse(localStorage.getItem("user"));
   return user?.role || null;
 };
 
 export const isAdminOrSuperAdmin = () => {
+  if (typeof window === "undefined") return false; // 🚩
   try {
     const user = JSON.parse(localStorage.getItem("user"));
     return user?.role === "admin" || user?.role === "superAdmin";
@@ -15,6 +17,7 @@ export const isAdminOrSuperAdmin = () => {
 };
 
 export const isSuperAdmin = () => {
+  if (typeof window === "undefined") return false; // 🚩
   try {
     const user = JSON.parse(localStorage.getItem("user"));
     return user?.role === "superAdmin";
@@ -23,27 +26,26 @@ export const isSuperAdmin = () => {
   }
 };
 
-// 🔹 Cerrar sesión (borrar token y user del storage)
 export const logout = () => {
+  if (typeof window === "undefined") return; // 🚩
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "/login"; // redirige automáticamente al login
+  window.location.href = "/login";
 };
 
-// 🔹 Verificar expiración del token
 export const checkTokenExpiration = () => {
+  if (typeof window === "undefined") return; // 🚩
   const token = localStorage.getItem("token");
   if (!token) return;
 
   try {
     const decoded = jwtDecode(token);
-    const now = Date.now() / 1000; // tiempo actual en segundos
+    const now = Date.now() / 1000;
 
     if (decoded.exp < now) {
-      logout(); // si ya venció, cerrar sesión
+      logout();
     }
-  } catch (err) {
-    logout(); // si el token está dañado
+  } catch {
+    logout();
   }
 };
-

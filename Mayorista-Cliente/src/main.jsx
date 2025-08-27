@@ -27,17 +27,28 @@ axios.interceptors.response.use(
   }
 );
 
-// 🔹 Interceptor para fetch
-const originalFetch = window.fetch;
-window.fetch = async (...args) => {
-  const res = await originalFetch(...args);
+if (typeof window !== "undefined") {
+  // Axios interceptor
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        logout();
+      }
+      return Promise.reject(error);
+    }
+  );
 
-  if (res.status === 401 || res.status === 403) {
-    logout();
-  }
-
-  return res;
-};
+  // Fetch interceptor
+  const originalFetch = window.fetch;
+  window.fetch = async (...args) => {
+    const res = await originalFetch(...args);
+    if (res.status === 401 || res.status === 403) {
+      logout();
+    }
+    return res;
+  };
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
