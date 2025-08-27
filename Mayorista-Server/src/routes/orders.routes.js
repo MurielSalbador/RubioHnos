@@ -9,7 +9,7 @@ router.get("/", verifyToken, getAllOrders);
 router.get("/user/:email", verifyToken, getOrdersByUserEmail);  // <-- nueva ruta
 router.post("/", verifyToken, createOrder);
 router.patch("/:id/status", verifyToken, updateOrderStatus);
-router.delete("/orders/:id", verifyToken, deleteOrder);
+router.delete("/:id", verifyToken, deleteOrder);
 
 export default router;
 
