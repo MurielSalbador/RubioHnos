@@ -128,25 +128,39 @@ export const decrementStock = async (req, res) => {
 // 🔻 Decrementar múltiples productos
 export const decrementMultipleStock = async (req, res) => {
   const updates = req.body;
+  console.log("🛒 Updates recibidos en decrementMultipleStock:", updates);
 
   try {
     for (const { productId, quantity } of updates) {
+      console.log(`➡️ Procesando producto ${productId}, cantidad ${quantity}`);
       const product = await Product.findById(productId);
-      if (!product) continue;
+
+      if (!product) {
+        console.warn(`⚠️ Producto no encontrado: ${productId}`);
+        continue;
+      }
 
       if (product.stock < quantity) {
-        return res.status(400).json({ message: `Stock insuficiente para ${product.title}` });
+        return res.status(400).json({
+          message: `Stock insuficiente para ${product.title}`,
+        });
       }
 
       product.stock -= quantity;
       await product.save();
+      console.log(`✅ Nuevo stock de ${product.title}: ${product.stock}`);
     }
 
     res.json({ message: "Stock de productos actualizado" });
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar múltiples productos", error });
+    console.error("❌ Error en decrementMultipleStock:", error);
+    res.status(500).json({
+      message: "Error al actualizar múltiples productos",
+      error,
+    });
   }
 };
+
 
 // 🔻 Obtener marcas únicas
 export const getUniqueBrands = async (req, res) => {
@@ -229,7 +243,7 @@ export const deleteProduct = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const products = await Product.find({ category: categoryId }).populate("categoryId", "nombre"); 
+    const products = await Product.find({ categoryId }).populate("categoryId", "nombre"); 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener productos por categoría" });

@@ -105,35 +105,6 @@ const addToCart = (product) => {
   }
 };
 
-
-  //stock
- const finishPurchase = async () => {
-  try {
-    const token = localStorage.getItem("token");
-
-    const updates = cart.map((item) => ({
-      productId: item._id,
-      quantity: item.quantity,
-    }));
-
-    await fetch(`${API_URL}/api/products/decrement-multiple`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(updates),
-    });
-
-    return true;
-  } catch (error) {
-    console.error("Error al actualizar el stock:", error);
-    alert("Error al actualizar el stock. Intentá nuevamente.");
-    return false;
-  }
-};
-
-
 useEffect(() => {
   if (localStorage.getItem("showPurchaseModal") === "true") {
     setShowModal(true);
@@ -177,7 +148,7 @@ useEffect(() => {
       name,
       city,
       address,
-      items: cart,
+      items: cart.map(item => ({ _id: item._id, quantity: item.quantity })),
       total: total.toFixed(2),
       date: new Date().toLocaleString(),
     };
@@ -189,17 +160,15 @@ useEffect(() => {
       JSON.stringify([...previousOrders, newOrder])
     );
 
-    const token = localStorage.getItem("token");
+     const token = localStorage.getItem("token");
 
     try {
+     
       await axios.post(`${API_URL}/api/orders`, newOrder, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      const stockUpdated = await finishPurchase();
-      if (!stockUpdated) return;
 
        queryClient.invalidateQueries(["products"]);
 
@@ -350,7 +319,7 @@ useEffect(() => {
                       name,
                       city,
                       address,
-                      items: cart,
+                      items: cart.map(item => ({ _id: item._id, quantity: item.quantity })),
                       total: total.toFixed(2),
                       date: new Date().toLocaleString(), // <- agregar esto
                     };

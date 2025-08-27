@@ -39,9 +39,9 @@ router.put(
 // Rutas públicas
 router.get("/", getAllProducts);
 router.get("/brands", getUniqueBrands);
-router.get("/:id", getProductById);
 router.get("/category/:categoryId", getProductsByCategory);
 router.get("/brand/:slug", getProductsByBrand);
+router.get("/:id", getProductById);
 
 // Rutas protegidas para admin y superAdmin
 router.post(

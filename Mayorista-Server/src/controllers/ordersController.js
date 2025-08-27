@@ -1,13 +1,52 @@
 import Order from "../mongoModels/orders.mongo.js";
+import Product from "../mongoModels/products.mongo.js";
 
-// Obtener todos los pedidos (solo admin o superAdmin)
+// 📌 Crear pedido y descontar stock
+export const createOrder = async (req, res) => {
+  try {
+    const { name, city, address, items, total } = req.body;
+    const userEmail = req.user.email;
+
+    if (!name || !city || !address || !items || items.length === 0 || !total) {
+      return res.status(400).json({ error: "Faltan datos del pedido o el carrito está vacío" });
+    }
+
+    // 🔽 Validar stock y descontar
+ await Promise.all(items.map(async ({ _id, quantity }) => {
+  const product = await Product.findById(_id);
+  if (!product) throw new Error(`Producto no encontrado: ${_id}`);
+  if (product.stock < quantity) throw new Error(`Stock insuficiente para ${product.title}`);
+  product.stock -= quantity;
+  await product.save();
+}));
+
+    // Crear pedido
+    const newOrder = await Order.create({
+      name,
+      city,
+      address,
+      items,
+      total,
+      email: userEmail,
+      date: new Date().toISOString(),
+      status: "Pendiente", // valor inicial
+    });
+
+    res.status(201).json({ message: "Pedido creado con éxito", order: newOrder });
+  } catch (error) {
+    console.error("❌ Error al crear pedido:", error);
+    res.status(500).json({ error: "Error al crear pedido" });
+  }
+};
+
+// 📌 Obtener todos los pedidos (solo admin o superAdmin)
 export const getAllOrders = async (req, res) => {
   try {
     if (req.user.role !== "admin" && req.user.role !== "superAdmin") {
       return res.status(403).json({ error: "No autorizado para ver todos los pedidos" });
     }
 
-    const allOrders = await Order.find();
+    const allOrders = await Order.find().sort({ date: -1 });
     res.json(allOrders);
   } catch (error) {
     console.error("Error al obtener pedidos:", error);
@@ -15,7 +54,7 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// Obtener pedidos de un usuario específico
+// 📌 Obtener pedidos de un usuario específico
 export const getOrdersByUserEmail = async (req, res) => {
   try {
     const { email } = req.params;
@@ -28,7 +67,7 @@ export const getOrdersByUserEmail = async (req, res) => {
       return res.status(403).json({ error: "No autorizado para ver estos pedidos" });
     }
 
-    const userOrders = await Order.find({ email });
+    const userOrders = await Order.find({ email }).sort({ date: -1 });
     res.json(userOrders);
   } catch (error) {
     console.error("Error al obtener los pedidos del usuario:", error);
@@ -36,35 +75,7 @@ export const getOrdersByUserEmail = async (req, res) => {
   }
 };
 
-// Crear nuevo pedido
-export const createOrder = async (req, res) => {
-  try {
-    const { name, city, address, items, total } = req.body;
-    const userEmail = req.user.email;
-
-    if (!name || !city || !address || !items || !total) {
-      return res.status(400).json({ error: "Faltan datos del pedido" });
-    }
-
-    const newOrder = await Order.create({
-      name,
-      city,
-      address,
-      date: new Date().toISOString(),
-      items,
-      total,
-      email: userEmail,
-      status: "Pendiente", // valor por defecto
-    });
-
-    res.status(201).json(newOrder);
-  } catch (error) {
-    console.error("Error al crear el pedido:", error);
-    res.status(500).json({ error: "No se pudo guardar el pedido" });
-  }
-};
-
-// Actualizar estado de un pedido (solo admin o superAdmin)
+// 📌 Actualizar estado de un pedido (solo admin o superAdmin)
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -92,7 +103,7 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Borrar pedido por id (solo superAdmin y si está completado)
+// 📌 Borrar pedido (solo superAdmin y si está completado)
 export const deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
