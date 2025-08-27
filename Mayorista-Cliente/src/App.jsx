@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React, { useEffect } from "react";
+import { checkTokenExpiration } from "./utils/auth";
 
 //pagina principal
 import Home from "./components/pages/Home/Home.jsx";
@@ -72,6 +73,10 @@ function App() {
       duration: 800,
       once: true,
     });
+  }, []);
+
+   useEffect(() => {
+    checkTokenExpiration();
   }, []);
 
   return (
