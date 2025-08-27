@@ -106,11 +106,12 @@ const addToCart = (product) => {
 };
 
 useEffect(() => {
-  if (localStorage.getItem("showPurchaseModal") === "true") {
+  const showFlag = localStorage.getItem("showPurchaseModal") === "true";
+  if (showFlag && cart.length > 0) {
     setShowModal(true);
-    localStorage.removeItem("showPurchaseModal");
   }
-}, []);
+  localStorage.removeItem("showPurchaseModal"); // siempre lo limpiamos
+}, [cart]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
