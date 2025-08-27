@@ -234,6 +234,7 @@ useEffect(() => {
     localStorage.setItem("showPurchaseModal", "true");
 
       clearCart();
+      setShowModal(true);
       window.open(whatsappUrl, "_blank");
     } catch (err) {
       console.error("Error al guardar pedido:", err);
