@@ -167,11 +167,12 @@
     align-items: center; /* centra botones y contenido */
   }
 
-   .orderItem button {
-    width: auto;           /* que se ajuste al contenido */
-    max-width: 80px;      /* tamaño máximo reducido */
+    .orderItem button {
+    flex: 0 0 auto;        /* evita que el flex lo estire */
+    width: auto;           /* se ajusta al contenido */
+    max-width: 120px;      /* ancho máximo */
     font-size: 0.8rem;     /* texto más chico */
-    padding: 0.4rem 0.8rem; /* menos padding */
+    padding: 0.3rem 0.6rem; /* menos padding */
     margin: 0.3rem;
   }
 
