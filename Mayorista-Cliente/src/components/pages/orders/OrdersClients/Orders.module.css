@@ -116,14 +116,18 @@
     padding: 12px 15px;
   }
 
- .buttonsContainer {
-    flex-direction: column;
-    align-items: stretch;
+  .buttonsContainer {
+    justify-content: center;  /* centra botones */
+    gap: 6px;                 /* espacio entre ellos */
   }
 
-  .buttonsContainer button {
-    width: 100%;
-    margin: 4px 0;
+ .buttonsContainer button {
+    flex: 0 0 auto;           /* ❌ no se estiran */
+    width: auto;              /* ancho según contenido */
+    max-width: 110px;         /* límite */
+    font-size: 0.8rem;        /* texto más chico */
+    padding: 0.3rem 0.6rem;   /* menos padding */
+    margin: 0;                /* elimina márgenes extra */
   }
 }
 
@@ -148,13 +152,32 @@
   }
 
   .buttonsContainer {
-    flex-direction: column;
-    align-items: stretch;
+    justify-content: center;  /* centra botones */
+    gap: 6px;                 /* espacio entre ellos */
+  }
+
+ .buttonsContainer button {
+    flex: 0 0 auto;           /* ❌ no se estiran */
+    width: auto;              /* ancho según contenido */
+    max-width: 110px;         /* límite */
+    font-size: 0.8rem;        /* texto más chico */
+    padding: 0.3rem 0.6rem;   /* menos padding */
+    margin: 0;                /* elimina márgenes extra */
+  }
+}
+
+@media (max-width: 600px) {
+  .buttonsContainer {
+    justify-content: center;  /* centra botones */
+    gap: 6px;                 /* espacio entre ellos */
   }
 
   .buttonsContainer button {
-    width: 100%;
-    margin: 4px 0;
-    font-size: 0.9rem;
+    flex: 0 0 auto;           /* ❌ no se estiran */
+    width: auto;              /* ancho según contenido */
+    max-width: 110px;         /* límite */
+    font-size: 0.8rem;        /* texto más chico */
+    padding: 0.3rem 0.6rem;   /* menos padding */
+    margin: 0;                /* elimina márgenes extra */
   }
 }
