@@ -169,7 +169,7 @@
 
    .orderItem button {
     width: auto;           /* que se ajuste al contenido */
-    max-width: 140px;      /* tamaño máximo reducido */
+    max-width: 80px;      /* tamaño máximo reducido */
     font-size: 0.8rem;     /* texto más chico */
     padding: 0.4rem 0.8rem; /* menos padding */
     margin: 0.3rem;
