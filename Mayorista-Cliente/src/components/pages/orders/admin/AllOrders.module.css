@@ -104,6 +104,23 @@
   transition: transform 0.3s ease;
 }
 
+.orderItem button {
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin: 0.5rem;
+}
+
+.orderItem button:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
 /* --- Responsive para tablets (hasta 900px) --- */
 @media (max-width: 900px) {
   .container {
@@ -145,8 +162,16 @@
   }
 
   .orderItem {
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* centra botones y contenido */
+  }
+
+  .orderItem button {
+    width: 80%;            /* que no ocupen todo el ancho */
+    max-width: 220px;      /* ancho máximo */
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
   }
 
   .orderItem h3 {

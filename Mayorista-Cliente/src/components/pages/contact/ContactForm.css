@@ -84,13 +84,16 @@
     width: 100%;
   }
 
-  .contact-form-right {
-    padding-right: 0;
+   .contact-form-right {
+    padding-right: 0;       /* quita el padding que lo empuja */
+    align-items: center;    /* centra los elementos en columna */
+    text-align: center;     /* centra textos */
   }
 
-  .contact-form-right input,
-  .contact-form-right textarea {
-    width: 100%;
+ .contact-form-right input,
+  .contact-form-right textarea,
+  .contact-form-right button {
+    width: 100%;  /* que ocupen todo el ancho disponible */
   }
 
   .contact-info-left h2,
