@@ -1,4 +1,6 @@
 import { useFilters } from "../../../../hooks/useFilters.js";
+import { useState } from "react";
+import { Modal, Button } from "react-bootstrap";
 import useProductNavigation from "../../../../hooks/useProductNavigation/useProductNavigation.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllProducts } from "../../../../api/fakeStoreApi.js";
@@ -12,6 +14,8 @@ export default function ProductList({ search = "" }) {
   const addCart = useCart((state) => state.addCart);
   const cart = useCart((state) => state.cart);
   const queryClient = useQueryClient();
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const {
     data: products = [],
@@ -39,6 +43,7 @@ export default function ProductList({ search = "" }) {
     });
 
   return (
+    <>
     <div className="product-grid">
       {filteredProducts.length === 0 ? (
         <p>No se encontraron productos</p>
@@ -76,12 +81,9 @@ export default function ProductList({ search = "" }) {
                       const user = storedUser ? JSON.parse(storedUser) : null;
 
                       if (!user) {
-                        alert(
-                          "Debés iniciar sesión para agregar productos al carrito."
-                        );
-                        window.location.href = "/login";
-                        return;
-                      }
+                          setShowLoginModal(true); // 👈 mostramos modal
+                          return;
+                        }
 
                       addCart(product);
                     }}
@@ -101,5 +103,30 @@ export default function ProductList({ search = "" }) {
         ))
       )}
     </div>
+
+    {/* ✅ Modal de login */}
+      <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Iniciar sesión requerido</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Para agregar productos al carrito necesitás iniciar sesión.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowLoginModal(false)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowLoginModal(false);
+              window.location.href = "/login"; // 👈 redirige al login
+            }}
+          >
+            Ir al login
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      </>
   );
 }
