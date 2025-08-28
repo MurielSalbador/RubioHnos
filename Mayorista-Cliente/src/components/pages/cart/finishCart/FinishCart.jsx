@@ -2,14 +2,19 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useCart } from "../../../../store.js";
 import { useNavigate } from "react-router-dom";
+import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
 import ModalPurchase from "../../../modal/ModalPurchase.jsx";
 import CloseButton from "react-bootstrap/CloseButton";
 import styles from "./FinishCart.module.css";
 
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useQueryClient } from "@tanstack/react-query"; // *
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 const FinishCart = () => {
   const contacts = [
@@ -68,74 +73,85 @@ const FinishCart = () => {
       city.trim().length < 2 ||
       address.trim().length < 5
     ) {
-      alert(
-        "Por favor completá todos los campos correctamente antes de elegir el contacto."
-      );
+      Swal.fire("Error", "Por favor completá todos los campos correctamente antes de elegir el contacto.", "error");
       return;
     }
 
     setSelectedContact(contact);
   };
 
+  // Agrega un producto al carrito, validando contra el stock disponible
+  const addToCart = (product) => {
+    const existingProduct = cart.find((item) => item._id === product._id);
 
-
-
-// Agrega un producto al carrito, validando contra el stock disponible
-const addToCart = (product) => {
-  const existingProduct = cart.find((item) => item._id === product._id);
-
-  if (existingProduct) {
-    if (existingProduct.quantity < product.stock) {
-      setCart(
-        cart.map((item) =>
-          item._id === product._id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
+    if (existingProduct) {
+      if (existingProduct.quantity < product.stock) {
+        setCart(
+          cart.map((item) =>
+            item._id === product._id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        );
+      } else {
+        Swal.fire("Error", "Has alcanzado el límite de stock disponible para este producto.", "error");
+      }
     } else {
-      alert("Has alcanzado el límite de stock disponible para este producto.");
+      if (product.stock > 0) {
+        setCart([...cart, { ...product, quantity: 1 }]);
+      } else {
+        Swal.fire("Error", "Este producto no tiene stock disponible.", "error");
+      }
     }
-  } else {
-    if (product.stock > 0) {
-      setCart([...cart, { ...product, quantity: 1 }]);
-    } else {
-      alert("Este producto no tiene stock disponible.");
-    }
-  }
-};
+  };
 
-useEffect(() => {
-  const showFlag = localStorage.getItem("showPurchaseModal") === "true";
-  if (showFlag && cart.length > 0) {
-    setShowModal(true);
-  }
-  localStorage.removeItem("showPurchaseModal"); // siempre lo limpiamos
-}, [cart]);
+  useEffect(() => {
+    const showFlag = localStorage.getItem("showPurchaseModal") === "true";
+    if (showFlag && cart.length > 0) {
+      setShowModal(true);
+    }
+    localStorage.removeItem("showPurchaseModal"); // siempre lo limpiamos
+  }, [cart]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { name, city, address } = formData;
 
     if (cart.length === 0) {
-      alert("Tu carrito está vacío...");
+     Swal.fire("Error", "Tu carrito está vacío...", "error");
       return;
     }
 
     if (name.trim().length < 3) {
-      alert("El nombre debe tener al menos 3 caracteres.");
+      Swal.fire(
+        "Error",
+        "El nombre debe tener al menos 3 caracteres.",
+        "error"
+      );
       return;
     }
     if (city.trim().length < 2) {
-      alert("La localidad debe tener al menos 2 caracteres.");
+      Swal.fire(
+        "Error",
+        "La localidad debe tener al menos 2 caracteres.",
+        "error"
+      );
       return;
     }
     if (address.trim().length < 5) {
-      alert("La dirección debe tener al menos 5 caracteres.");
+      Swal.fire(
+        "Error",
+        "La dirección debe tener al menos 5 caracteres.",
+        "error"
+      );
       return;
     }
     if (!selectedContact) {
-      alert("Por favor seleccioná un contacto antes de confirmar la compra.");
+      Swal.fire(
+        "Error",
+        "Por favor seleccioná un contacto antes de confirmar la compra.",
+        "error"
+      );
       return;
     }
 
@@ -143,7 +159,7 @@ useEffect(() => {
       name,
       city,
       address,
-      items: cart.map(item => ({ _id: item._id, quantity: item.quantity })),
+      items: cart.map((item) => ({ _id: item._id, quantity: item.quantity })),
       total: total.toFixed(2),
       date: new Date().toLocaleString(),
     };
@@ -155,17 +171,26 @@ useEffect(() => {
       JSON.stringify([...previousOrders, newOrder])
     );
 
-     const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-    try {
-     
+    Swal.fire({
+      title: "¿Confirmar compra?",
+      text: "Vas a enviar tu pedido por WhatsApp",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, confirmar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
       await axios.post(`${API_URL}/api/orders`, newOrder, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-       queryClient.invalidateQueries(["products"]);
+      queryClient.invalidateQueries(["products"]);
 
       const message = `🛒 Nuevo Pedido Realizado por ${
         user.name || "usuario"
@@ -190,20 +215,36 @@ useEffect(() => {
 
     ¡Gracias por tu compra! 🙌`;
 
-    const whatsappUrl = /Android|iPhone/i.test(navigator.userAgent)
-  ? `whatsapp://send?phone=${selectedContact.phone}&text=${encodeURIComponent(message)}`
-  : `https://api.whatsapp.com/send?phone=${selectedContact.phone}&text=${encodeURIComponent(message)}`;
+      const whatsappUrl = /Android|iPhone/i.test(navigator.userAgent)
+        ? `whatsapp://send?phone=${
+            selectedContact.phone
+          }&text=${encodeURIComponent(message)}`
+        : `https://api.whatsapp.com/send?phone=${
+            selectedContact.phone
+          }&text=${encodeURIComponent(message)}`;
 
-       // Guardamos flag para mostrar el modal cuando vuelva
-    localStorage.setItem("showPurchaseModal", "true");
+      // Guardamos flag para mostrar el modal cuando vuelva
+      localStorage.setItem("showPurchaseModal", "true");
 
       clearCart();
       setShowModal(true);
       window.open(whatsappUrl, "_blank");
-    } catch (err) {
-      console.error("Error al guardar pedido:", err);
-      alert("Hubo un error al guardar el pedido. Intentalo de nuevo.");
-    }
+
+          Swal.fire(
+            "¡Pedido confirmado!",
+            "Tu compra fue registrada ✅",
+            "success"
+          );
+        } catch (err) {
+          console.error("Error al guardar pedido:", err);
+          Swal.fire(
+            "Error",
+            "Hubo un error al guardar el pedido. Intentalo de nuevo.",
+            "error"
+          );
+        }
+      }
+    });
   };
 
   return (
@@ -314,7 +355,10 @@ useEffect(() => {
                       name,
                       city,
                       address,
-                      items: cart.map(item => ({ _id: item._id, quantity: item.quantity })),
+                      items: cart.map((item) => ({
+                        _id: item._id,
+                        quantity: item.quantity,
+                      })),
                       total: total.toFixed(2),
                       date: new Date().toLocaleString(), // <- agregar esto
                     };
@@ -344,8 +388,12 @@ useEffect(() => {
 
                     navigator.clipboard
                       .writeText(message)
-                      .then(() => alert("Mensaje copiado al portapapeles ✅"))
-                      .catch(() => alert("No se pudo copiar el mensaje 😞"));
+                      .then(() =>
+                        toast.success("Mensaje copiado al portapapeles ✅")
+                      )
+                      .catch(() =>
+                        toast.error("No se pudo copiar el mensaje 😞")
+                      );
                   }}
                   className={styles.copyButton}
                 >
