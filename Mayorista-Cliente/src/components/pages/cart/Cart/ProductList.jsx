@@ -1,5 +1,6 @@
 import { useFilters } from "../../../../hooks/useFilters.js";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from "react-bootstrap";
 import useProductNavigation from "../../../../hooks/useProductNavigation/useProductNavigation.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ export default function ProductList({ search = "" }) {
   const addCart = useCart((state) => state.addCart);
   const cart = useCart((state) => state.cart);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -81,7 +83,9 @@ export default function ProductList({ search = "" }) {
                       const user = storedUser ? JSON.parse(storedUser) : null;
 
                       if (!user) {
-                          setShowLoginModal(true); // 👈 mostramos modal
+                         // guardamos la URL actual para volver después del login
+                          localStorage.setItem("redirectAfterLogin", window.location.pathname);
+                          setShowLoginModal(true); 
                           return;
                         }
 
@@ -120,7 +124,7 @@ export default function ProductList({ search = "" }) {
             variant="primary"
             onClick={() => {
               setShowLoginModal(false);
-              window.location.href = "/login"; // 👈 redirige al login
+              navigate("/login");
             }}
           >
             Ir al login

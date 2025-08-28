@@ -66,7 +66,15 @@ function Login() {
     theme: "colored",
   });
 
-  navigate("/");
+  //Revisamos si había un destino pendiente
+   const redirect = localStorage.getItem("redirectAfterLogin");
+   if (redirect) {
+     localStorage.removeItem("redirectAfterLogin"); // limpiar para no repetir
+     navigate(redirect);
+   } else {
+     navigate("/");
+   }
+
 } catch (err) {
   toast.error("⚠️ Error en el servidor", {
     position: "top-right",
