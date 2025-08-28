@@ -25,20 +25,18 @@ export default function ProductList({ search = "" }) {
   if (isLoading) return <p>Cargando productos...</p>;
   if (error) return <p>Error cargando productos</p>;
 
-  
-
   // 🔹 Filtrado según buscador
-const filteredProducts = products
-  .filter((product) => product.available) // 👈 solo productos disponibles
-  .filter((product) => {
-    const title = product.title?.toLowerCase() || "";
-    const brand = product.brand?.toLowerCase() || "";
-    const category = product.category?.toLowerCase() || "";
-    const term = search.toLowerCase();
-    return (
-      title.includes(term) || brand.includes(term) || category.includes(term)
-    );
-  });
+  const filteredProducts = products
+    .filter((product) => product.available) // 👈 solo productos disponibles
+    .filter((product) => {
+      const title = product.title?.toLowerCase() || "";
+      const brand = product.brand?.toLowerCase() || "";
+      const category = product.category?.toLowerCase() || "";
+      const term = search.toLowerCase();
+      return (
+        title.includes(term) || brand.includes(term) || category.includes(term)
+      );
+    });
 
   return (
     <div className="product-grid">
@@ -73,6 +71,18 @@ const filteredProducts = products
                     disabled={getAdjustedStock(product, cart) === 0}
                     onClick={() => {
                       if (getAdjustedStock(product, cart) === 0) return;
+
+                      const storedUser = localStorage.getItem("user");
+                      const user = storedUser ? JSON.parse(storedUser) : null;
+
+                      if (!user) {
+                        alert(
+                          "Debés iniciar sesión para agregar productos al carrito."
+                        );
+                        window.location.href = "/login";
+                        return;
+                      }
+
                       addCart(product);
                     }}
                   >

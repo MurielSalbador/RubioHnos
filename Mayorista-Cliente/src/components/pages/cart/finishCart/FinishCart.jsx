@@ -134,12 +134,6 @@ useEffect(() => {
       alert("La dirección debe tener al menos 5 caracteres.");
       return;
     }
-    if (!user) {
-      alert("Debés iniciar sesión para confirmar la compra.");
-      navigate("/login");
-      return;
-    }
-
     if (!selectedContact) {
       alert("Por favor seleccioná un contacto antes de confirmar la compra.");
       return;
