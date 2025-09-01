@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../../../../store.js";
 import { useNavigate } from "react-router-dom";
-import { Modal, Button } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import axios from "axios";
 import ModalPurchase from "../../../modal/ModalPurchase.jsx";
 import CloseButton from "react-bootstrap/CloseButton";
@@ -12,7 +11,7 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { useQueryClient } from "@tanstack/react-query"; // *
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
@@ -35,6 +34,15 @@ const FinishCart = () => {
     },
   ];
 
+  // Costos de envío por ciudad
+  const shippingCosts = {
+    Rosario: 2500,
+    Alvarez: 1000,
+    Piñero: 0,
+    Soldini: 2500,
+    "Pueblo Muñoz": 2500,
+  };
+
   const { cart, clearCart, setCart } = useCart();
   const [formData, setFormData] = useState({
     name: "",
@@ -42,27 +50,38 @@ const FinishCart = () => {
     address: "",
   });
 
+  const [shippingCost, setShippingCost] = useState(0);
   const [selectedContact, setSelectedContact] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate();
 
-  //acount
+  // Usuario
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const userEmail = user?.email || "";
 
   const userOrdersKey = `orders_${userEmail}`;
 
-  //sum cart
+  // Total del carrito
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  //react query
+  // Total final con envío incluido
+  const finalTotal = total + shippingCost;
+
+  // React Query
   const queryClient = useQueryClient();
 
+  // Manejar cambios en el formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Si cambia la ciudad, actualizamos el costo de envío
+    if (name === "city") {
+      const cost = shippingCosts[value] || 0;
+      setShippingCost(cost);
+    }
   };
 
   const handleContactClick = (contact) => {
@@ -73,14 +92,18 @@ const FinishCart = () => {
       city.trim().length < 2 ||
       address.trim().length < 5
     ) {
-      Swal.fire("Error", "Por favor completá todos los campos correctamente antes de elegir el contacto.", "error");
+      Swal.fire(
+        "Error",
+        "Por favor completá todos los campos correctamente antes de elegir el contacto.",
+        "error"
+      );
       return;
     }
 
     setSelectedContact(contact);
   };
 
-  // Agrega un producto al carrito, validando contra el stock disponible
+  // Agregar producto al carrito validando stock
   const addToCart = (product) => {
     const existingProduct = cart.find((item) => item._id === product._id);
 
@@ -94,7 +117,11 @@ const FinishCart = () => {
           )
         );
       } else {
-        Swal.fire("Error", "Has alcanzado el límite de stock disponible para este producto.", "error");
+        Swal.fire(
+          "Error",
+          "Has alcanzado el límite de stock disponible para este producto.",
+          "error"
+        );
       }
     } else {
       if (product.stock > 0) {
@@ -105,12 +132,13 @@ const FinishCart = () => {
     }
   };
 
+  // Mostrar modal al volver de WhatsApp
   useEffect(() => {
     const showFlag = localStorage.getItem("showPurchaseModal") === "true";
     if (showFlag && cart.length > 0) {
       setShowModal(true);
     }
-    localStorage.removeItem("showPurchaseModal"); // siempre lo limpiamos
+    localStorage.removeItem("showPurchaseModal");
   }, [cart]);
 
   const handleSubmit = async (e) => {
@@ -118,7 +146,7 @@ const FinishCart = () => {
     const { name, city, address } = formData;
 
     if (cart.length === 0) {
-     Swal.fire("Error", "Tu carrito está vacío...", "error");
+      Swal.fire("Error", "Tu carrito está vacío...", "error");
       return;
     }
 
@@ -160,7 +188,8 @@ const FinishCart = () => {
       city,
       address,
       items: cart.map((item) => ({ _id: item._id, quantity: item.quantity })),
-      total: total.toFixed(2),
+      total: finalTotal.toFixed(2),
+      shippingCost: shippingCost.toFixed(2),
       date: new Date().toLocaleString(),
     };
 
@@ -184,51 +213,51 @@ const FinishCart = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-      await axios.post(`${API_URL}/api/orders`, newOrder, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+          await axios.post(`${API_URL}/api/orders`, newOrder, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-      queryClient.invalidateQueries(["products"]);
+          queryClient.invalidateQueries(["products"]);
 
-      const message = `🛒 Nuevo Pedido Realizado por ${
-        user.name || "usuario"
-      } (${user.email || "email no disponible"}):
+          const message = `🛒 Nuevo Pedido Realizado por ${
+            user.name || "usuario"
+          } (${user.email || "email no disponible"}):
 
-    👤 Nombre: ${name}
-    🏙️ Localidad: ${city}
-    📍 Dirección: ${address}
-    🕒 Fecha: ${newOrder.date}
+          👤 Nombre: ${name}
+          🏙️ Localidad: ${city}
+          📍 Dirección: ${address}
+          🕒 Fecha: ${newOrder.date}
 
-    📦 Productos:
-    ${cart
-      .map(
-        (item) =>
-          `• ${item.title} x${item.quantity} - $${(
-            item.price * item.quantity
-          ).toFixed(2)}`
-      )
-      .join("\n")}
+          📦 Productos:
+          ${cart
+            .map(
+              (item) =>
+                `• ${item.title} x${item.quantity} - $${(
+                  item.price * item.quantity
+                ).toFixed(2)}`
+            )
+            .join("\n")}
 
-    💰 Total: $${newOrder.total}
+          🚚 Costo de envío: $${shippingCost.toFixed(2)}
+          💰 Total final: $${finalTotal.toFixed(2)}
 
-    ¡Gracias por tu compra! 🙌`;
+          ¡Gracias por tu compra! 🙌`;
 
-      const whatsappUrl = /Android|iPhone/i.test(navigator.userAgent)
-        ? `whatsapp://send?phone=${
-            selectedContact.phone
-          }&text=${encodeURIComponent(message)}`
-        : `https://api.whatsapp.com/send?phone=${
-            selectedContact.phone
-          }&text=${encodeURIComponent(message)}`;
+          const whatsappUrl = /Android|iPhone/i.test(navigator.userAgent)
+            ? `whatsapp://send?phone=${
+                selectedContact.phone
+              }&text=${encodeURIComponent(message)}`
+            : `https://api.whatsapp.com/send?phone=${
+                selectedContact.phone
+              }&text=${encodeURIComponent(message)}`;
 
-      // Guardamos flag para mostrar el modal cuando vuelva
-      localStorage.setItem("showPurchaseModal", "true");
+          localStorage.setItem("showPurchaseModal", "true");
 
-      clearCart();
-      setShowModal(true);
-      window.open(whatsappUrl, "_blank");
+          clearCart();
+          setShowModal(true);
+          window.open(whatsappUrl, "_blank");
 
           Swal.fire(
             "¡Pedido confirmado!",
@@ -296,6 +325,15 @@ const FinishCart = () => {
                 <option value="Soldini">Soldini</option>
                 <option value="Pueblo Muñoz">Pueblo Muñoz</option>
               </select>
+
+              {/* Mostramos automáticamente el costo del envío */}
+              {formData.city && (
+                <p className={styles.shippingInfo}>
+                  {shippingCost === 0
+                    ? "🚚 Envío gratis para esta localidad"
+                    : `🚚 Costo de envío: $${shippingCost}`}
+                </p>
+              )}
             </div>
 
             <div>
@@ -310,9 +348,16 @@ const FinishCart = () => {
               />
             </div>
 
+            {/* Resumen de totales */}
             <div className={styles.checkoutSummary}>
               <p>
-                Total a pagar: <strong>${total.toFixed(2)}</strong>
+                Subtotal productos: <strong>${total.toFixed(2)}</strong>
+              </p>
+              <p>
+                Costo de envío: <strong>${shippingCost.toFixed(2)}</strong>
+              </p>
+              <p>
+                Total final: <strong>${finalTotal.toFixed(2)}</strong>
               </p>
             </div>
 
@@ -344,62 +389,6 @@ const FinishCart = () => {
                   por WhatsApp 📱
                 </p>
               )}
-
-              <div className={styles.copyMessageContainer}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const { name, city, address } = formData;
-                    // Antes del POST al backend
-                    const newOrder = {
-                      name,
-                      city,
-                      address,
-                      items: cart.map((item) => ({
-                        _id: item._id,
-                        quantity: item.quantity,
-                      })),
-                      total: total.toFixed(2),
-                      date: new Date().toLocaleString(), // <- agregar esto
-                    };
-
-                    const message = `🛒 *Nuevo Pedido Realizado* por *${
-                      user.name || "usuario"
-                    }* (${user.email || "sin email"}):
-
-                    👤 *Nombre:* ${name}
-                    🏙️ *Localidad:* ${city}
-                    📍 *Dirección:* ${address}
-                    🕒 *Fecha:* ${newOrder.date}
-
-                    📦 *Productos:*
-                    ${cart
-                      .map(
-                        (item) =>
-                          `• ${item.title} x${item.quantity} - $${(
-                            item.price * item.quantity
-                          ).toFixed(2)}`
-                      )
-                      .join("\n")}
-
-                    💰 *Total:* $${newOrder.total}
-
-                    ¡Gracias por tu compra! 🙌`;
-
-                    navigator.clipboard
-                      .writeText(message)
-                      .then(() =>
-                        toast.success("Mensaje copiado al portapapeles ✅")
-                      )
-                      .catch(() =>
-                        toast.error("No se pudo copiar el mensaje 😞")
-                      );
-                  }}
-                  className={styles.copyButton}
-                >
-                  📋 Copiá tu mensaje ya listo para enviar
-                </button>
-              </div>
             </div>
 
             <button type="submit">Confirmar Compra</button>
