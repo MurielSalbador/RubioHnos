@@ -88,8 +88,8 @@ export default function Filters() {
           }
         >
           <option value="">Sin ordenar</option>
-          <option value="asc">Menor a mayor</option>
-          <option value="desc">Mayor a menor</option>
+          <option value="asc">Más económico → Más costoso</option>
+          <option value="desc">Más costoso → Más económico</option>
         </select>
       </label>
 

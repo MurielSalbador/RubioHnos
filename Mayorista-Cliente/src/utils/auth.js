@@ -30,7 +30,6 @@ export const logout = () => {
   if (typeof window === "undefined") return; // 🚩
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "/login";
 };
 
 export const checkTokenExpiration = () => {

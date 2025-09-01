@@ -19,7 +19,7 @@ export default function Header() {
             data-aos-delay="200"
           >
             <div className="logo-line-1">RubioHnos</div>
-            <div className="logo-line-2">mayorista</div>
+            <div className="logo-line-2">-Tienda Natural-</div>
           </a>
         </div>
 

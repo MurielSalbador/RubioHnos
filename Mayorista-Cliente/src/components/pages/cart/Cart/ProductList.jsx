@@ -2,7 +2,6 @@ import { useFilters } from "../../../../hooks/useFilters.js";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from "react-bootstrap";
-import useProductNavigation from "../../../../hooks/useProductNavigation/useProductNavigation.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllProducts } from "../../../../api/fakeStoreApi.js";
 import { useCart } from "../../../../store.js";
@@ -11,7 +10,6 @@ import "./ProductList.css";
 
 export default function ProductList({ search = "" }) {
   const { filters } = useFilters();
-  const { goToProductDetail } = useProductNavigation();
   const addCart = useCart((state) => state.addCart);
   const cart = useCart((state) => state.cart);
   const queryClient = useQueryClient();
@@ -46,70 +44,73 @@ export default function ProductList({ search = "" }) {
 
   return (
     <>
-    <div className="product-grid">
-      {filteredProducts.length === 0 ? (
-        <p>No se encontraron productos</p>
-      ) : (
-        filteredProducts.map((product) => (
-          <div key={product._id || product.id} className="product-card">
-            {product.imageUrl && (
-              <img src={product.imageUrl} alt={product.title} />
-            )}
-            <h3 className="product-title">
-              {product.title.length > 20
-                ? `${product.title.slice(0, 80)}...`
-                : product.title}
-            </h3>
-
-            <div className="product-footer">
-              <p className="product-price">${product.price}</p>
-              <p className="product-stock">
-                Stock: {getAdjustedStock(product, cart)}
-              </p>
-              {getAdjustedStock(product, cart) === 1 && (
-                <p className="stock-alert">¡Último disponible!</p>
+      <div className="product-grid">
+        {filteredProducts.length === 0 ? (
+          <p>No se encontraron productos</p>
+        ) : (
+          filteredProducts.map((product) => (
+            <div key={product._id || product.id} className="product-card">
+              {product.imageUrl && (
+                <img src={product.imageUrl} alt={product.title} />
               )}
+              <h3 className="product-title">
+                {product.title.length > 20
+                  ? `${product.title.slice(0, 80)}...`
+                  : product.title}
+              </h3>
 
-              <div className="product-buttons">
-                {product.stock === 0 ? (
-                  <button disabled>Sin stock</button>
-                ) : (
-                  <button
-                    disabled={getAdjustedStock(product, cart) === 0}
-                    onClick={() => {
-                      if (getAdjustedStock(product, cart) === 0) return;
+              <div className="product-footer">
+                <p className="product-price">${product.price}</p>
+                <p className="product-stock">
+                  Stock: {getAdjustedStock(product, cart)}
+                </p>
+                {getAdjustedStock(product, cart) === 1 && (
+                  <p className="stock-alert">¡Último disponible!</p>
+                )}
 
-                      const storedUser = localStorage.getItem("user");
-                      const user = storedUser ? JSON.parse(storedUser) : null;
+                <div className="product-buttons">
+                  {product.stock === 0 ? (
+                    <button disabled>Sin stock</button>
+                  ) : (
+                    <button
+                      disabled={getAdjustedStock(product, cart) === 0}
+                      onClick={() => {
+                        if (getAdjustedStock(product, cart) === 0) return;
 
-                      if (!user) {
-                         // guardamos la URL actual para volver después del login
-                          localStorage.setItem("redirectAfterLogin", window.location.pathname);
-                          setShowLoginModal(true); 
+                        const storedUser = localStorage.getItem("user");
+                        const user = storedUser ? JSON.parse(storedUser) : null;
+
+                        if (!user) {
+                          // guardamos la URL actual para volver después del login
+                          localStorage.setItem(
+                            "redirectAfterLogin",
+                            window.location.pathname
+                          );
+                          setShowLoginModal(true);
                           return;
                         }
 
-                      addCart(product);
-                    }}
-                  >
-                    {getAdjustedStock(product, cart) === 0
-                      ? "Sin stock"
-                      : "Agregar al carrito"}
-                  </button>
-                )}
-
-                <button onClick={() => goToProductDetail(product._id)}>
-                  Ver más
-                </button>
+                        addCart(product);
+                      }}
+                    >
+                      {getAdjustedStock(product, cart) === 0
+                        ? "Sin stock"
+                        : "Agregar al carrito"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))
-      )}
-    </div>
+          ))
+        )}
+      </div>
 
-    {/* ✅ Modal de login */}
-      <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)} centered>
+      {/* ✅ Modal de login */}
+      <Modal
+        show={showLoginModal}
+        onHide={() => setShowLoginModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Iniciar sesión requerido</Modal.Title>
         </Modal.Header>
@@ -131,6 +132,6 @@ export default function ProductList({ search = "" }) {
           </Button>
         </Modal.Footer>
       </Modal>
-      </>
+    </>
   );
 }
