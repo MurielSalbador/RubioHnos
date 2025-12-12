@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
     isBlocked: { type: Boolean, default: false },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
   },
   {
     timestamps: true,

@@ -31,10 +31,10 @@ const User = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
+  isVerified: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: true,
+},
   },
   {
     timestamps: false,

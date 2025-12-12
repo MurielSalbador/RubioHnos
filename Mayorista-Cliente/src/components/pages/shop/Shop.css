@@ -527,20 +527,64 @@
   }
 }
 
+/* === PRODUCTOS ULTRA COMPACTOS (4 x 4) EN CELULARES === */
 @media (max-width: 480px) {
+
+  /* 4 columnas en celulares */
   .product-grid {
-    grid-template-columns: 1fr; /* 1 producto por fila */
-    gap: 1rem; /* menos espacio entre productos */
-    padding: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    padding: 0.4rem;
   }
 
-  .product-buttons {
-    flex-direction: column; /* uno arriba del otro */
-    gap: 0.5rem;
-  }
-
-  .product-buttons button {
-    width: 100%; /* que ocupen el ancho */
+  /* Cards estilo cuadrado/chico */
+  .product-card {
+    padding: 0.3rem;
     border-radius: 6px;
+    box-shadow: none;
+    height: 350px; /* <<< ACHICA LA ALTURA */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* Imagen muy compacta */
+  .product-card img,
+  .product-img {
+    max-height: 55px !important;
+    margin-bottom: 0.2rem;
+    padding: 0;
+  }
+
+  /* Título super comprimido */
+  .product-title {
+  font-size: 0.5rem;         /* tamaño visible pero chico */
+  line-height: 1.1;
+  margin-bottom: 0.2rem;
+  max-height: 1.6rem;         /* solo dos líneas compactas */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+  /* Precio chico */
+  .product-price {
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
+  /* Botón mini */
+  .add-btn,
+  .product-buttons button {
+    padding: 0.25rem;
+    font-size: 0.6rem;
+    border-radius: 4px;
+    margin-top: 0.2rem;
+  }
+
+  /* Footer comprimido */
+  .product-footer {
+    margin-top: auto;
   }
 }
+

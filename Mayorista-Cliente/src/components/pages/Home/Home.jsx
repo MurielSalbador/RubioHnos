@@ -4,14 +4,8 @@ import { Products } from "../serch/productsList.jsx";
 import { Link } from "react-router-dom";
 import "./Home.css";
 import backgroundHome from "../../../assets/background/backgroundHome.jpeg";
-import { Container, Row, Col, Button, Card } from "react-bootstrap";
+import { Container, Row, Col, Button, Card, Modal } from "react-bootstrap";
 import { FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
-
-//account
-
-//protected
-
-//corousel
 
 import CategoriesCarousel from "../Home/categoriesCarousel/CategoriesCarousel.jsx"; // o la ruta correcta
 
@@ -74,6 +68,18 @@ export default function Home() {
     };
     fetchFeaturedProducts();
   }, []);
+
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+
+const contacts = [
+  { name: "Hernan", phone: "5493416863976", image: "https://ui-avatars.com/api/?name=Hernan" },
+  { name: "Ruddi", phone: "5493416946454", image: "https://ui-avatars.com/api/?name=Ruddi" },
+  { name: "Nacho", phone: "5493413916661", image: "https://ui-avatars.com/api/?name=Nacho" },
+];
+
+const openWhatsApp = (phone) => {
+  window.open(`https://wa.me/${phone}`, "_blank");
+};
 
   return (
     <div className="home-container">
@@ -287,6 +293,43 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* BOTÓN WHATSAPP */}
+<div className="whatsapp-button" onClick={() => setShowWhatsAppModal(true)}>
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+    alt="WhatsApp"
+  />
+</div>
+{/* MODAL CONTACTOS WHATSAPP */}
+<Modal
+  show={showWhatsAppModal}
+  onHide={() => setShowWhatsAppModal(false)}
+  centered
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Contactos para WhatsApp</Modal.Title>
+  </Modal.Header>
+
+  <Modal.Body>
+    {contacts.map((c) => (
+      <div key={c.phone} className="wa-contact">
+        <img src={c.image} alt={c.name} />
+        <span>{c.name}</span>
+        <Button variant="success" onClick={() => openWhatsApp(c.phone)}>
+          Contactar
+        </Button>
+      </div>
+    ))}
+  </Modal.Body>
+
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowWhatsAppModal(false)}>
+      Cerrar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 }

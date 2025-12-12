@@ -1,8 +1,7 @@
 import { useFilters } from "../../../../hooks/useFilters.js";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button } from "react-bootstrap";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "../../../../api/fakeStoreApi.js";
 import { useCart } from "../../../../store.js";
 import { getAdjustedStock } from "../../../../utils/calculateStock.js";
@@ -12,10 +11,6 @@ export default function ProductList({ search = "" }) {
   const { filters } = useFilters();
   const addCart = useCart((state) => state.addCart);
   const cart = useCart((state) => state.cart);
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const {
     data: products = [],
@@ -29,9 +24,8 @@ export default function ProductList({ search = "" }) {
   if (isLoading) return <p>Cargando productos...</p>;
   if (error) return <p>Error cargando productos</p>;
 
-  // 🔹 Filtrado según buscador
   const filteredProducts = products
-    .filter((product) => product.available) // 👈 solo productos disponibles
+    .filter((product) => product.available)
     .filter((product) => {
       const title = product.title?.toLowerCase() || "";
       const brand = product.brand?.toLowerCase() || "";
@@ -76,21 +70,7 @@ export default function ProductList({ search = "" }) {
                       disabled={getAdjustedStock(product, cart) === 0}
                       onClick={() => {
                         if (getAdjustedStock(product, cart) === 0) return;
-
-                        const storedUser = localStorage.getItem("user");
-                        const user = storedUser ? JSON.parse(storedUser) : null;
-
-                        if (!user) {
-                          // guardamos la URL actual para volver después del login
-                          localStorage.setItem(
-                            "redirectAfterLogin",
-                            window.location.pathname
-                          );
-                          setShowLoginModal(true);
-                          return;
-                        }
-
-                        addCart(product);
+                        addCart(product); // 👉 Ahora agrega sin login
                       }}
                     >
                       {getAdjustedStock(product, cart) === 0
@@ -104,34 +84,6 @@ export default function ProductList({ search = "" }) {
           ))
         )}
       </div>
-
-      {/* ✅ Modal de login */}
-      <Modal
-        show={showLoginModal}
-        onHide={() => setShowLoginModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Iniciar sesión requerido</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Para agregar productos al carrito necesitás iniciar sesión.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowLoginModal(false)}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setShowLoginModal(false);
-              navigate("/login");
-            }}
-          >
-            Ir al login
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 }

@@ -546,3 +546,51 @@
     display: none !important;
   }
 }
+
+/* BOTÓN FLOTANTE WHATSAPP */
+.whatsapp-button {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 65px;
+  height: 65px;
+  background-color: #25D366;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.whatsapp-button img {
+  width: 40px;
+  height: 40px;
+}
+
+.whatsapp-button:hover {
+  transform: scale(1.1);
+}
+
+/* CONTACTOS EN EL MODAL */
+.wa-contact {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.wa-contact img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.wa-contact span {
+  flex: 1;
+  font-weight: 600;
+  font-size: 1rem;
+}

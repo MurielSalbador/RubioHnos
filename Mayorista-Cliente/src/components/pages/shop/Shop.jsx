@@ -121,13 +121,13 @@ const Shop = () => {
               {/* Lista de productos filtrada */}
               <div className="content">
                 {/* Carrito arriba */}
-                <div className="cart-top">
-                  <Filters />
-                  <Cart />
-                  <div className="classButton">
-                    <Link to="/finish">Finalizar tu compra</Link>
-                  </div>
-                </div>
+              <div className="cart-top" id="cart-section">
+  <Filters />
+  <Cart />
+  <div className="classButton">
+    <Link to="/finish">Finalizar tu compra</Link>
+  </div>
+</div>
 
                 {/* Lista de productos debajo */}
                 <div className="products-wrapper">
@@ -138,12 +138,17 @@ const Shop = () => {
           </main>
 
           {/* Botón flotante solo en móviles */}
-          <button
-            className="floating-cart-btn"
-            onClick={() => setShowCartModal(true)}
-          >
-            🛒
-          </button>
+        <button
+  className="floating-cart-btn"
+  onClick={() => {
+    const cart = document.getElementById("cart-section");
+    if (cart) {
+      cart.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }}
+>
+  🛒
+</button>
 
           <footer className="footer">
             <div className="footer-container">
@@ -180,26 +185,7 @@ const Shop = () => {
             </div>
           </footer>
 
-          {/* Modal carrito */}
-          {showCartModal && (
-            <div className="cart-modal">
-              <div className="cart-modal-content">
-                <button
-                  className="close-cart-btn"
-                  onClick={() => setShowCartModal(false)}
-                >
-                  ✖
-                </button>
-                <Filters />
-                <Cart />
-                <div className="classButton">
-                  <Link to="/finish" onClick={() => setShowCartModal(false)}>
-                    Finalizar tu compra
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
+         
         </FiltersProvider>
       </QueryClientProvider>
     </>
