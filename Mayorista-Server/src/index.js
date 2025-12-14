@@ -15,8 +15,11 @@ import orderRoutes from "./routes/orders.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import categoryRoutes from './routes/category.routes.js';
 import resetPasswordRoutes from "./routes/resetPassword.routes.js";
+import expensesRoutes from "./routes/expense.routes.js";
 
 import fs from "fs";
+
+console.log("🔥 expensesRoutes LOADED");
 
 const uploadsDir = path.resolve("uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -50,6 +53,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/password", resetPasswordRoutes);
+app.use("/api/expenses", expensesRoutes);
 
 
 // ⚠️ debe ir DESPUÉS de definir app.use("/api/...")
@@ -64,6 +68,11 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Ruta raíz
+app.get('/', (req, res) => {
+  res.send('El backend con MongoDB funciona correctamente');
+});
 
 // Conectar y lanzar el servidor
 const startServer = async () => {
@@ -84,7 +93,4 @@ const startServer = async () => {
 
 startServer();
 
-// Ruta raíz
-app.get('/', (req, res) => {
-  res.send('El backend con MongoDB funciona correctamente');
-});
+

@@ -45,7 +45,7 @@ import UserManagement from "./components/pages/userManagement/UserManagement.jsx
 import NotFound from "./components/pages/notFound/NotFound.jsx";
 
 //passwordReset
-import PwReset from "./components/pages/income/login/resetPassword/PasswordReset.jsx"
+import PwReset from "./components/pages/income/login/resetPassword/PasswordReset.jsx";
 
 //forgotPassword
 import ForgotPassword from "./components/pages/income/login/forgotPassword/ForgotPassword.jsx";
@@ -55,6 +55,9 @@ import MarcaPage from "./components/pages/Home/MarcaPage/MarcaPage.jsx";
 
 //categories carousel
 import CategoriesCarousel from "./components/pages/Home/categoriesCarousel/CategoriesCarousel.jsx";
+
+//gastos
+import ExpenseManagement from "./components/pages/ExpenseManagement/ExpenseManagement.jsx";
 
 //css
 import "./App.css";
@@ -75,7 +78,7 @@ function App() {
     });
   }, []);
 
-   useEffect(() => {
+  useEffect(() => {
     checkTokenExpiration();
   }, []);
 
@@ -92,7 +95,14 @@ function App() {
           <Route path="/allOrders" element={<Orders />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<PwReset />} />
-          
+          <Route
+            path="/expenses"
+            element={
+              <ProtectedRoute>
+                <ExpenseManagement />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/addProducts"
             element={

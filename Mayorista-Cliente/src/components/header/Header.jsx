@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AccountButton from "../pages/income/account/AccountButton.jsx";
-import { isSuperAdmin } from "../../utils/auth.js";
+import { isSuperAdmin, isAdminOrSuperAdmin } from "../../utils/auth.js";
 import "./header.css";
 
 export default function Header() {
@@ -53,6 +53,13 @@ export default function Header() {
                 </a>
               </li>
             )}
+            {isAdminOrSuperAdmin() && (
+  <li>
+    <a href="/expenses" className="link">
+      <i className="fa-solid fa-money-check-dollar"></i> Gastos
+    </a>
+  </li>
+)}
           </ul>
 
           <ul className="nav-right">
