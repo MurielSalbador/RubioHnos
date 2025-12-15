@@ -29,7 +29,7 @@ export const createExpense = async (req, res) => {
       0
     );
 
-    const status = debts.length === 0 ? "paid" : "pending";
+  const status = "pending";
 
     const expense = await Expense.create({
       title,
@@ -129,6 +129,12 @@ export const payDebt = async (req, res) => {
 ========================= */
 export const recalcExpenseStatus = async (expenseId) => {
   const debts = await ExpenseDebt.find({ expenseId });
+
+  // 🔴 SI NO HAY DEUDAS → PENDING
+  if (debts.length === 0) {
+    await Expense.findByIdAndUpdate(expenseId, { status: "pending" });
+    return;
+  }
 
   const allPaid = debts.every(d => d.status === "paid");
   const somePaid = debts.some(d => d.amountPaid > 0);

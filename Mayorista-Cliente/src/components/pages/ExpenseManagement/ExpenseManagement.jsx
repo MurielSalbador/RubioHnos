@@ -107,6 +107,58 @@ export default function ExpenseManagement() {
      UI
   ====================== */
 
+  const handleEdit = (expense) => {
+  setForm({
+    title: expense.title,
+    notes: expense.notes || "",
+    paidBy: expense.paidBy || "",
+    products: expense.items.map((i) => ({
+      productName: i.productName,
+      price: i.price,
+    })),
+    debts: expense.debts || [],
+  });
+
+  setMode(expense.paidBy ? "personal" : "empresa");
+};
+
+const handleDelete = async (id) => {
+  if (!confirm("¿Seguro que querés eliminar este gasto?")) return;
+
+  await axios.delete(`${BASE_URL}/api/expenses/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  fetchExpenses();
+};
+
+const handlePay = async (expense) => {
+  if (!expense.debts || expense.debts.length === 0) {
+    alert("Este gasto no tiene deudas");
+    return;
+  }
+
+  const debt = expense.debts[0]; // por ahora una sola deuda
+  const amount = prompt("Monto a descontar:");
+
+  if (!amount || Number(amount) <= 0) return;
+
+  await axios.post(
+    `${BASE_URL}/api/expenses/debts/${debt._id}/pay`,
+    { amount },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  fetchExpenses();
+};
+
+
   return (
     <div className="expenses-page">
       <h2>Gestión de Gastos</h2>
@@ -204,8 +256,25 @@ export default function ExpenseManagement() {
   </div>
 
   <div className="actions">
-    <button className="primary">Guardar</button>
-    <button className="cancel">Cancelar</button>
+    <button className="primary" onClick={submitExpense}>
+  Guardar
+</button>
+    <button
+  className="cancel"
+  onClick={() => {
+    setMode(null);
+    setForm({
+      title: "",
+      paidBy: "",
+      notes: "",
+      products: [{ productName: "", price: "" }],
+      debts: [],
+    });
+  }}
+>
+  Cancelar
+</button>
+
   </div>
 
 </div>
@@ -244,22 +313,25 @@ export default function ExpenseManagement() {
     </p>
 
     {/* BOTONES */}
-    <div className="actions">
+   <div className="actions">
   <button onClick={() => handleEdit(e)}>✏️ Editar</button>
   <button onClick={() => handleDelete(e._id)}>🗑 Eliminar</button>
 
-  {e.status !== "paid" && (
-    <>
-      <button onClick={() => handlePay(e)}>
-        ➖ Descontar pago
-      </button>
+  {/* SI TIENE DEUDAS */}
+  {e.debts?.length > 0 && e.status !== "paid" && (
+    <button onClick={() => handlePay(e)}>
+      ➖ Descontar pago
+    </button>
+  )}
 
-      <button onClick={() => markAsPaid(e._id)}>
-        ✅ Marcar como pagado
-      </button>
-    </>
+  {/* SI NO ESTÁ PAGADO */}
+  {e.status !== "paid" && (
+    <button onClick={() => markAsPaid(e._id)}>
+      ✅ Marcar como pagado
+    </button>
   )}
 </div>
+
 
   </div>
 ))}
