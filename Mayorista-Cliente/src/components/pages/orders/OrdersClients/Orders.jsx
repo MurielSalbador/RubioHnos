@@ -133,50 +133,74 @@ const Orders = () => {
   };
 
   const renderOrder = (order) => {
-    const nextStatus = getNextStatus(order.status);
-    const prevStatus = getPrevStatus(order.status);
+  const nextStatus = getNextStatus(order.status);
+  const prevStatus = getPrevStatus(order.status);
 
-    return (
-      <div key={order._id} className={styles.orderCard}>
-        <strong>Pedido #{order._id}</strong> - {order.name}
+  return (
+    <div key={order._id} className={styles.orderCard}>
+      
+      <h3>🧾 Pedido #{order._id.slice(-5)}</h3>
 
-        <div className={styles.buttonsContainer}>
-          {prevStatus && (
-            <button
-              disabled={loadingIds.includes(order._id)}
-              onClick={() => changeStatus(order._id, prevStatus)}
-              title={`Volver a ${prevStatus}`}
-            >
-              {prevStatus}
-            </button>
-          )}
+      <p>
+        <strong>📧 Email:</strong> {order.email}
+      </p>
 
-          {nextStatus && (
-            <button
-              disabled={loadingIds.includes(order._id)}
-              onClick={() => changeStatus(order._id, nextStatus)}
-              title={`Avanzar a ${nextStatus}`}
-            >
-              {nextStatus}
-            </button>
-          )}
+      <p>
+        <strong>📍 Dirección:</strong><br />
+        {order.address} – {order.city}
+      </p>
 
-          {/* Mostrar botón de borrar solo si el pedido está completado y el usuario es superAdmin */}
-          {order.status === "Completado" && user?.role === "superAdmin" && (
-            <button
-              className={styles.trashButton}
-              onClick={() => handleDelete(order._id)}
-              disabled={loadingIds.includes(order._id)}
-              title="Eliminar pedido"
-              style={{ marginLeft: "10px" }}
-            >
-              <Trash />
-            </button>
-          )}
-        </div>
+      <p>
+        <strong>💰 Total:</strong> ${order.total}
+      </p>
+
+      <details>
+        <summary>📦 Ver productos</summary>
+        <ul>
+          {order.items.map((item, i) => (
+            <li key={i}>
+              {item.title} × {item.quantity} — $
+              {item.price * item.quantity}
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      {/* BOTONES DE ESTADO */}
+      <div className={styles.buttonsContainer}>
+        {prevStatus && (
+          <button
+            disabled={loadingIds.includes(order._id)}
+            onClick={() => changeStatus(order._id, prevStatus)}
+          >
+            ← {prevStatus}
+          </button>
+        )}
+
+        {nextStatus && (
+          <button
+            disabled={loadingIds.includes(order._id)}
+            onClick={() => changeStatus(order._id, nextStatus)}
+          >
+            {nextStatus} →
+          </button>
+        )}
+
+        {/* ELIMINAR SOLO SUPERADMIN Y COMPLETADO */}
+        {order.status === "Completado" && user?.role === "superAdmin" && (
+          <button
+            className={styles.trashButton}
+            onClick={() => handleDelete(order._id)}
+            disabled={loadingIds.includes(order._id)}
+            title="Eliminar pedido"
+          >
+            <Trash />
+          </button>
+        )}
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   const pending = orders.filter((o) => o.status === "Pendiente");
   const inProgress = orders.filter((o) => o.status === "En progreso");
