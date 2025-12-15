@@ -1,11 +1,18 @@
 // controllers/expense.controller.js
-import Expense from "../mongoModels/Expense.mongo.js"
+import Expense from "../mongoModels/Expense.mongo.js";
 import ExpenseDebt from "../mongoModels/ExpenseDebt.mongo.js";
 import ExpenseItem from "../mongoModels/ExpenseItem.mongo.js";
 
+/* =========================
+   CREATE
+========================= */
 export const createExpense = async (req, res) => {
   try {
     const { title, paidBy, notes, products = [], debts = [] } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ error: "Falta el concepto" });
+    }
 
     const cleanProducts = products.filter(
       p => p.productName && Number(p.price) > 0
@@ -45,22 +52,25 @@ export const createExpense = async (req, res) => {
         debts.map(d => ({
           expenseId: expense._id,
           userId: d.userId,
-          amountOwed: d.amountOwed,
+          amountOwed: Number(d.amountOwed),
+          amountPaid: 0,
+          status: "pending",
         }))
       );
     }
 
     res.status(201).json(expense);
-
   } catch (err) {
     console.error("🔥 createExpense error:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-
+/* =========================
+   GET ALL
+========================= */
 export const getExpenses = async (req, res) => {
-  const expenses = await Expense.find();
+  const expenses = await Expense.find().sort({ createdAt: -1 });
 
   const result = await Promise.all(
     expenses.map(async exp => {
@@ -74,8 +84,9 @@ export const getExpenses = async (req, res) => {
   res.json(result);
 };
 
-
-
+/* =========================
+   UPDATE STATUS
+========================= */
 export const updateExpenseStatus = async (req, res) => {
   const { status } = req.body;
 
@@ -88,24 +99,34 @@ export const updateExpenseStatus = async (req, res) => {
   res.json(expense);
 };
 
+/* =========================
+   PAY DEBT
+========================= */
 export const payDebt = async (req, res) => {
   const { amount } = req.body;
 
+  if (Number(amount) <= 0) {
+    return res.status(400).json({ error: "Monto inválido" });
+  }
+
   const debt = await ExpenseDebt.findById(req.params.id);
+
   debt.amountPaid += Number(amount);
 
   if (debt.amountPaid >= debt.amountOwed) {
+    debt.amountPaid = debt.amountOwed;
     debt.status = "paid";
   }
 
   await debt.save();
-
   await recalcExpenseStatus(debt.expenseId);
 
   res.json(debt);
 };
 
-
+/* =========================
+   RECALC STATUS
+========================= */
 export const recalcExpenseStatus = async (expenseId) => {
   const debts = await ExpenseDebt.find({ expenseId });
 
@@ -119,7 +140,9 @@ export const recalcExpenseStatus = async (expenseId) => {
   await Expense.findByIdAndUpdate(expenseId, { status });
 };
 
-
+/* =========================
+   DELETE
+========================= */
 export const deleteExpense = async (req, res) => {
   await Expense.findByIdAndDelete(req.params.id);
   await ExpenseDebt.deleteMany({ expenseId: req.params.id });
@@ -127,4 +150,3 @@ export const deleteExpense = async (req, res) => {
 
   res.json({ message: "Gasto eliminado" });
 };
-

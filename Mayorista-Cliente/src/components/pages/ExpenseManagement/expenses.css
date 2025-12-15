@@ -30,6 +30,49 @@
   opacity: 0.7;
 }
 
+.expense-form {
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.row input {
+  flex: 1;
+}
+
+.add {
+  margin: 10px 0;
+  background: #eee;
+  padding: 6px;
+}
+
+.summary {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.primary {
+  background: black;
+  color: white;
+}
+
+.cancel {
+  background: #ccc;
+}
+
+
 .expense-form input,
 .expense-form textarea,
 .expense-form select {
@@ -60,3 +103,24 @@
   padding: 10px;
   margin-bottom: 10px;
 }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.items {
+  padding-left: 16px;
+  font-size: 14px;
+}
+
+.notes {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.status.paid { color: green; }
+.status.partial { color: orange; }
+.status.pending { color: red; }
+

@@ -22,6 +22,20 @@ export default function ExpenseManagement() {
     { _id: "ID_NACHO", username: "Nacho" },
   ];
 
+  const markAsPaid = async (id) => {
+  await axios.put(
+    `${BASE_URL}/api/expenses/${id}/status`,
+    { status: "paid" },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  fetchExpenses();
+};
+
   /* ======================
      CALCULOS
   ====================== */
@@ -122,85 +136,79 @@ export default function ExpenseManagement() {
       {/* FORMULARIO */}
       {(mode === "personal" || mode === "empresa") && (
         <div className="expense-form">
-          <h3>
-            {mode === "personal" ? "Gasto personal" : "Gasto de la empresa"}
-          </h3>
+  <h3>{mode === "edit" ? "Editar gasto" : "Nuevo gasto"}</h3>
 
-          <input
-            placeholder="Concepto"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-          />
+  <div className="field">
+    <label>Concepto</label>
+    <input
+      value={form.title}
+      onChange={(e) => setForm({ ...form, title: e.target.value })}
+    />
+  </div>
 
-          <textarea
-            placeholder="Notas"
-            value={form.notes}
-            onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          />
+  <div className="field">
+    <label>Notas</label>
+    <textarea
+      value={form.notes}
+      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+    />
+  </div>
 
-          {mode === "personal" && (
-            <select
-              value={form.paidBy}
-              onChange={(e) => setForm({ ...form, paidBy: e.target.value })}
-            >
-              <option value="">Quién pagó</option>
-              {users.map((u) => (
-                <option key={u._id} value={u._id}>
-                  {u.username}
-                </option>
-              ))}
-            </select>
-          )}
+  {mode === "personal" && (
+    <div className="field">
+      <label>Quién pagó</label>
+      <select
+        value={form.paidBy}
+        onChange={(e) => setForm({ ...form, paidBy: e.target.value })}
+      >
+        <option value="">Seleccionar</option>
+        {users.map((u) => (
+          <option key={u._id} value={u._id}>
+            {u.username}
+          </option>
+        ))}
+      </select>
+    </div>
+  )}
 
-          {/* PRODUCTOS */}
-          <h4>Productos</h4>
-          {form.products.map((p, i) => (
-            <div key={i} className="row">
-              <input
-                placeholder="Producto"
-                value={p.productName}
-                onChange={(e) => {
-                  const products = [...form.products];
-                  products[i].productName = e.target.value;
-                  setForm({ ...form, products });
-                }}
-              />
-              <input
-                type="number"
-                placeholder="Precio"
-                value={p.price}
-                onChange={(e) => {
-                  const products = [...form.products];
-                  products[i].price = e.target.value; // 👈 string
-                  setForm({ ...form, products });
-                }}
-              />
-            </div>
-          ))}
+  <h4>Productos</h4>
 
-          <button
-            onClick={() =>
-              setForm({
-                ...form,
-                products: [...form.products, { productName: "", price: "" }],
-              })
-            }
-          >
-            + Producto
-          </button>
+  {form.products.map((p, i) => (
+    <div key={i} className="row">
+      <input
+        placeholder="Producto"
+        value={p.productName}
+        onChange={(e) => {
+          const products = [...form.products];
+          products[i].productName = e.target.value;
+          setForm({ ...form, products });
+        }}
+      />
+      <input
+        type="number"
+        placeholder="$"
+        value={p.price}
+        onChange={(e) => {
+          const products = [...form.products];
+          products[i].price = e.target.value;
+          setForm({ ...form, products });
+        }}
+      />
+    </div>
+  ))}
 
-          {/* TOTAL */}
-          <h4>Total a reponer</h4>
-          <p className="total">${totalProducts}</p>
+  <button className="add">+ Agregar producto</button>
 
-          <button className="primary" onClick={submitExpense}>
-            Guardar gasto
-          </button>
+  <div className="summary">
+    <strong>Total:</strong> ${totalProducts}
+  </div>
 
-          <button className="cancel" onClick={() => setMode(null)}>
-            Cancelar
-          </button>
-        </div>
+  <div className="actions">
+    <button className="primary">Guardar</button>
+    <button className="cancel">Cancelar</button>
+  </div>
+
+</div>
       )}
 
       <hr />
@@ -208,15 +216,54 @@ export default function ExpenseManagement() {
       {/* LISTADO */}
       <h3>Gastos</h3>
       {expenses.map((e) => (
-        <div key={e._id} className="expense-card">
-          <h4>{e.title}</h4>
-          <p>{e.paidBy ? `Pagó: ${e.paidBy}` : "Pagó la empresa"}</p>
-          <p>Total: ${e.totalAmount}</p>
-          <p>
-            Estado: <span className={`status ${e.status}`}>{e.status}</span>
-          </p>
-        </div>
+  <div key={e._id} className="expense-card">
+    <h4>{e.title}</h4>
+
+    <p className="notes">{e.notes || "Sin descripción"}</p>
+
+    <p>
+      {e.paidBy ? `Pagó: ${e.paidBy}` : "Pagó la empresa"}
+    </p>
+
+    {/* PRODUCTOS */}
+    <ul className="items">
+      {e.items.map((it) => (
+        <li key={it._id}>
+          {it.productName} – ${it.price}
+        </li>
       ))}
+    </ul>
+
+    <p className="total">Total: ${e.totalAmount}</p>
+
+    <p>
+      Estado:
+      <span className={`status ${e.status}`}>
+        {e.status}
+      </span>
+    </p>
+
+    {/* BOTONES */}
+    <div className="actions">
+  <button onClick={() => handleEdit(e)}>✏️ Editar</button>
+  <button onClick={() => handleDelete(e._id)}>🗑 Eliminar</button>
+
+  {e.status !== "paid" && (
+    <>
+      <button onClick={() => handlePay(e)}>
+        ➖ Descontar pago
+      </button>
+
+      <button onClick={() => markAsPaid(e._id)}>
+        ✅ Marcar como pagado
+      </button>
+    </>
+  )}
+</div>
+
+  </div>
+))}
+
     </div>
   );
 }
