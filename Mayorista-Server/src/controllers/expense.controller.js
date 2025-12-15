@@ -47,17 +47,22 @@ export const createExpense = async (req, res) => {
       }))
     );
 
-    if (debts.length > 0) {
-      await ExpenseDebt.insertMany(
-        debts.map(d => ({
-          expenseId: expense._id,
-          userId: d.userId,
-          amountOwed: Number(d.amountOwed),
-          amountPaid: 0,
-          status: "pending",
-        }))
-      );
-    }
+    if (paidBy) {
+  const users = ["ID_HERNAN", "ID_RUDDI", "ID_NACHO"];
+
+  const debtors = users.filter(u => u !== paidBy);
+  const splitAmount = totalAmount / users.length;
+
+  await ExpenseDebt.insertMany(
+    debtors.map(userId => ({
+      expenseId: expense._id,
+      userId,
+      amountOwed: splitAmount,
+      amountPaid: 0,
+      status: "pending",
+    }))
+  );
+}
 
     res.status(201).json(expense);
   } catch (err) {

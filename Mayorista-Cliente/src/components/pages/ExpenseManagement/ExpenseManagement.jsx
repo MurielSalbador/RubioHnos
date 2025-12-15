@@ -22,9 +22,9 @@ export default function ExpenseManagement() {
     { _id: "ID_NACHO", username: "Nacho" },
   ];
 
-  const markAsPaid = async (id) => {
-  await axios.put(
-    `${BASE_URL}/api/expenses/${id}/status`,
+ const markAsPaid = async (id) => {
+  await axios.patch(
+    `${BASE_URL}/api/expenses/${id}`,
     { status: "paid" },
     {
       headers: {
@@ -145,15 +145,15 @@ const handlePay = async (expense) => {
 
   if (!amount || Number(amount) <= 0) return;
 
-  await axios.post(
-    `${BASE_URL}/api/expenses/debts/${debt._id}/pay`,
-    { amount },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
+await axios.patch(
+  `${BASE_URL}/api/expenses/debt/${debt._id}/pay`,
+  { amount },
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  }
+);
 
   fetchExpenses();
 };
