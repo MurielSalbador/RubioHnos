@@ -121,6 +121,50 @@
   transform: scale(1.05);
 }
 
+/* =========================
+   ESTILO COMANDA (ADMIN)
+========================= */
+
+.adminOrders .orderItem {
+  background: #ffffff;
+  border: 2px dashed #94a3b8;
+  box-shadow: none;
+  font-family: "Courier New", monospace;
+}
+
+.adminOrders .orderItem:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.adminOrders .orderItem h3 {
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.adminOrders .orderItem p {
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.adminOrders .orderItem details summary {
+  color: #111827;
+}
+
+.adminOrders .orderItem details summary:hover {
+  color: #000000;
+}
+
+/* separar visualmente cada pedido */
+.adminOrders .orderItem::after {
+  content: "---------------------------";
+  display: block;
+  margin-top: 1rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+
 /* --- Responsive para tablets (hasta 900px) --- */
 @media (max-width: 900px) {
   .container {
@@ -144,6 +188,8 @@
     font-size: 0.95rem;
   }
 }
+
+
 
 /* --- Responsive para celulares (hasta 600px) --- */
 @media (max-width: 600px) {

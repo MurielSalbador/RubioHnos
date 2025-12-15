@@ -37,58 +37,62 @@ const AllOrders = () => {
   }, [navigate]);
 
   return (
-    <>
-      <div className={styles.contactClose}>
-        <CloseButton
-          aria-label="Cerrar formulario"
-          onClick={() => navigate("/")}
-        />
-      </div>
-      <main className={styles.myOrders}>
-        <div className={styles.container}>
-          <h1>Pedidos de todos los usuarios</h1>
+  <>
+    <div className={styles.contactClose}>
+      <CloseButton
+        aria-label="Cerrar pedidos"
+        onClick={() => navigate("/")}
+      />
+    </div>
 
-          {orders.length === 0 ? (
-            <p>No hay pedidos aún.</p>
-          ) : (
-            <ul className={styles.ordersList}>
-              {orders.map((order, index) => (
-                <li key={index} className={styles.orderItem}>
-                  <h3>🛒 Pedido #{index + 1}</h3>
-                  <p>
-                    <strong>Usuario:</strong> {order.name} ({order.email})
-                  </p>
-                  <p>
-                    <strong>Fecha:</strong> {order.date}
-                  </p>
-                  <p>
-                    <strong>Localidad:</strong> {order.city}
-                  </p>
-                  <p>
-                    <strong>Dirección:</strong> {order.address}
-                  </p>
-                  <p>
-                    <strong>Total:</strong> ${order.total}
-                  </p>
-                  <details>
-                    <summary>Ver productos</summary>
-                    <ul>
-                      {order.items.map((item, i) => (
-                        <li key={i}>
-                          {item.title} x{item.quantity} - $
-                          {item.price * item.quantity}
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </main>
-    </>
-  );
+    <main className={`${styles.myOrders} ${styles.adminOrders}`}>
+      <div className={styles.container}>
+        <h1>📋 Comandas – Todos los pedidos</h1>
+
+        {orders.length === 0 ? (
+          <p>No hay pedidos aún.</p>
+        ) : (
+          <ul className={styles.ordersList}>
+            {orders.map((order, index) => (
+              <li key={order._id || index} className={styles.orderItem}>
+                
+                <h3>🛒 Pedido #{index + 1}</h3>
+
+                <p>
+                  <strong>📧 Email:</strong> {order.email}
+                </p>
+
+                <p>
+                  <strong>📍 Dirección:</strong><br />
+                  {order.address} – {order.city}
+                </p>
+
+                <p>
+                  <strong>💰 Total:</strong> ${order.total}
+                </p>
+
+                <details>
+                  <summary>📦 Ver productos</summary>
+                  <ul>
+                    {order.items.map((item, i) => (
+                      <li key={i}>
+                        {item.title} × {item.quantity}
+                        <span>
+                          {" "}– ${item.price * item.quantity}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </main>
+  </>
+);
 };
 
 export default AllOrders;
