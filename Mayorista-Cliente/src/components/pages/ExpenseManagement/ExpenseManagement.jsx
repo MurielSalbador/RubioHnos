@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./expenses.css";
 
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+
 const BASE_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 export default function ExpenseManagement() {
@@ -135,28 +138,71 @@ const handleDelete = async (id) => {
 };
 
 const handlePay = async (expense) => {
-  if (!expense.debts || expense.debts.length === 0) {
-    alert("Este gasto no tiene deudas");
+  const debt = expense.debts?.[0];
+
+  if (!debt) {
+    Swal.fire({
+      icon: "error",
+      title: "Sin deuda",
+      text: "Este gasto no tiene deuda asociada",
+    });
     return;
   }
 
-  const debt = expense.debts[0]; // por ahora una sola deuda
-  const amount = prompt("Monto a descontar:");
-
-  if (!amount || Number(amount) <= 0) return;
-
-await axios.patch(
-  `${BASE_URL}/api/expenses/debt/${debt._id}/pay`,
-  { amount },
-  {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
+  const { value: amount } = await Swal.fire({
+    title: "Descontar pago",
+    input: "number",
+    inputLabel: `Monto a descontar (máx $${debt.remainingAmount})`,
+    inputAttributes: {
+      min: 1,
+      max: debt.remainingAmount,
+      step: 1,
     },
-  }
-);
+    showCancelButton: true,
+    confirmButtonText: "Descontar",
+    cancelButtonText: "Cancelar",
+    inputValidator: (value) => {
+      if (!value || Number(value) <= 0) {
+        return "Ingresá un monto válido";
+      }
+      if (Number(value) > debt.remainingAmount) {
+        return "No podés descontar más de lo que falta pagar";
+      }
+    },
+  });
 
-  fetchExpenses();
+  if (!amount) return;
+
+  try {
+    await axios.patch(
+      `${BASE_URL}/api/expenses/debt/${debt._id}/pay`,
+      { amount: Number(amount) },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    await Swal.fire({
+      icon: "success",
+      title: "Pago registrado",
+      text: `Se descontaron $${amount}`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    fetchExpenses();
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err.response?.data?.error || "Error al descontar el pago",
+    });
+  }
 };
+
+
 
 
   return (
@@ -187,7 +233,24 @@ await axios.patch(
 
       {/* FORMULARIO */}
       {(mode === "personal" || mode === "empresa") && (
-        <div className="expense-form">
+  <div className="expense-form">
+
+    {/* BOTÓN VOLVER */}
+    <button
+      className="close-form"
+      onClick={() => {
+        setMode(null);
+        setForm({
+          title: "",
+          paidBy: "",
+          notes: "",
+          products: [{ productName: "", price: "" }],
+          debts: [],
+        });
+      }}
+    >
+      ✖
+    </button>
   <h3>{mode === "edit" ? "Editar gasto" : "Nuevo gasto"}</h3>
 
   <div className="field">
@@ -284,7 +347,8 @@ await axios.patch(
 
       {/* LISTADO */}
       <h3>Gastos</h3>
-      {expenses.map((e) => (
+
+{expenses.map((e) => (
   <div key={e._id} className="expense-card">
     <h4>{e.title}</h4>
 
@@ -303,7 +367,20 @@ await axios.patch(
       ))}
     </ul>
 
-    <p className="total">Total: ${e.totalAmount}</p>
+    {/* TOTAL DINÁMICO */}
+    <p className="total">
+      Total: $
+      {e.debts?.[0]
+        ? e.debts[0].remainingAmount
+        : e.totalAmount}
+    </p>
+
+    {/* RESTANTE SOLO SI HAY DEUDA */}
+    {e.debts?.[0] && (
+      <p className="remaining">
+        Falta pagar: ${e.debts[0].remainingAmount}
+      </p>
+    )}
 
     <p>
       Estado:
@@ -313,28 +390,27 @@ await axios.patch(
     </p>
 
     {/* BOTONES */}
-   <div className="actions">
-  <button onClick={() => handleEdit(e)}>✏️ Editar</button>
-  <button onClick={() => handleDelete(e._id)}>🗑 Eliminar</button>
+    <div className="actions">
+      <button onClick={() => handleEdit(e)}>✏️ Editar</button>
+      <button onClick={() => handleDelete(e._id)}>🗑 Eliminar</button>
 
-  {/* SI TIENE DEUDAS */}
-  {e.debts?.length > 0 && e.status !== "paid" && (
-    <button onClick={() => handlePay(e)}>
-      ➖ Descontar pago
-    </button>
-  )}
+      {/* 🔹 DESCONTAR → SOLO GASTO PERSONAL */}
+      {e.paidBy && e.debts?.[0]?.remainingAmount > 0 && (
+        <button onClick={() => handlePay(e)}>
+          ➖ Descontar pago
+        </button>
+      )}
 
-  {/* SI NO ESTÁ PAGADO */}
-  {e.status !== "paid" && (
-    <button onClick={() => markAsPaid(e._id)}>
-      ✅ Marcar como pagado
-    </button>
-  )}
-</div>
-
-
+      {/* 🔹 MARCAR PAGADO → SOLO EMPRESA */}
+      {!e.paidBy && e.status !== "paid" && (
+        <button onClick={() => markAsPaid(e._id)}>
+          ✅ Marcar como pagado
+        </button>
+      )}
+    </div>
   </div>
 ))}
+
 
     </div>
   );

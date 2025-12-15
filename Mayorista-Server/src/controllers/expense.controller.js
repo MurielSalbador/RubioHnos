@@ -113,27 +113,27 @@ export const payDebt = async (req, res) => {
     return res.status(404).json({ error: "Deuda no encontrada" });
   }
 
+  if (Number(amount) > debt.remainingAmount) {
+    return res.status(400).json({
+      error: "No podés pagar más de lo que falta",
+    });
+  }
+
   debt.remainingAmount -= Number(amount);
 
-  if (debt.remainingAmount <= 0) {
-    debt.remainingAmount = 0;
+  if (debt.remainingAmount === 0) {
     debt.status = "paid";
-
-    await Expense.findByIdAndUpdate(debt.expenseId, {
-      status: "paid",
-    });
+    await Expense.findByIdAndUpdate(debt.expenseId, { status: "paid" });
   } else {
     debt.status = "partial";
-
-    await Expense.findByIdAndUpdate(debt.expenseId, {
-      status: "partial",
-    });
+    await Expense.findByIdAndUpdate(debt.expenseId, { status: "partial" });
   }
 
   await debt.save();
 
   res.json(debt);
 };
+
 
 
 /* =========================
