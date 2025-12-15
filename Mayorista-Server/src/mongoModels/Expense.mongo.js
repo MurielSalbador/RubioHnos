@@ -8,12 +8,11 @@ const expenseSchema = new mongoose.Schema(
       required: true, // "Compra supermercado"
     },
 
-    paidBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
+ paidBy: {
+  type: String,
+  required: false,
+  default: null,
+},
     totalAmount: {
       type: Number,
       required: true,
