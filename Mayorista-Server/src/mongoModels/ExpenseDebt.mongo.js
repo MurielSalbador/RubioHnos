@@ -1,37 +1,27 @@
-// mongoModels/expenseDebt.mongo.js
 import mongoose from "mongoose";
 
-const expenseDebtSchema = new mongoose.Schema(
+const ExpenseDebtSchema = new mongoose.Schema(
   {
     expenseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Expense",
       required: true,
     },
-
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    amountOwed: {
+    totalAmount: {
       type: Number,
       required: true,
     },
-
-    amountPaid: {
+    remainingAmount: {
       type: Number,
-      default: 0,
+      required: true,
     },
-
     status: {
       type: String,
-      enum: ["pending", "paid"],
+      enum: ["pending", "partial", "paid"],
       default: "pending",
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("ExpenseDebt", expenseDebtSchema);
+export default mongoose.model("ExpenseDebt", ExpenseDebtSchema);

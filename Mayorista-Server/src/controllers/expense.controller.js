@@ -48,21 +48,14 @@ export const createExpense = async (req, res) => {
     );
 
     if (paidBy) {
-  const users = ["ID_HERNAN", "ID_RUDDI", "ID_NACHO"];
-
-  const debtors = users.filter(u => u !== paidBy);
-  const splitAmount = totalAmount / users.length;
-
-  await ExpenseDebt.insertMany(
-    debtors.map(userId => ({
-      expenseId: expense._id,
-      userId,
-      amountOwed: splitAmount,
-      amountPaid: 0,
-      status: "pending",
-    }))
-  );
+  await ExpenseDebt.create({
+    expenseId: expense._id,
+    totalAmount,
+    remainingAmount: totalAmount,
+    status: "pending",
+  });
 }
+
 
     res.status(201).json(expense);
   } catch (err) {
@@ -116,18 +109,32 @@ export const payDebt = async (req, res) => {
 
   const debt = await ExpenseDebt.findById(req.params.id);
 
-  debt.amountPaid += Number(amount);
+  if (!debt) {
+    return res.status(404).json({ error: "Deuda no encontrada" });
+  }
 
-  if (debt.amountPaid >= debt.amountOwed) {
-    debt.amountPaid = debt.amountOwed;
+  debt.remainingAmount -= Number(amount);
+
+  if (debt.remainingAmount <= 0) {
+    debt.remainingAmount = 0;
     debt.status = "paid";
+
+    await Expense.findByIdAndUpdate(debt.expenseId, {
+      status: "paid",
+    });
+  } else {
+    debt.status = "partial";
+
+    await Expense.findByIdAndUpdate(debt.expenseId, {
+      status: "partial",
+    });
   }
 
   await debt.save();
-  await recalcExpenseStatus(debt.expenseId);
 
   res.json(debt);
 };
+
 
 /* =========================
    RECALC STATUS
