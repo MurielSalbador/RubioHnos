@@ -12,6 +12,7 @@ import Cart from "../cart/Cart/Cart.jsx";
 import Filters from "../cart/Cart/Filters.jsx";
 import Header from "../../header/Header.jsx";
 import { useFilters } from "../../../hooks/useFilters.js";
+import BackToTop from "../../BackToTop/BackToTop.jsx";
 
 //protected
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
@@ -21,9 +22,19 @@ import "./Shop.css";
 
 const ShopContent = () => {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const { filters, setFilters } = useFilters();
   const [brands, setBrands] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // 🔥 Debounce para la búsqueda para no saturar el servidor al escribir
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/products/brands`)
@@ -84,14 +95,11 @@ const ShopContent = () => {
 
               {/* Barra de Controles (Rediseñada para Mobile/Desktop) */}
               <div className="shop-controls">
-                <div className="mobile-search-btn">
-                   <FaSearch />
-                </div>
-                
-                <div className="desktop-search-input">
+                <div className="search-bar-container">
                   <input
                     type="text"
-                    placeholder="Buscar..."
+                    className="shop-search-input"
+                    placeholder="Buscar productos..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -103,20 +111,20 @@ const ShopContent = () => {
                     value={filters.sortByPrice || ""}
                     onChange={(e) => setFilters(prev => ({ ...prev, sortByPrice: e.target.value }))}
                   >
-                    <option value="">Ordenar por</option>
-                    <option value="asc">Menos precio</option>
-                    <option value="desc">Mayor precio</option>
+                    <option value="">Ordenar</option>
+                    <option value="asc">Precio: Menor</option>
+                    <option value="desc">Precio: Mayor</option>
                   </select>
                 </div>
 
                 <button className="mobile-filters-trigger" onClick={() => setIsDrawerOpen(true)}>
-                   <FaCogs /> Filtros
+                   <FaCogs /> <span className="trigger-text">Filtros</span>
                 </button>
               </div>
             </header>
 
             <div className="products-grid-wrapper">
-              <ProductList search={search} />
+              <ProductList search={debouncedSearch} />
             </div>
           </section>
         </div>
@@ -138,6 +146,7 @@ const ShopContent = () => {
             </div>
          </div>
       </footer>
+      <BackToTop />
     </main>
   );
 };

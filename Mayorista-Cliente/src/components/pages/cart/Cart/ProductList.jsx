@@ -71,8 +71,10 @@ export default function ProductList({ search = "" }) {
     <div className="product-list-container">
       <div className="modern-product-grid">
         {allProducts.length === 0 && !isFetching ? (
-          <div className="no-products">
-             <p>No encontramos nada con esos filtros. ¡Intentá con otra combinación!</p>
+          <div className="no-products-container">
+            <div className="no-products-icon">🔎</div>
+            <h3>No encontramos resultados</h3>
+            <p>Intentá con otros filtros o términos de búsqueda. ¡Tenemos muchas cosas ricas esperándote!</p>
           </div>
         ) : (
           allProducts.map((product) => {
@@ -80,7 +82,11 @@ export default function ProductList({ search = "" }) {
             const quantity = cartItem ? cartItem.quantity : 0;
 
             return (
-              <div key={product._id} className="modern-product-card">
+              <div 
+                key={product._id} 
+                className="modern-product-card"
+                data-aos="fade-up"
+              >
                 <div className="card-image-wrapper">
                   {product.imageUrl && (
                     <img loading="lazy" decoding="async" src={product.imageUrl} alt={product.title} />

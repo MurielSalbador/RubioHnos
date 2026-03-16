@@ -115,18 +115,22 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  gap: 20px;
+  gap: 15px;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
-.desktop-search-input {
+.search-bar-container {
   position: relative;
   flex: 1;
-  max-width: 400px;
+  max-width: 450px;
   display: flex;
   align-items: center;
 }
 
-.desktop-search-input input {
+.shop-search-input {
   width: 100%;
   padding: 12px 20px;
   padding-right: 45px;
@@ -135,11 +139,12 @@
   outline: none;
   font-size: 0.95rem;
   transition: all 0.2s;
-  background: white;
+  background: #f8f9fa;
 }
 
-.desktop-search-input input:focus {
+.shop-search-input:focus {
   border-color: var(--primary-color);
+  background: white;
   box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
 }
 
@@ -286,47 +291,34 @@
   }
 
   .shop-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f1f1f1;
-    padding: 8px 12px;
-    border-radius: 8px;
+    flex-wrap: wrap;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
     gap: 10px;
   }
 
-  .desktop-search-input {
-    display: none;
-  }
-
-  .mobile-search-btn {
-    background: #f1f1f1;
-    padding: 10px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #333;
+  .search-bar-container {
+    order: 1;
+    max-width: none;
+    width: 100%;
   }
 
   .sort-wrapper {
+    order: 2;
     flex: 1;
     background: white;
-    border-radius: 6px;
-    padding: 0 10px;
-  }
-
-  .sort-wrapper select {
-    width: 100%;
-    font-size: 0.9rem;
-    padding: 10px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 100px;
+    padding: 0 15px;
   }
 
   .mobile-filters-trigger {
-    background: #f1f1f1;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 6px;
+    order: 3;
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    border-radius: 100px;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -335,10 +327,17 @@
     cursor: pointer;
     font-size: 0.9rem;
   }
+
+  .trigger-text {
+    display: block;
+  }
 }
 
 @media (min-width: 901px) {
-  .mobile-filters-drawer, .mobile-search-btn, .mobile-filters-trigger {
+  .mobile-filters-drawer, .mobile-filters-trigger {
+    display: none;
+  }
+  .trigger-text {
     display: none;
   }
 }
