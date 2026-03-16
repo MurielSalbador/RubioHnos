@@ -1,43 +1,53 @@
-import { useState, useEffect } from "react";
 import { useFilters } from "../../../../hooks/useFilters.js";
-import { getBrands } from "../../../../api/brandsApi.js";
 import { getCategories } from "../../../../api/categoriesApi.js";
+import { FaTimes, FaSearch, FaChevronDown } from "react-icons/fa";
 import "./Filters.css";
 
-export default function Filters() {
-  const { filters, setFilters } = useFilters();
-  const [brands, setBrands] = useState([]);
+export default function Filters({ onClose, isMobile = false }) {
+  const { filters, setFilters, clearFilters } = useFilters();
   const [categories, setCategories] = useState([]);
-  const [isTagsOpen, setIsTagsOpen] = useState(true);
+  const [isTagsOpen, setIsTagsOpen] = useState(false);
+  const [isPriceOpen, setIsPriceOpen] = useState(true);
+  const [internalSearch, setInternalSearch] = useState("");
 
   useEffect(() => {
-    getBrands()
-      .then(setBrands)
-      .catch((err) => console.error(err));
-    getCategories()
-      .then(setCategories)
-      .catch((err) => console.error(err));
+    getCategories().then(setCategories).catch(console.error);
   }, []);
 
   const handleCheckboxChange = (type, value) => {
     setFilters((prev) => {
       const currentValues = Array.isArray(prev[type]) ? prev[type] : [];
       const isSelected = currentValues.includes(value);
-      
       const newValues = isSelected
         ? currentValues.filter((v) => v !== value)
         : [...currentValues, value];
-
       return { ...prev, [type]: newValues };
     });
   };
 
   return (
-    <aside className="filters-sidebar">
+    <aside className={`filters-sidebar ${isMobile ? 'mobile-ver' : ''}`}>
+      {isMobile && (
+        <div className="drawer-header">
+          <button className="close-drawer-btn" onClick={onClose}>
+            <FaTimes />
+          </button>
+          <div className="drawer-search-wrapper">
+             <input 
+               type="text" 
+               placeholder="Buscar..." 
+               value={internalSearch}
+               onChange={(e) => setInternalSearch(e.target.value)}
+             />
+             <FaSearch className="drawer-search-icon" />
+          </div>
+        </div>
+      )}
+
       <div className="filter-group">
         <div className="filter-header" onClick={() => setIsTagsOpen(!isTagsOpen)}>
           <h3>Etiquetas</h3>
-          <span className={`arrow ${isTagsOpen ? 'open' : ''}`}>&#9662;</span>
+          <FaChevronDown className={`arrow ${isTagsOpen ? 'open' : ''}`} />
         </div>
         
         {isTagsOpen && (
@@ -50,7 +60,7 @@ export default function Filters() {
                   onChange={() => handleCheckboxChange("category", category.nombre)}
                 />
                 <span className="checkbox-custom"></span>
-                {category.nombre.charAt(0).toUpperCase() + category.nombre.slice(1).toLowerCase()}
+                {category.nombre}
               </label>
             ))}
           </div>
@@ -58,47 +68,40 @@ export default function Filters() {
       </div>
 
       <div className="filter-group">
-        <div className="filter-header">
-          <h3>Marcas</h3>
+        <div className="filter-header" onClick={() => setIsPriceOpen(!isPriceOpen)}>
+          <h3>Rango de precio</h3>
+          <FaChevronDown className={`arrow ${isPriceOpen ? 'open' : ''}`} />
         </div>
-        <div className="filter-list">
-          {brands.map((brand) => (
-            <label key={brand} className="filter-checkbox-label">
-              <input
-                type="checkbox"
-                checked={filters.brand?.includes(brand)}
-                onChange={() => handleCheckboxChange("brand", brand)}
-              />
-              <span className="checkbox-custom"></span>
-              {brand}
-            </label>
-          ))}
-        </div>
+        {isPriceOpen && (
+          <div className="price-filter-container">
+            <div className="price-range-labels">
+               <span>$ 0.50</span>
+               <span>$ {filters.maxPrice || "366,363.63"}</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="400000"
+              step="100"
+              value={filters.maxPrice || 400000}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  maxPrice: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+        )}
       </div>
 
-      <div className="filter-group">
-        <div className="filter-header">
-          <h3>Precio máximo</h3>
-        </div>
-        <div className="price-filter">
-          <input
-            type="range"
-            min="0"
-            max="100000"
-            step="500"
-            value={filters.maxPrice || 100000}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                maxPrice: Number(e.target.value),
-              }))
-            }
-          />
-          <div className="price-values">
-            <span>$0</span>
-            <span>${filters.maxPrice || 100000}</span>
-          </div>
-        </div>
+      <div className="drawer-footer">
+         <button className="clear-filters-btn" onClick={() => {
+            if (clearFilters) clearFilters();
+            else setFilters({ category: [], brand: [], maxPrice: 400000 });
+         }}>
+            Eliminar filtros
+         </button>
       </div>
     </aside>
   );

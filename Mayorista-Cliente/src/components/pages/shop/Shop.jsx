@@ -26,11 +26,12 @@ const ShopContent = () => {
   const [search, setSearch] = useState("");
   const { filters, setFilters } = useFilters();
   const [brands, setBrands] = useState([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/products/brands`)
       .then(res => res.json())
-      .then(data => setBrands(data)) // Show all brands for chips
+      .then(data => setBrands(data))
       .catch(err => console.error(err));
   }, []);
 
@@ -38,7 +39,7 @@ const ShopContent = () => {
     setFilters(prev => {
       const currentValues = Array.isArray(prev.brand) ? prev.brand : [];
       const isSelected = currentValues.includes(brandName);
-      const newValues = isSelected ? [] : [brandName]; // Toggle as a chip (single or deselect)
+      const newValues = isSelected ? [] : [brandName];
       return { ...prev, brand: newValues };
     });
   };
@@ -53,10 +54,18 @@ const ShopContent = () => {
         </div>
 
         <div className="shop-grid-layout">
-          {/* Sidebar de Filtros */}
+          {/* Sidebar de Filtros (Escritorio) */}
           <aside className="shop-sidebar">
             <Filters />
           </aside>
+
+          {/* Drawer de Filtros (Mobile) */}
+          <div className={`mobile-filters-drawer ${isDrawerOpen ? 'open' : ''}`}>
+             <div className="drawer-overlay" onClick={() => setIsDrawerOpen(false)}></div>
+             <div className="drawer-content">
+                <Filters onClose={() => setIsDrawerOpen(false)} isMobile={true} />
+             </div>
+          </div>
 
           {/* Contenido Principal */}
           <section className="shop-content-area">
@@ -76,9 +85,13 @@ const ShopContent = () => {
                 ))}
               </div>
 
-              {/* Barra de Búsqueda y Ordenar */}
+              {/* Barra de Controles (Rediseñada para Mobile/Desktop) */}
               <div className="shop-controls">
-                <div className="search-input-wrapper">
+                <div className="mobile-search-btn">
+                   <FaSearch />
+                </div>
+                
+                <div className="desktop-search-input">
                   <input
                     type="text"
                     placeholder="Buscar..."
@@ -89,16 +102,19 @@ const ShopContent = () => {
                 </div>
 
                 <div className="sort-wrapper">
-                  <span>Ordenar por:</span>
                   <select 
                     value={filters.sortByPrice || ""}
                     onChange={(e) => setFilters(prev => ({ ...prev, sortByPrice: e.target.value }))}
                   >
-                    <option value="">Destacado</option>
+                    <option value="">Ordenar por</option>
                     <option value="asc">Menos precio</option>
                     <option value="desc">Mayor precio</option>
                   </select>
                 </div>
+
+                <button className="mobile-filters-trigger" onClick={() => setIsDrawerOpen(true)}>
+                   <FaCogs /> Filtros
+                </button>
               </div>
             </header>
 
