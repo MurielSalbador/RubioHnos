@@ -25,21 +25,21 @@ const queryClient = new QueryClient();
 const ShopContent = () => {
   const [search, setSearch] = useState("");
   const { filters, setFilters } = useFilters();
-  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/categories`)
+    fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/products/brands`)
       .then(res => res.json())
-      .then(data => setCategories(data.slice(0, 5))) // Show first 5 for chips
+      .then(data => setBrands(data)) // Show all brands for chips
       .catch(err => console.error(err));
   }, []);
 
-  const handleChipClick = (catName) => {
+  const handleChipClick = (brandName) => {
     setFilters(prev => {
-      const currentValues = Array.isArray(prev.category) ? prev.category : [];
-      const isSelected = currentValues.includes(catName);
-      const newValues = isSelected ? [] : [catName]; // Toggle as a chip (single or deselect)
-      return { ...prev, category: newValues };
+      const currentValues = Array.isArray(prev.brand) ? prev.brand : [];
+      const isSelected = currentValues.includes(brandName);
+      const newValues = isSelected ? [] : [brandName]; // Toggle as a chip (single or deselect)
+      return { ...prev, brand: newValues };
     });
   };
 
@@ -63,15 +63,15 @@ const ShopContent = () => {
             <header className="shop-results-header">
               <h1>Todos los productos</h1>
               
-              {/* Chips de Categorías */}
+              {/* Chips de Marcas */}
               <div className="category-chips">
-                {categories.map(cat => (
+                {brands.map(brand => (
                   <button 
-                    key={cat._id} 
-                    className={`chip ${filters.category.includes(cat.nombre) ? 'active' : ''}`}
-                    onClick={() => handleChipClick(cat.nombre)}
+                    key={brand} 
+                    className={`chip ${filters.brand.includes(brand) ? 'active' : ''}`}
+                    onClick={() => handleChipClick(brand)}
                   >
-                    {cat.nombre.toUpperCase()}
+                    {brand.toUpperCase()}
                   </button>
                 ))}
               </div>
