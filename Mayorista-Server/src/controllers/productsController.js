@@ -102,15 +102,15 @@ export const getAllProducts = async (req, res) => {
     }
 
     const sort = {};
-    if (sortByPrice === "asc") sort.price = 1;
-    else if (sortByPrice === "desc") sort.price = -1;
+    if (req.query.sortByPrice === "asc") sort.price = 1;
+    else if (req.query.sortByPrice === "desc") sort.price = -1;
 
     // 🔥 Paginación
-    const pageNumber = parseInt(page);
-    const limitNumber = parseInt(limit);
+    const pageNumber = parseInt(req.query.page) || 1;
+    const limitNumber = parseInt(req.query.limit) || 20;
     const skip = (pageNumber - 1) * limitNumber;
 
-    // Ejecutar paginación en Mongo + lean() para acelerar JSON
+    // Ejecutar consulta + lean() + select() para velocidad y ahorro de datos
     const totalDocs = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalDocs / limitNumber);
 
@@ -119,7 +119,8 @@ export const getAllProducts = async (req, res) => {
       .skip(skip)
       .limit(limitNumber)
       .populate("categoryIds", "nombre")
-      .lean(); // ⬅️ lean() elimina métodos de Mongoose y lo hace ~4x más rápido
+      .select("title price brand imageUrl categoryIds available stock slug categoryId")
+      .lean();
 
     // Devolvemos objeto de paginado
     res.json({

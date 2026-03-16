@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FaInstagram, FaSearch, FaCogs } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -19,8 +18,6 @@ import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
 
 //styles
 import "./Shop.css";
-
-const queryClient = new QueryClient();
 
 const ShopContent = () => {
   const [search, setSearch] = useState("");
@@ -155,11 +152,9 @@ const RouterSafeShop = () => {
   return (
     <>
       <Header />
-      <QueryClientProvider client={queryClient}>
-        <FiltersProvider>
-          <ShopContent />
-        </FiltersProvider>
-      </QueryClientProvider>
+      <FiltersProvider>
+        <ShopContent />
+      </FiltersProvider>
     </>
   );
 };
