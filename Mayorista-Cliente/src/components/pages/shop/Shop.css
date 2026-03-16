@@ -81,7 +81,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* Opcional: Estilo de scrollbar sutil para que sea visible pero no molesto */
 .category-chips::-webkit-scrollbar {
   height: 4px;
 }
@@ -107,7 +106,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  flex-shrink: 0; /* Evita que el chip se achique */
+  flex-shrink: 0;
 }
 
 .chip:hover {
@@ -130,13 +129,13 @@
   gap: 20px;
 }
 
-.search-input-wrapper {
+.desktop-search-input {
   position: relative;
   flex: 1;
   max-width: 400px;
 }
 
-.search-input-wrapper input {
+.desktop-search-input input {
   width: 100%;
   padding: 12px 20px;
   padding-right: 45px;
@@ -147,7 +146,7 @@
   transition: border-color 0.2s;
 }
 
-.search-input-wrapper input:focus {
+.desktop-search-input input:focus {
   border-color: var(--primary-color);
 }
 
@@ -247,7 +246,6 @@
     margin-bottom: 15px;
   }
 
-  /* Mobile Filters Drawer */
   .mobile-filters-drawer {
     position: fixed;
     top: 0;
@@ -294,7 +292,6 @@
     right: 0;
   }
 
-  /* Mobile Controls */
   .shop-controls {
     display: flex;
     justify-content: space-between;
@@ -352,4 +349,3 @@
     display: none;
   }
 }
-
