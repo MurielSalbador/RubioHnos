@@ -73,30 +73,8 @@
 .category-chips {
   display: flex;
   gap: 12px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   margin-bottom: 25px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.category-chips::-webkit-scrollbar {
-  height: 8px;
-}
-
-.category-chips::-webkit-scrollbar-track {
-  background: #f0f0f0;
-  border-radius: 10px;
-}
-
-.category-chips::-webkit-scrollbar-thumb {
-  background: #999;
-  border-radius: 10px;
-}
-
-.category-chips::-webkit-scrollbar-thumb:hover {
-  background: #777;
 }
 
 .chip {
@@ -110,7 +88,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .chip:hover {
