@@ -1,10 +1,12 @@
 import { useState } from "react";
 import AccountButton from "../pages/income/account/AccountButton.jsx";
 import { isSuperAdmin, isAdminOrSuperAdmin } from "../../utils/auth.js";
+import { useCart } from "../../store.js";
 import "./header.css";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const cartCount = useCart((state) => state.cart.reduce((total, item) => total + item.quantity, 0));
 
   return (
     <header className="main-header">
@@ -47,6 +49,7 @@ export default function Header() {
           
           <a href="/cart" className="cart-btn">
             <i className="fa-solid fa-cart-shopping"></i>
+            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </a>
 
           <div

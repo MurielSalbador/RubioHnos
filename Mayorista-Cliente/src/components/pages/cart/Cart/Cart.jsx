@@ -16,11 +16,8 @@ export default function Cart() {
     }))
   );
 
-  const { filters, filterProducts } = useFilters();
-  const filteredCart = filterProducts(cart);
-
-  const totalItems = filteredCart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = filteredCart.reduce(
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
@@ -33,7 +30,7 @@ export default function Cart() {
     <div className="cart">
       <h3 className="cart-title">Cart:</h3>
       <ul className="cart-list">
-        {filteredCart.map((item) => (
+        {cart.map((item) => (
           <li key={item._id + item.title} className="cart-item">
             <span className="item-name">
               {item.title.length > 20
