@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useFilters } from "../../../../hooks/useFilters.js";
 import { getCategories } from "../../../../api/categoriesApi.js";
 import { FaTimes, FaSearch, FaChevronDown } from "react-icons/fa";
