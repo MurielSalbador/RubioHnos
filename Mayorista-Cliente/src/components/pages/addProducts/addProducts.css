@@ -94,8 +94,9 @@
   color: #333;
 }
 
-/* Categorías Multi-Select */
-.categories-multi-select {
+/* Categorías y Marcas Multi-Select */
+.categories-multi-select,
+.brand-multi-select {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
@@ -104,6 +105,8 @@
   border-radius: 15px;
   border: 1px dashed #ddd;
   min-height: 80px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .cat-chip {

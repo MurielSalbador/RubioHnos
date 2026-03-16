@@ -209,31 +209,59 @@ const openWhatsApp = (phone) => {
 
       <main className="main-content">
         <div className="main-wrapper">
-          <section className="search-bar">
-            <h2>¿Qué está buscando?</h2>
-            <div className="input-group">
+          <section className="premium-search-container" data-aos="zoom-in">
+            <div className="search-box-meta text-center mb-4">
+              <h2 className="search-title">¿Qué estás buscando hoy?</h2>
+              <p className="search-subtitle">Explorá nuestro catálogo de productos 100% naturales</p>
+            </div>
+            
+            <div className="premium-input-group">
               <input
                 type="text"
-                placeholder="Buscar producto..."
+                className="premium-search-input"
+                placeholder="Ej: Yerba Orgánica, Mix de Frutos..."
                 value={search}
                 onChange={handleInputChange}
+                autoFocus
               />
-              <button>→</button>
+              <div className="search-glow"></div>
             </div>
           </section>
 
-          <section className="product-list">
-            <Products products={products} />
-            {loading && <p>Cargando productos...</p>}
-            
-            {hasMore && !loading && products.length > 0 && (
-              <div className="load-more-container mt-4 text-center">
-                <Button variant="outline-success" onClick={loadMore}>
-                  Cargar más productos
-                </Button>
+          {search.trim() !== "" ? (
+            <section className="product-list-results fade-in">
+              <div className="results-info">
+                 <p>Resultados para: <strong>"{search}"</strong></p>
               </div>
-            )}
-          </section>
+              <Products products={products} />
+              {loading && (
+                <div className="admin-loading py-5">
+                   <div className="spinner-border text-success" role="status"></div>
+                   <p className="mt-2">Buscando...</p>
+                </div>
+              )}
+              
+              {hasMore && !loading && products.length > 0 && (
+                <div className="load-more-container mt-4 text-center">
+                  <Button variant="outline-success" className="premium-load-btn" onClick={loadMore}>
+                    Cargar más resultados
+                  </Button>
+                </div>
+              )}
+
+              {!loading && products.length === 0 && (
+                <div className="no-results-home text-center py-5">
+                   <p>No encontramos productos que coincidan con <strong>"{search}"</strong>.</p>
+                   <p className="hint">Probá con términos más generales.</p>
+                </div>
+              )}
+            </section>
+          ) : (
+            <section className="search-placeholder-home text-center py-5" data-aos="fade-up">
+              <div className="placeholder-icon">🔎</div>
+              <p>Escribí arriba para empezar a buscar tus productos favoritos</p>
+            </section>
+          )}
         </div>
       </main>
 

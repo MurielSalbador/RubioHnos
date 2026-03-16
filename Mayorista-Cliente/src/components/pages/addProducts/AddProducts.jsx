@@ -19,16 +19,25 @@ function ProductForm({ productId, onSuccess }) {
   });
 
   const [categorias, setCategorias] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [newCategory, setNewCategory] = useState("");
+  const [newBrand, setNewBrand] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Obtener categorías
     axios
       .get(`${API_URL}/api/categories`)
       .then((res) => setCategorias(res.data))
       .catch((error) => console.error("Error al obtener categorías:", error));
+
+    // Obtener marcas existentes
+    axios
+      .get(`${API_URL}/api/products/brands`)
+      .then((res) => setBrands(res.data))
+      .catch((error) => console.error("Error al obtener marcas:", error));
   }, []);
 
   useEffect(() => {
@@ -89,6 +98,11 @@ function ProductForm({ productId, onSuccess }) {
     });
   };
 
+  const handleBrandSelect = (brandName) => {
+    setFormData(prev => ({ ...prev, brand: brandName }));
+    setNewBrand("");
+  };
+
   const handleAddNewCategory = async () => {
     if (!newCategory.trim()) return;
     try {
@@ -119,9 +133,16 @@ function ProductForm({ productId, onSuccess }) {
 
     const priceParsed = parseFloat(formData.price);
     const stockParsed = Number(formData.stock);
+    const brandToUse = newBrand.trim() || formData.brand;
 
     if (isNaN(priceParsed) || priceParsed < 0 || isNaN(stockParsed) || stockParsed < 0) {
       toast.error("Ingrese valores de precio y stock válidos");
+      setLoading(false);
+      return;
+    }
+
+    if (!brandToUse) {
+      toast.warning("Por favor, seleccioná o escribí una marca");
       setLoading(false);
       return;
     }
@@ -134,7 +155,7 @@ function ProductForm({ productId, onSuccess }) {
 
     const formToSend = new FormData();
     formToSend.append("title", formData.title);
-    formToSend.append("brand", formData.brand);
+    formToSend.append("brand", brandToUse);
     formToSend.append("price", priceParsed);
     formToSend.append("stock", stockParsed);
     formToSend.append("available", formData.available);
@@ -177,6 +198,7 @@ function ProductForm({ productId, onSuccess }) {
           categoryIds: [],
         });
         setPreviewImage(null);
+        setNewBrand("");
       }
       onSuccess?.();
     } catch (error) {
@@ -209,14 +231,30 @@ function ProductForm({ productId, onSuccess }) {
             </div>
 
             <div className="form-group">
-              <label>Marca</label>
-              <input
-                name="brand"
-                placeholder="Ej: Rubio Hnos"
-                value={formData.brand}
-                onChange={handleChange}
-                required
-              />
+              <label>Marca (Seleccioná o escribí una nueva)</label>
+              <div className="brand-multi-select">
+                {brands.map((brand) => (
+                  <button
+                    key={brand}
+                    type="button"
+                    className={`cat-chip ${formData.brand === brand && !newBrand ? "active" : ""}`}
+                    onClick={() => handleBrandSelect(brand)}
+                  >
+                    {brand}
+                  </button>
+                ))}
+              </div>
+              <div className="add-new-category-inline">
+                <input
+                  type="text"
+                  placeholder="Nueva marca..."
+                  value={newBrand}
+                  onChange={(e) => {
+                    setNewBrand(e.target.value);
+                    setFormData(prev => ({ ...prev, brand: "" }));
+                  }}
+                />
+              </div>
             </div>
 
             <div className="form-row-compact">
