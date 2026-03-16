@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ProductForm from "./AddProducts.jsx";
+import { FaEdit, FaTrash, FaSearch, FaBoxOpen } from "react-icons/fa";
+import { toast } from "react-toastify";
 import "./addProductsList.css";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
@@ -10,29 +12,21 @@ function ProductList() {
   const [categories, setCategories] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null);
   const [lowStockProducts, setLowStockProducts] = useState([]);
-  const [search, setSearch] = useState(""); // 🔍 estado para buscador
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchProducts = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${API_URL}/api/products?limit=1000`);
-
-      // 👉 ordenar del más nuevo al más viejo
-      const ordered = (res.data.docs || [])
-        .map((p) => ({
-          ...p,
-          stock: Number(p.stock),
-        }))
-        .reverse();
-      console.log("Productos recibidos:", ordered);
-
-      // 👉 filtrar productos con stock bajo
-      const lowStock = ordered.filter((p) => p.stock == 0);
-      console.log("Productos con bajo stock:", lowStock);
-
+      const ordered = (res.data.docs || []).reverse();
       setProducts(ordered);
-      setLowStockProducts(lowStock);
+      setLowStockProducts(ordered.filter((p) => Number(p.stock) === 0));
     } catch (err) {
       console.error("Error al obtener productos:", err);
+      toast.error("No se pudieron cargar los productos");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,7 +35,7 @@ function ProductList() {
       const res = await axios.get(`${API_URL}/api/categories`);
       setCategories(res.data);
     } catch (err) {
-      console.error("Error al obtener categorías:", err);
+      console.error("Error:", err);
     }
   };
 
@@ -52,130 +46,134 @@ function ProductList() {
 
   const handleEdit = (id) => {
     setEditingProductId(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm(
-      "¿Estás seguro que querés eliminar este producto?"
-    );
-    if (!confirm) return;
+    if (!window.confirm("¿Seguro que querés eliminarlo?")) return;
 
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_URL}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("✅ Producto eliminado");
+      toast.success("Producto eliminado correctamente");
       fetchProducts();
     } catch (err) {
-      console.error("Error al eliminar:", err);
-      alert("❌ No se pudo eliminar el producto");
+      toast.error("Error al eliminar");
     }
   };
 
-  const handleSuccess = () => {
-    setEditingProductId(null);
-    fetchProducts();
-  };
-
-  // Función para obtener el nombre de la categoría desde el id
-  const getCategoryName = (categoryId) => {
-    const category = categories.find((cat) => cat._id === categoryId);
-    return category ? category.nombre : "Sin categoría";
-  };
-
-  // 🔎 Filtrado por buscador (case insensitive)
   const filteredProducts = products.filter((p) =>
-    p.title?.toLowerCase().includes(search.toLowerCase())
+    p.title?.toLowerCase().includes(search.toLowerCase()) ||
+    p.brand?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <>
-      <div className="container-formAdd">
-        <div>
-          <ProductForm productId={editingProductId} onSuccess={handleSuccess} />
+    <div className="admin-dashboard-container">
+      {/* Sección Formulario */}
+      <section className="admin-form-section" data-aos="fade-down">
+        <ProductForm
+          productId={editingProductId}
+          onSuccess={() => {
+            setEditingProductId(null);
+            fetchProducts();
+          }}
+        />
+      </section>
 
-          <div className="admin-products">
-            <h2 className="title-product-list"> Productos Guardados</h2>
+      {/* Sección Listado */}
+      <section className="admin-inventory-section">
+        <div className="inventory-header">
+          <div className="header-text">
+            <h2><FaBoxOpen /> Inventario de Productos</h2>
+            <p>Gestioná tu stock, precios y categorías</p>
+          </div>
 
-            {/* 🔍 Buscador */}
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Buscar producto..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <div className="admin-products-list">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <div key={product._id} className="admin-product-card">
-                    <div className="admin-product-info">
-                      <h3>{product.title}</h3>
-                      <p>
-                        <strong>Marca:</strong> {product.brand}
-                      </p>
-                      <p>
-                        <strong>Categoría:</strong>{" "}
-                        {product.categoryId?.nombre || "Sin categoría"}
-                      </p>
-                      <p>
-                        <strong>Precio:</strong> $
-                        {Number(product.price).toLocaleString("es-AR", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                      <p>
-                        <strong>Stock:</strong> {product.stock}
-                      </p>
-                      <p>
-                        <strong>Disponible:</strong>{" "}
-                        {product.available ? "Sí" : "No"}
-                      </p>
-                      <div className="img-product-list">
-                        {product.imageUrl && (
-                          <img src={product.imageUrl} alt={product.title} />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="admin-product-actions">
-                      <button onClick={() => handleEdit(product._id)}>
-                        ✏️ Editar
-                      </button>
-                      <button onClick={() => handleDelete(product._id)}>
-                        🗑️ Eliminar
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p style={{ marginTop: "1rem" }}>No se encontraron productos</p>
-              )}
-            </div>
+          <div className="admin-search-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o marca..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
         </div>
-      </div>
 
+        {loading ? (
+          <div className="admin-loading">Cargando catálogo...</div>
+        ) : (
+          <div className="admin-product-grid-premium">
+            {filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                className="admin-modern-row"
+                data-aos="fade-up"
+              >
+                <div className="product-visual">
+                  <img src={product.imageUrl.startsWith('http') ? product.imageUrl : `${API_URL}/${product.imageUrl}`} alt={product.title} />
+                  {!product.available && <span className="badge-offline">Inactivo</span>}
+                </div>
+
+                <div className="product-details-admin">
+                  <div className="main-meta">
+                    <h3>{product.title}</h3>
+                    <span className="brand-tag">{product.brand}</span>
+                  </div>
+
+                  <div className="category-chips-list">
+                    {product.categoryIds && product.categoryIds.length > 0 ? (
+                      product.categoryIds.map(cat => (
+                        <span key={cat._id} className="admin-cat-chip">
+                          {cat.nombre}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="admin-cat-chip ghost">Sin categoría</span>
+                    )}
+                  </div>
+
+                  <div className="stock-price-meta">
+                    <div className={`stock-indicator ${product.stock === 0 ? 'zero' : ''}`}>
+                      <strong>Stock:</strong> {product.stock}
+                    </div>
+                    <div className="price-label-admin">
+                      ${Number(product.price).toLocaleString("es-AR")}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-row-actions">
+                  <button className="edit-action" onClick={() => handleEdit(product._id)}>
+                    <FaEdit /> <span>Editar</span>
+                  </button>
+                  <button className="delete-action" onClick={() => handleDelete(product._id)}>
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!loading && filteredProducts.length === 0 && (
+          <div className="admin-no-results">
+            No se encontraron productos coincidentes.
+          </div>
+        )}
+      </section>
+
+      {/* Alerta Bajo Stock */}
       {lowStockProducts.length > 0 && (
-        <div className="lowstock-overlay">
-          <div className="lowstock-modal" role="dialog" aria-modal="true">
-            <h2>⚠️ Productos con bajo stock</h2>
-            <ul>
-              {lowStockProducts.map((p) => (
-                <li key={p._id}>
-                  {p.title} — Stock: {p.stock}
-                </li>
-              ))}
-            </ul>
-            <button onClick={() => setLowStockProducts([])}>Cerrar</button>
+        <div className="low-stock-toast">
+          <div className="toast-content">
+            <span className="warning-icon">⚠️</span>
+            <p>Hay <strong>{lowStockProducts.length}</strong> productos sin stock.</p>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

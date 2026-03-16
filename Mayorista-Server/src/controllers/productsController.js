@@ -25,38 +25,35 @@ export const createProduct = async (req, res) => {
 console.log("🛬 LLEGÓ LA REQUEST A createProduct");
 
   try {
-    const { title, price, brand, stock, categoryId, available } = req.body;
+    let { title, price, brand, stock, categoryId, categoryIds, available } = req.body;
 
     if (!title || !brand) {
       return res.status(400).json({ error: "Faltan campos obligatorios: título o marca" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ error: "ID de categoría inválido" });
+    // Normalizar a un array de categoryIds
+    let finalCategoryIds = [];
+    if (categoryIds) {
+      finalCategoryIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+    } else if (categoryId) {
+      finalCategoryIds = [categoryId];
     }
 
-    console.log("📩 req.body:", req.body);
-    console.log("📸 req.file:", req.file);
+    // Validar cada ID
+    for (const id of finalCategoryIds) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: `ID de categoría inválido: ${id}` });
+      }
+    }
 
-      const imageUrl = getImageUrl(req);
-
-
-    console.log("📤 Enviando al modelo:", {
-      title,
-      price,
-      stock,
-      brand,
-      categoryId,
-      available,
-      imageUrl,
-    });
+    const imageUrl = getImageUrl(req);
 
     const product = await Product.create({
       title,
       price: parseFloat(price),
       stock: parseInt(stock),
       brand,
-      categoryId,
+      categoryIds: finalCategoryIds,
       available: available === "true" || available === true,
       imageUrl,
     });
@@ -83,14 +80,9 @@ export const getAllProducts = async (req, res) => {
 
     if (category && category !== "all") {
       const categoriesArray = category.split(",");
-      // Si son varios, buscamos los IDs de todas esas categorías por nombre
       const cats = await Category.find({ nombre: { $in: categoriesArray } }).lean();
       if (cats.length > 0) {
-        query.categoryId = { $in: cats.map(c => c._id) };
-      } else {
-        // Compatibilidad con búsqueda por un solo nombre si no se encontró con $in (ej: regex parcial)
-        const cat = await Category.findOne({ nombre: { $regex: category, $options: "i" } });
-        if (cat) query.categoryId = cat._id;
+        query.categoryIds = { $in: cats.map(c => c._id) };
       }
     }
 
@@ -122,7 +114,7 @@ export const getAllProducts = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limitNumber)
-      .populate("categoryId", "nombre")
+      .populate("categoryIds", "nombre")
       .lean(); // ⬅️ lean() elimina métodos de Mongoose y lo hace ~4x más rápido
 
     // Devolvemos objeto de paginado
@@ -210,7 +202,7 @@ export const getUniqueBrands = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id).populate("categoryId", "nombre").lean(); 
+    const product = await Product.findById(id).populate("categoryIds", "nombre").lean(); 
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
     res.json(product);
   } catch (err) {
@@ -222,14 +214,26 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, price, brand, stock, categoryId, available } = req.body;
+    let { title, price, brand, stock, categoryId, categoryIds, available } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "ID de producto inválido" });
     }
 
-    if (categoryId && !mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ error: "ID de categoría inválido" });
+    // Normalizar a un array de categoryIds
+    let finalCategoryIds = null;
+    if (categoryIds) {
+      finalCategoryIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+    } else if (categoryId) {
+      finalCategoryIds = [categoryId];
+    }
+
+    if (finalCategoryIds) {
+      for (const catId of finalCategoryIds) {
+        if (!mongoose.Types.ObjectId.isValid(catId)) {
+          return res.status(400).json({ error: `ID de categoría inválido: ${catId}` });
+        }
+      }
     }
 
     const imageUrl = getImageUrl(req);
@@ -241,7 +245,7 @@ export const updateProduct = async (req, res) => {
         ...(price && { price: parseFloat(price) }),
         ...(stock && { stock: parseInt(stock) }),
         ...(brand && { brand }),
-        ...(categoryId && { categoryId }),
+        ...(finalCategoryIds && { categoryIds: finalCategoryIds }),
         ...(available !== undefined && { available: available === "true" || available === true }),
         ...(imageUrl && { imageUrl }),
       },
@@ -277,7 +281,7 @@ export const deleteProduct = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const products = await Product.find({ categoryId }).populate("categoryId", "nombre").lean(); 
+    const products = await Product.find({ categoryIds: categoryId }).populate("categoryIds", "nombre").lean(); 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener productos por categoría" });
@@ -290,7 +294,7 @@ export const getProductsByBrand = async (req, res) => {
     const { slug } = req.params;
     const products = await Product.find({
       brand: { $regex: new RegExp(`^${slug}$`, "i") },
-    }).populate("categoryId", "nombre").lean(); 
+    }).populate("categoryIds", "nombre").lean(); 
 
     if (!products.length) {
       return res.status(404).json({ error: "No se encontraron productos para esa marca" });

@@ -8,17 +8,17 @@ const productSchema = new mongoose.Schema({
   stock:     { type: Number, default: 0 },
   imageUrl:  { type: String },
   available: { type: Boolean, default: false },
-  categoryId: {
+  categoryIds: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
-  },
+  }],
 }, {
   timestamps: true
 });
 
 // Agregar índices para mejorar el rendimiento de búsqueda y filtros
 productSchema.index({ brand: 1 });
-productSchema.index({ categoryId: 1 });
+productSchema.index({ categoryIds: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ title: 'text' }); // Para búsqueda de texto
 
