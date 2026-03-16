@@ -9,73 +9,45 @@ export default function Header() {
   return (
     <header className="main-header">
       <div className="header-actions">
-        {/* Logo */}
+        {/* Logo a la izquierda */}
         <div className="nav-logo">
-          <a
-            href="/"
-            className="logo-text"
-            data-aos="fade-left"
-            data-aos-duration="600"
-            data-aos-delay="200"
-          >
+          <a href="/" className="logo-text">
             <div className="logo-line-1">RubioHnos</div>
             <div className="logo-line-2">-Tienda Natural-</div>
           </a>
         </div>
 
-        {/* Menú combinado */}
+        {/* Links centrados */}
         <nav className={`nav-menu ${menuOpen ? "open" : ""}`}>
-          <ul className="nav-center">
-            <li>
-              <a href="/" className="link">
-                <i className="fa-solid fa-house"></i> Home
-              </a>
-            </li>
-            <li>
-              <a href="/contact" className="link">
-                <i className="fa-solid fa-envelope"></i> Contactanos
-              </a>
-            </li>
-            <li>
-              <a href="/shop" className="link">
-                <i className="fa-solid fa-shop"></i> Tienda
-              </a>
-            </li>
-            <li>
-              <a href="/myOrders" className="link">
-                <i className="fa-solid fa-box"></i> Pedidos
-              </a>
-            </li>
+          <ul className="nav-links">
+            <li><a href="/" className="link">Home</a></li>
+            <li><a href="/contact" className="link">Contactanos</a></li>
+            <li><a href="/shop" className="link">Tienda</a></li>
+            <li><a href="/myOrders" className="link">Pedidos</a></li>
             {isSuperAdmin() && (
-              <li>
-                <a href="/httpClients" className="link">
-                  <i className="fa-solid fa-users"></i> Clientes
-                </a>
-              </li>
+              <li><a href="/httpClients" className="link">Clientes</a></li>
             )}
             {isAdminOrSuperAdmin() && (
-              <li>
-                <a href="/expenses" className="link">
-                  <i className="fa-solid fa-money-check-dollar"></i> Gastos
-                </a>
-              </li>
+              <li><a href="/expenses" className="link">Gastos</a></li>
             )}
-            <li>
-              <div className="link desktop-only">
+            {/* Solo se ve en móvil dentro del menú */}
+            <li className="mobile-only">
+              <div className="link">
                 <AccountButton />
               </div>
             </li>
           </ul>
         </nav>
 
+        {/* Acciones a la derecha */}
         <div className="header-right-actions">
-          <a href="/cart" className="mobile-cart-btn">
+          <div className="desktop-only">
+            <AccountButton />
+          </div>
+          
+          <a href="/cart" className="cart-btn">
             <i className="fa-solid fa-cart-shopping"></i>
           </a>
-          
-          <div className="mobile-account-btn">
-             <AccountButton />
-          </div>
 
           <div
             className={`hamburger ${menuOpen ? "active" : ""}`}
