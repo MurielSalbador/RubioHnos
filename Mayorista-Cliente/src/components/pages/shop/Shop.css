@@ -82,17 +82,21 @@
 }
 
 .category-chips::-webkit-scrollbar {
-  height: 4px;
+  height: 8px;
 }
 
 .category-chips::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f0f0f0;
   border-radius: 10px;
 }
 
 .category-chips::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #999;
   border-radius: 10px;
+}
+
+.category-chips::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
 
 .chip {
