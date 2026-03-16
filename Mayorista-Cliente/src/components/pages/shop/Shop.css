@@ -64,41 +64,49 @@
 
 /* Header */
 .shop-results-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 25px;
-  color: var(--text-dark);
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  color: #1a1a1a;
+  letter-spacing: -0.02em;
 }
 
 .category-chips {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 25px;
+  margin-bottom: 2.5rem;
+  padding: 4px;
 }
 
 .chip {
-  padding: 10px 20px;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 0.8rem;
+  padding: 8px 18px;
+  background: #ffffff;
+  border: 1px solid #eef0f2;
+  border-radius: 100px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #555;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .chip:hover {
   border-color: var(--primary-color);
   color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .chip.active {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
 }
 
 /* Controls */

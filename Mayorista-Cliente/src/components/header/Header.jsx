@@ -54,36 +54,37 @@ export default function Header() {
               </li>
             )}
             {isAdminOrSuperAdmin() && (
-  <li>
-    <a href="/expenses" className="link">
-      <i className="fa-solid fa-money-check-dollar"></i> Gastos
-    </a>
-  </li>
-)}
-          </ul>
-
-          <ul className="nav-right">
+              <li>
+                <a href="/expenses" className="link">
+                  <i className="fa-solid fa-money-check-dollar"></i> Gastos
+                </a>
+              </li>
+            )}
             <li>
-              <a href="/cart" className="link">
-                <i className="fa-solid fa-cart-shopping"></i> Mi carrito
-              </a>
-            </li>
-            <li>
-              <div className="link">
+              <div className="link desktop-only">
                 <AccountButton />
               </div>
             </li>
           </ul>
         </nav>
 
-        {/* Botón hamburguesa */}
-        <div
-          className={`hamburger ${menuOpen ? "active" : ""}`}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
+        <div className="header-right-actions">
+          <a href="/cart" className="mobile-cart-btn">
+            <i className="fa-solid fa-cart-shopping"></i>
+          </a>
+          
+          <div className="mobile-account-btn">
+             <AccountButton />
+          </div>
+
+          <div
+            className={`hamburger ${menuOpen ? "active" : ""}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </div>
     </header>
