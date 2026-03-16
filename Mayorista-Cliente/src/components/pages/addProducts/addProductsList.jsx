@@ -14,10 +14,10 @@ function ProductList() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/products`);
+      const res = await axios.get(`${API_URL}/api/products?limit=1000`);
 
       // 👉 ordenar del más nuevo al más viejo
-      const ordered = res.data
+      const ordered = (res.data.docs || [])
         .map((p) => ({
           ...p,
           stock: Number(p.stock),

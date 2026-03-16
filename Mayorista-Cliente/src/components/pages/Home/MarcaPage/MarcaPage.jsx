@@ -83,6 +83,8 @@ export default function MarcaPage() {
           return (
             <li key={product._id} className="product-card-marcaPage">
               <img
+                loading="lazy"
+                decoding="async"
                 src={
                   product.imageUrl ||
                   product.image ||

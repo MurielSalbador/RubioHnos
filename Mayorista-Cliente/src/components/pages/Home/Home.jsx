@@ -16,7 +16,7 @@ const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 export default function Home() {
   const [search, setSearch] = useState("");
-  const { products, getProducts, loading } = useProducts({
+  const { products, getProducts, loading, loadMore, hasMore } = useProducts({
     search,
     sort: false,
   });
@@ -59,9 +59,9 @@ export default function Home() {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/products`);
+        const response = await fetch(`${API_URL}/api/products?limit=5`);
         const data = await response.json();
-        setFeaturedProducts(data.slice(0, 6));
+        setFeaturedProducts(data.docs || []);
       } catch (error) {
         console.error("Error al cargar productos destacados:", error);
       }
@@ -223,7 +223,16 @@ const openWhatsApp = (phone) => {
           </section>
 
           <section className="product-list">
-            {loading ? <p>Loading...</p> : <Products products={products} />}
+            <Products products={products} />
+            {loading && <p>Cargando productos...</p>}
+            
+            {hasMore && !loading && products.length > 0 && (
+              <div className="load-more-container mt-4 text-center">
+                <Button variant="outline-success" onClick={loadMore}>
+                  Cargar más productos
+                </Button>
+              </div>
+            )}
           </section>
         </div>
       </main>

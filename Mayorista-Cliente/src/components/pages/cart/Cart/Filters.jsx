@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useFilters } from "../../../../hooks/useFilters.js";
 import { getBrands } from "../../../../api/brandsApi.js";
-import { getCategories } from "../../../../api/categoriesApi.js"; // nueva importación
+import { getCategories } from "../../../../api/categoriesApi.js";
+import "./Filters.css";
 
 export default function Filters() {
   const { filters, setFilters } = useFilters();
   const [brands, setBrands] = useState([]);
-  const [categories, setCategories] = useState([]); // estado para categorías
-  const MAX_PRICE = 20000;
+  const [categories, setCategories] = useState([]);
+  const [isTagsOpen, setIsTagsOpen] = useState(true);
 
   useEffect(() => {
     getBrands()
@@ -18,201 +19,87 @@ export default function Filters() {
       .catch((err) => console.error(err));
   }, []);
 
+  const handleCheckboxChange = (type, value) => {
+    setFilters((prev) => {
+      const currentValues = Array.isArray(prev[type]) ? prev[type] : [];
+      const isSelected = currentValues.includes(value);
+      
+      const newValues = isSelected
+        ? currentValues.filter((v) => v !== value)
+        : [...currentValues, value];
+
+      return { ...prev, [type]: newValues };
+    });
+  };
+
   return (
-    <section className="filters-box">
-      {/* Categoría */}
-      <label className="filter-label">
-        Categoría:
-        <select
-          className="filter-select"
-          value={filters.category || "all"}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, category: e.target.value }))
-          }
-        >
-          <option value="all">Seleccionar categoría...</option>
-          {categories.map((category) => (
-            <option key={category._id} value={category.nombre}>
-              {category.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
+    <aside className="filters-sidebar">
+      <div className="filter-group">
+        <div className="filter-header" onClick={() => setIsTagsOpen(!isTagsOpen)}>
+          <h3>Etiquetas</h3>
+          <span className={`arrow ${isTagsOpen ? 'open' : ''}`}>&#9662;</span>
+        </div>
+        
+        {isTagsOpen && (
+          <div className="filter-list">
+            {categories.map((category) => (
+              <label key={category._id} className="filter-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={filters.category?.includes(category.nombre)}
+                  onChange={() => handleCheckboxChange("category", category.nombre)}
+                />
+                <span className="checkbox-custom"></span>
+                {category.nombre.charAt(0).toUpperCase() + category.nombre.slice(1).toLowerCase()}
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Marca */}
-      <label className="filter-label">
-        Marca:
-        <select
-          className="filter-select"
-          value={filters.brand || "all"}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, brand: e.target.value }))
-          }
-        >
-          <option value="all">Seleccionar marca...</option>
+      <div className="filter-group">
+        <div className="filter-header">
+          <h3>Marcas</h3>
+        </div>
+        <div className="filter-list">
           {brands.map((brand) => (
-            <option key={brand} value={brand}>
+            <label key={brand} className="filter-checkbox-label">
+              <input
+                type="checkbox"
+                checked={filters.brand?.includes(brand)}
+                onChange={() => handleCheckboxChange("brand", brand)}
+              />
+              <span className="checkbox-custom"></span>
               {brand}
-            </option>
+            </label>
           ))}
-        </select>
-      </label>
+        </div>
+      </div>
 
-      {/* Precio mínimo */}
-      <label className="filter-label">
-        Precio mínimo: ${filters.minPrice}
-        <input
-          className="filter-slider"
-          type="range"
-          min="0"
-          max={MAX_PRICE}
-          step="1"
-          value={filters.minPrice}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              minPrice: Number(e.target.value),
-            }))
-          }
-        />
-      </label>
-
-      {/* Ordenar precio */}
-      <label className="filter-label">
-        Ordenar precio:
-        <select
-          className="filter-select"
-          value={filters.sortByPrice || ""}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, sortByPrice: e.target.value }))
-          }
-        >
-          <option value="">Sin ordenar</option>
-          <option value="asc">Más económico → Más costoso</option>
-          <option value="desc">Más costoso → Más económico</option>
-        </select>
-      </label>
-
-      <p className="filter-range-text">
-        Mostrando productos entre <strong>${filters.minPrice || 0}</strong> y{" "}
-        <strong>${filters.maxPrice || MAX_PRICE}</strong>
-      </p>
-    </section>
+      <div className="filter-group">
+        <div className="filter-header">
+          <h3>Precio máximo</h3>
+        </div>
+        <div className="price-filter">
+          <input
+            type="range"
+            min="0"
+            max="100000"
+            step="500"
+            value={filters.maxPrice || 100000}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                maxPrice: Number(e.target.value),
+              }))
+            }
+          />
+          <div className="price-values">
+            <span>$0</span>
+            <span>${filters.maxPrice || 100000}</span>
+          </div>
+        </div>
+      </div>
+    </aside>
   );
 }
-
-
-
-// import { useState, useEffect } from "react";
-// import { useFilters } from "../../../../hooks/useFilters.js";
-// import { getBrands } from "../../../../api/brandsApi.js";
-// import { getCategories } from "../../../../api/categoriesApi.js";
-// import { useNavigate } from "react-router-dom"; // 👈 Importar useNavigate
-
-// export default function Filters() {
-//   const { filters, setFilters } = useFilters();
-//   const [brands, setBrands] = useState([]);
-//   const [categories, setCategories] = useState([]);
-//   const navigate = useNavigate(); // 👈 Inicializar
-//   const MAX_PRICE = 20000;
-
-//   useEffect(() => {
-//     getBrands()
-//       .then(setBrands)
-//       .catch((err) => console.error(err));
-//     getCategories()
-//       .then(setCategories)
-//       .catch((err) => console.error(err));
-//   }, []);
-
-//   const handleBrandChange = (e) => {
-//     const brand = e.target.value;
-//     setFilters((prev) => ({ ...prev, brand }));
-
-//     if (brand !== "all") {
-//       navigate(`/marca/${brand}`);
-//     } else {
-//       navigate("/categoriesCarousel");
-//     }
-//   };
-
-//   return (
-//     <section className="filters-box">
-//       {/* Categoría */}
-//       <label className="filter-label">
-//         Categoría:
-//         <select
-//           className="filter-select"
-//           value={filters.category || "all"}
-//           onChange={(e) =>
-//             setFilters((prev) => ({ ...prev, category: e.target.value }))
-//           }
-//         >
-//           <option value="all">Seleccionar categoría...</option>
-//           {categories.map((category) => (
-//             <option key={category.id} value={category.nombre}>
-//               {category.nombre}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-
-//       {/* Marca */}
-//       <label className="filter-label">
-//         Marca:
-//         <select
-//           className="filter-select"
-//           value={filters.brand || "all"}
-//           onChange={handleBrandChange}
-//         >
-//           <option value="all">Seleccionar marca...</option>
-//           {brands.map((brand) => (
-//             <option key={brand} value={brand}>
-//               {brand}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-
-//       {/* Precio mínimo */}
-//       <label className="filter-label">
-//         Precio mínimo: ${filters.minPrice}
-//         <input
-//           className="filter-slider"
-//           type="range"
-//           min="0"
-//           max={MAX_PRICE}
-//           step="1"
-//           value={filters.minPrice}
-//           onChange={(e) =>
-//             setFilters((prev) => ({
-//               ...prev,
-//               minPrice: Number(e.target.value),
-//             }))
-//           }
-//         />
-//       </label>
-
-//       {/* Ordenar precio */}
-//       <label className="filter-label">
-//         Ordenar precio:
-//         <select
-//           className="filter-select"
-//           value={filters.sortByPrice || ""}
-//           onChange={(e) =>
-//             setFilters((prev) => ({ ...prev, sortByPrice: e.target.value }))
-//           }
-//         >
-//           <option value="">Sin ordenar</option>
-//           <option value="asc">Menor a mayor</option>
-//           <option value="desc">Mayor a menor</option>
-//         </select>
-//       </label>
-
-//       <p className="filter-range-text">
-//         Mostrando productos entre <strong>${filters.minPrice || 0}</strong> y{" "}
-//         <strong>${filters.maxPrice || MAX_PRICE}</strong>
-//       </p>
-//     </section>
-//   );
-// }

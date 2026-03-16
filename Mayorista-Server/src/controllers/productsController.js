@@ -70,21 +70,29 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
 };
 
 
-// 🔻 Obtener todos los productos con filtros
+// 🔻 Obtener todos los productos con filtros y paginado
 export const getAllProducts = async (req, res) => {
   try {
-    const { brand, category, minPrice, maxPrice, sortByPrice } = req.query;
+    const { brand, category, minPrice, maxPrice, sortByPrice, search, page = 1, limit = 20 } = req.query;
 
     const query = {};
-if (brand && brand !== "all") {
-  query.brand = { $regex: brand, $options: "i" }; // búsqueda parcial e insensible a mayúsculas
-}
+    if (brand && brand !== "all") {
+      const brandsArray = brand.split(",");
+      query.brand = brandsArray.length > 1 ? { $in: brandsArray } : { $regex: brand, $options: "i" };
+    }
 
-if (category && category !== "all") {
-  const cat = await Category.findOne({ nombre: { $regex: category, $options: "i" } });
-  if (!cat) return res.status(404).json({ error: "Categoría no encontrada" });
-  query.categoryId = cat._id;
-}
+    if (category && category !== "all") {
+      const categoriesArray = category.split(",");
+      // Si son varios, buscamos los IDs de todas esas categorías por nombre
+      const cats = await Category.find({ nombre: { $in: categoriesArray } }).lean();
+      if (cats.length > 0) {
+        query.categoryId = { $in: cats.map(c => c._id) };
+      } else {
+        // Compatibilidad con búsqueda por un solo nombre si no se encontró con $in (ej: regex parcial)
+        const cat = await Category.findOne({ nombre: { $regex: category, $options: "i" } });
+        if (cat) query.categoryId = cat._id;
+      }
+    }
 
     if (minPrice || maxPrice) {
       query.price = {};
@@ -92,13 +100,39 @@ if (category && category !== "all") {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
 
+    // 🔥 Soporte para búsqueda por texto
+    if (search && search.trim() !== "") {
+      query.title = { $regex: search, $options: "i" };
+    }
+
     const sort = {};
     if (sortByPrice === "asc") sort.price = 1;
     else if (sortByPrice === "desc") sort.price = -1;
 
-    const products = await Product.find(query).sort(sort).populate("categoryId", "nombre"); 
+    // 🔥 Paginación
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
-    res.json(products);
+    // Ejecutar paginación en Mongo + lean() para acelerar JSON
+    const totalDocs = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalDocs / limitNumber);
+
+    const products = await Product.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNumber)
+      .populate("categoryId", "nombre")
+      .lean(); // ⬅️ lean() elimina métodos de Mongoose y lo hace ~4x más rápido
+
+    // Devolvemos objeto de paginado
+    res.json({
+      docs: products,
+      totalDocs,
+      totalPages,
+      page: pageNumber,
+      limit: limitNumber,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -176,7 +210,7 @@ export const getUniqueBrands = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id).populate("categoryId", "nombre"); 
+    const product = await Product.findById(id).populate("categoryId", "nombre").lean(); 
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
     res.json(product);
   } catch (err) {
@@ -243,7 +277,7 @@ export const deleteProduct = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const products = await Product.find({ categoryId }).populate("categoryId", "nombre"); 
+    const products = await Product.find({ categoryId }).populate("categoryId", "nombre").lean(); 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener productos por categoría" });
@@ -256,7 +290,7 @@ export const getProductsByBrand = async (req, res) => {
     const { slug } = req.params;
     const products = await Product.find({
       brand: { $regex: new RegExp(`^${slug}$`, "i") },
-    }).populate("categoryId", "nombre"); 
+    }).populate("categoryId", "nombre").lean(); 
 
     if (!products.length) {
       return res.status(404).json({ error: "No se encontraron productos para esa marca" });

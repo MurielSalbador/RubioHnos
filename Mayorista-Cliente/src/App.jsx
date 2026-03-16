@@ -70,7 +70,26 @@ import "aos/dist/aos.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// lenis
+import Lenis from 'lenis'
+import 'lenis/dist/lenis.css'
+
 function App() {
+  useEffect(() => {
+    const lenis = new Lenis()
+
+    function raf(time) {
+      lenis.raf(time)
+      requestAnimationFrame(raf)
+    }
+
+    requestAnimationFrame(raf)
+
+    return () => {
+      lenis.destroy()
+    }
+  }, []);
+
   useEffect(() => {
     AOS.init({
       duration: 800,

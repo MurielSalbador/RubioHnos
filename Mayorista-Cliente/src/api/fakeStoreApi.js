@@ -5,17 +5,28 @@ const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
 export async function getAllProducts(filters = {}) {
   const query = new URLSearchParams();
 
-  if (filters.brand && filters.brand !== "all") {
-    query.append("brand", filters.brand);
+  if (filters.brand && filters.brand.length > 0 && filters.brand !== "all") {
+    const brandValue = Array.isArray(filters.brand) ? filters.brand.join(",") : filters.brand;
+    query.append("brand", brandValue);
   }
 
-  if (filters.category && filters.category !== "all") {
-    query.append("category", filters.category);
+  if (filters.category && filters.category.length > 0 && filters.category !== "all") {
+    const categoryValue = Array.isArray(filters.category) ? filters.category.join(",") : filters.category;
+    query.append("category", categoryValue);
   }
 
   if (filters.minPrice) {
     query.append("minPrice", filters.minPrice);
   }
+
+  // 🔥 Soporte para búsqueda desde el backend
+  if (filters.search) {
+    query.append("search", filters.search);
+  }
+
+  // 🔥 Paginación
+  query.append("page", filters.page || 1);
+  query.append("limit", filters.limit || 20);
 
   const url = `${API_URL}/api/products?${query.toString()}`;
   const response = await fetch(url);
@@ -24,13 +35,13 @@ export async function getAllProducts(filters = {}) {
     throw new Error("Error al obtener productos");
   }
 
-  const data = await response.json();
+  const data = await response.json(); // { docs, totalDocs, totalPages, page, limit }
 
   // 🔽 Ordenamiento después de recibir los productos
   if (filters.sortByPrice === "asc") {
-    data.sort((a, b) => a.price - b.price);
+    data.docs.sort((a, b) => a.price - b.price);
   } else if (filters.sortByPrice === "desc") {
-    data.sort((a, b) => b.price - a.price);
+    data.docs.sort((a, b) => b.price - a.price);
   }
 
   return data;

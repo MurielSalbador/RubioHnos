@@ -7,6 +7,7 @@ import cors from "cors";
 import path from "path";
 import mongoose from "mongoose";
 import multer from "multer";
+import compression from "compression";
 
 // rutas
 import authRoutes from "./routes/auth.js";
@@ -32,6 +33,7 @@ console.log("Rutas cargadas correctamente");
 const app = express();
 
 // Middleware
+app.use(compression());
 app.use(express.json());
 app.use(cors());
 

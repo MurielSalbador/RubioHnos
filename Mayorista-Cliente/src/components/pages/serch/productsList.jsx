@@ -8,7 +8,7 @@ function ListOfProducts({ products }) {
       {products.map(product => (
         <li className='product-card' key={product._id}>
           {product.imageUrl && (
-            <img src={product.imageUrl} alt={product.title} />
+            <img loading="lazy" decoding="async" src={product.imageUrl} alt={product.title} />
           )}
           <h3>{product.title}</h3>
           <p><strong>Marca:</strong> {product.brand}</p>

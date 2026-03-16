@@ -16,6 +16,11 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Agregar índices para mejorar el rendimiento de búsqueda y filtros
+productSchema.index({ brand: 1 });
+productSchema.index({ categoryId: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ title: 'text' }); // Para búsqueda de texto
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;

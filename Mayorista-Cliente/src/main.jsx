@@ -15,7 +15,14 @@ import axios from "axios";
 import { logout } from "./utils/auth";
 import { jwtDecode } from "jwt-decode";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutos de frescura en la RAM del cliente
+      refetchOnWindowFocus: false, // Evita refetch si el usuario cambia de pestaña y vuelve
+    },
+  },
+});
 
 // 🔹 Interceptor para axios
 axios.interceptors.response.use(

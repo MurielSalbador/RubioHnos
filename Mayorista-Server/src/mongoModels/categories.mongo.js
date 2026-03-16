@@ -7,5 +7,8 @@ const categorySchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Agregar índice de texto para búsquedas rápidas por nombre
+categorySchema.index({ nombre: 1 });
+
 const Category = mongoose.model("Category", categorySchema);
 export default Category;

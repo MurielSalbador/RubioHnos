@@ -1,23 +1,26 @@
 // src/services/serch/productsSerch.js
 
-export const searchProducts = async ({ search }) => {
+export const searchProducts = async ({ search, page = 1, limit = 20 }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/products`);
+    const query = new URLSearchParams();
+    if (search && search.trim() !== "") {
+      query.append("search", search);
+    }
+    query.append("page", page);
+    query.append("limit", limit);
+
+    const res = await fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/products?${query.toString()}`);
     
     if (!res.ok) {
       throw new Error(`Error HTTP: ${res.status}`);
     }
 
-    const allProducts = await res.json();
-
-    if (!search.trim()) return [];
-
-    return allProducts.filter(product =>
-      product.title.toLowerCase().includes(search.toLowerCase())
-    );
+    // Now it returns { docs, totalDocs, totalPages, page, limit }
+    const data = await res.json();
+    return data;
   } catch (error) {
     console.error("Error fetching products:", error);
-    return [];
+    return { docs: [], totalPages: 0 };
   }
 };
 
