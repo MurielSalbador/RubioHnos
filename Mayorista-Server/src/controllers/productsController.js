@@ -82,7 +82,11 @@ export const getAllProducts = async (req, res) => {
       const categoriesArray = category.split(",");
       const cats = await Category.find({ nombre: { $in: categoriesArray } }).lean();
       if (cats.length > 0) {
-        query.categoryIds = { $in: cats.map(c => c._id) };
+        const catIds = cats.map(c => c._id);
+        query.$or = [
+          { categoryIds: { $in: catIds } },
+          { categoryId: { $in: catIds } }
+        ];
       }
     }
 
@@ -281,7 +285,12 @@ export const deleteProduct = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const products = await Product.find({ categoryIds: categoryId }).populate("categoryIds", "nombre").lean(); 
+    const products = await Product.find({
+      $or: [
+        { categoryIds: categoryId },
+        { categoryId: categoryId }
+      ]
+    }).populate("categoryIds", "nombre").lean(); 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener productos por categoría" });
@@ -306,3 +315,4 @@ export const getProductsByBrand = async (req, res) => {
   }
   
 };
+
