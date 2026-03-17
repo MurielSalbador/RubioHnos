@@ -228,7 +228,7 @@ const FinishCart = () => {
       JSON.stringify([...previousOrders, newOrder])
     );
 
-    const token = localStorage.getItem("token");
+
 
     Swal.fire({
       title: "¿Confirmar compra?",
