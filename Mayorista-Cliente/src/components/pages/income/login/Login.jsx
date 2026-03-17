@@ -90,7 +90,7 @@ function Login() {
 
   return (
     <div className="login-background">
-      <div className="login-container">
+      <div className="login-container" data-aos="zoom-in">
         <div
           className="login-left"
           style={{ backgroundImage: `url(${LoginImg})` }}

@@ -1,13 +1,11 @@
 .finishCart {
   min-height: 100vh;
-  background-color: #d4edda;
-  background-image: url("https://es.vecteezy.com/foto/8030262-whatsapp-logo-sobre-fondo-verde-3d-render" );
-  background: linear-gradient(135deg, #e5f5ec, #d4edda);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 40px 20px;
+  font-family: inherit;
 }
 
 .contactClose {
@@ -18,13 +16,15 @@
 
 
 .container {
-  background: white;
-  padding: 2rem 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 128, 0, 0.1);
-  max-width: 500px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
   width: 100%;
   text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .container h1 {
@@ -53,18 +53,22 @@
 }
 
 .checkoutForm button {
-  background-color: #25d366;
+  background: linear-gradient(90deg, #25d366, #128c7e);
   color: white;
-  padding: 0.9rem 1.5rem;
+  padding: 18px;
   font-size: 1.1rem;
+  font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: var(--transition-smooth);
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
 }
 
 .checkoutForm button:hover {
-  background-color: #1ebe5d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
 }
 
 .checkoutSummary {

@@ -15,35 +15,42 @@
   display: flex;
   width: 100%;
   max-width: 1000px;
-  height: 700px;
-  transform: scale(0.85);
-  transform-origin: center;
-  background-color: whitesmoke;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  min-height: 600px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
 @media (max-width: 768px) {
+  .login-background {
+    padding: 20px;
+    height: auto;
+    min-height: 100vh;
+  }
+
   .login-container {
-    flex-direction: column;     /* de fila a columna */
-    height: auto;              /* altura automática */
-    max-width: 400px;          /* más compacto */
-    margin: 20px;
-    transform: scale(1);       /* quitar el scale que aplasta */
+    flex-direction: column;
+    height: auto;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 20px;
   }
 
   .login-left {
-    display: none; /* ocultamos la imagen */
+    height: 200px;
+    width: 100%;
   }
 
   .login-right {
-    padding: 20px 15px;
+    padding: 30px 20px;
   }
 
   .login-form {
-    box-shadow: none; /* menos recargado en mobile */
-    padding: 16px;
+    box-shadow: none;
+    padding: 0;
   }
 
   .text-center.mb-4 {

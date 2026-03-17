@@ -279,7 +279,7 @@ const FinishCart = () => {
   return (
     <>
       <main className={styles.finishCart}>
-        <div className={styles.container}>
+        <div className={styles.container} data-aos="fade-up">
           <div className={styles.contactClose}>
             <CloseButton
               aria-label="Cerrar formulario"
