@@ -24,9 +24,13 @@ export async function getAllProducts(filters = {}) {
     query.append("search", filters.search);
   }
 
-  // 🔥 Paginación
+  // 🔥 Paginación y Ordenamiento
   query.append("page", filters.page || 1);
   query.append("limit", filters.limit || 20);
+
+  if (filters.sortByPrice) {
+    query.append("sortByPrice", filters.sortByPrice);
+  }
 
   const url = `${API_URL}/api/products?${query.toString()}`;
   const response = await fetch(url);
@@ -37,12 +41,6 @@ export async function getAllProducts(filters = {}) {
 
   const data = await response.json(); // { docs, totalDocs, totalPages, page, limit }
 
-  // 🔽 Ordenamiento después de recibir los productos
-  if (filters.sortByPrice === "asc") {
-    data.docs.sort((a, b) => a.price - b.price);
-  } else if (filters.sortByPrice === "desc") {
-    data.docs.sort((a, b) => b.price - a.price);
-  }
 
   return data;
 }
