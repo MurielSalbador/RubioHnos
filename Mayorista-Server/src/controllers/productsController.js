@@ -118,7 +118,6 @@ export const getAllProducts = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limitNumber)
-      .populate("categoryIds", "nombre")
       .select("title price brand imageUrl categoryIds available stock slug categoryId")
       .lean();
 
