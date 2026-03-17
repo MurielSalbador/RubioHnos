@@ -287,21 +287,19 @@ const FinishCart = () => {
             />
           </div>
 
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-            alt="WhatsApp Logo"
-            className={styles.whatsappLogo}
-          />
-
-          <h1>Finalizar Compra</h1>
+          <div className={styles.header}>
+            <h1>Checkout</h1>
+            <p className={styles.subtitle}>Completá tus datos para finalizar el pedido</p>
+          </div>
 
           <form className={styles.checkoutForm} onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name">Nombre completo:</label>
+            <div className={styles.formSection}>
+              <label htmlFor="name">Nombre completo</label>
               <input
                 type="text"
                 id="name"
                 name="name"
+                placeholder="Juan Pérez"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -309,8 +307,8 @@ const FinishCart = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="city">Localidad:</label>
+            <div className={styles.formSection}>
+              <label htmlFor="city">Localidad</label>
               <select
                 id="city"
                 name="city"
@@ -326,21 +324,21 @@ const FinishCart = () => {
                 <option value="Pueblo Muñoz">Pueblo Muñoz</option>
               </select>
 
-              {/* Mostramos automáticamente el costo del envío */}
               {formData.city && (
-                <p className={styles.shippingInfo}>
+                <div className={styles.shippingBadge}>
                   {shippingCost === 0
-                    ? "🚚 Envío gratis para esta localidad"
+                    ? "✨ ¡Envío gratis para esta localidad!"
                     : `🚚 Costo de envío: $${shippingCost}`}
-                </p>
+                </div>
               )}
             </div>
 
-            <div>
-              <label htmlFor="address">Dirección de envío:</label>
+            <div className={styles.formSection}>
+              <label htmlFor="address">Dirección de envío</label>
               <textarea
                 id="address"
                 name="address"
+                placeholder="Calle 123, Piso 1, Depto A"
                 value={formData.address}
                 onChange={handleChange}
                 required
@@ -348,20 +346,7 @@ const FinishCart = () => {
               />
             </div>
 
-            {/* Resumen de totales */}
-            <div className={styles.checkoutSummary}>
-              <p>
-                Subtotal productos: <strong>${total.toFixed(2)}</strong>
-              </p>
-              <p>
-                Costo de envío: <strong>${shippingCost.toFixed(2)}</strong>
-              </p>
-              <p>
-                Total final: <strong>${finalTotal.toFixed(2)}</strong>
-              </p>
-            </div>
-
-            <p>Elegí con quién querés contactarte:</p>
+            <p className={styles.contactOptionsTitle}>Seleccioná un vendedor</p>
             <div className={styles.contactOptions}>
               {contacts.map((contact) => (
                 <button
@@ -382,16 +367,14 @@ const FinishCart = () => {
                   <span>{contact.name}</span>
                 </button>
               ))}
-
-              {selectedContact && (
-                <p className={styles.selectedMessage}>
-                  Vas a contactarte con <strong>{selectedContact.name}</strong>{" "}
-                  por WhatsApp 📱
-                </p>
-              )}
             </div>
 
-            <button type="submit">Confirmar Compra</button>
+            <div className={styles.checkoutSummary}>
+              <span className={styles.totalLabel}>Total del pedido</span>
+              <span className={styles.totalAmount}>${finalTotal.toFixed(2)}</span>
+            </div>
+
+            <button type="submit">Enviar pedido por WhatsApp</button>
           </form>
         </div>
       </main>

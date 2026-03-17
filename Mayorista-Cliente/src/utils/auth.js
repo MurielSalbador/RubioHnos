@@ -1,5 +1,10 @@
 import { jwtDecode } from "jwt-decode";
 
+export const isAuthenticated = () => {
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem("token");
+};
+
 export const getUserRole = () => {
   if (typeof window === "undefined") return null; // 🚩 evita errores en build
   const user = JSON.parse(localStorage.getItem("user"));
