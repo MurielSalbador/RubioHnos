@@ -120,14 +120,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/contact" element={<ContactForm />} />
           <Route path="/cart" element={<CartHeader />} />
-          <Route
-            path="/finish"
-            element={
-              <ProtectedRoute>
-                <FinishCart />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/finish" element={<FinishCart />} />
           <Route path="/allOrders" element={<Orders />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<PwReset />} />

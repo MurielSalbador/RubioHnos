@@ -44,13 +44,20 @@ const FinishCart = () => {
   };
 
   const { cart, clearCart, setCart } = useCart();
-  const [formData, setFormData] = useState({
-    name: "",
-    city: "",
-    address: "",
+  const [formData, setFormData] = useState(() => {
+    // Intentar recuperar datos guardados previamente
+    const savedData = localStorage.getItem("pendingCheckoutData");
+    if (savedData) {
+      localStorage.removeItem("pendingCheckoutData");
+      return JSON.parse(savedData);
+    }
+    return { name: "", city: "", address: "" };
   });
 
-  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingCost, setShippingCost] = useState(() => {
+    const cost = shippingCosts[formData.city] || 0;
+    return cost;
+  });
   const [selectedContact, setSelectedContact] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -180,6 +187,27 @@ const FinishCart = () => {
         "Por favor seleccioná un contacto antes de confirmar la compra.",
         "error"
       );
+      return;
+    }
+
+    // 🛑 NUEVO: Verificar autenticación justo antes de procesar
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        title: "Iniciá sesión para continuar",
+        text: "Para registrar tu pedido necesitamos que estés ingresado en tu cuenta.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Ir al Login",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Guardamos los datos para no perderlos al volver
+          localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));
+          localStorage.setItem("redirectAfterLogin", "/finish");
+          navigate("/login");
+        }
+      });
       return;
     }
 
