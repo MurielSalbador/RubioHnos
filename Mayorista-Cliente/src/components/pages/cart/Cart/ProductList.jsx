@@ -5,6 +5,7 @@ import { useCart } from "../../../../store.js";
 import { getAdjustedStock } from "../../../../utils/calculateStock.js";
 import { FaHeart, FaRegHeart, FaPlus, FaMinus } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import { Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import SkeletonCard from "./SkeletonCard.jsx";
 import "./ProductList.css";
@@ -18,6 +19,7 @@ export default function ProductList({ search = "" }) {
   const [favorites, setFavorites] = useState({});
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Cada vez que cambien los filtros o la búsqueda, reseteamos la lista y la página
   useEffect(() => {
@@ -89,7 +91,14 @@ export default function ProductList({ search = "" }) {
               >
                 <div className="card-image-wrapper">
                   {product.imageUrl && (
-                    <img loading="lazy" decoding="async" src={product.imageUrl} alt={product.title} />
+                    <img 
+                      loading="lazy" 
+                      decoding="async" 
+                      src={product.imageUrl} 
+                      alt={product.title} 
+                      onClick={() => setSelectedProduct(product)}
+                      style={{ cursor: 'pointer' }}
+                    />
                   )}
                   <button 
                     className="fav-btn" 
@@ -162,6 +171,84 @@ export default function ProductList({ search = "" }) {
            </button>
         </div>
       )}
+
+      {/* Modal de Detalle de Producto para Móvil (y Desktop opcional) */}
+      <Modal 
+        show={!!selectedProduct} 
+        onHide={() => setSelectedProduct(null)} 
+        centered 
+        contentClassName="premium-product-modal"
+      >
+        {selectedProduct && (() => {
+          const product = selectedProduct;
+          const cartItem = cart.find((item) => item._id === product._id);
+          const quantity = cartItem ? cartItem.quantity : 0;
+          
+          return (
+            <>
+              <Modal.Header closeButton className="modal-borderless">
+              </Modal.Header>
+              <Modal.Body className="p-0">
+                <div className="modal-product-image">
+                  <img src={product.imageUrl} alt={product.title} />
+                  <button 
+                    className="modal-fav-btn" 
+                    onClick={() => toggleFavorite(product._id)}
+                  >
+                    {favorites[product._id] ? <FaHeart color="#e91e63" size={24} /> : <FaRegHeart size={24} />}
+                  </button>
+                </div>
+                <div className="modal-product-details">
+                  <p className="modal-brand">{product.brand}</p>
+                  <h3>{product.title}</h3>
+                  <p className="modal-price">${product.price}</p>
+                  
+                  {product.description && (
+                    <p className="modal-desc">{product.description}</p>
+                  )}
+                  
+                  <div className="modal-actions">
+                    {quantity === 0 ? (
+                      <button
+                        className="modal-add-btn"
+                        disabled={getAdjustedStock(product, cart) === 0}
+                        onClick={() => {
+                          addCart(product);
+                          toast.success(`¡Agregado al carrito!`, {
+                            position: "bottom-center",
+                            autoClose: 1500,
+                            theme: "colored"
+                          });
+                        }}
+                      >
+                        {getAdjustedStock(product, cart) === 0 ? "Sin stock" : "Agregar al Carrito"}
+                      </button>
+                    ) : (
+                      <div className="modal-qty-selector">
+                        <button 
+                          className="mqty-btn" 
+                          onClick={() => removeCart(product._id)}
+                        >
+                          <FaMinus />
+                        </button>
+                        <span className="mqty-number">{quantity}</span>
+                        <button 
+                          className="mqty-btn" 
+                          disabled={getAdjustedStock(product, cart) === 0}
+                          onClick={() => addCart(product)}
+                        >
+                          <FaPlus />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Modal.Body>
+            </>
+          );
+        })()}
+      </Modal>
+
     </div>
   );
 }

@@ -93,6 +93,16 @@ const openWhatsApp = (phone) => {
         data-aos-duration="700"
         data-aos-delay="200"
       >
+        {isMobile && (
+          <div className="mobile-quick-shop">
+            <Link to="/shop">
+              <button className="premium-mobile-btn">
+                Ir a la Tienda ➔
+              </button>
+            </Link>
+          </div>
+        )}
+
         <div className="home-hero-content">
           {userName && (
             <h2 className="home-hero-welcome">
