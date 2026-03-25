@@ -79,57 +79,53 @@ export default function ProductDetail() {
         <Header />
       </header>
 
-      <div
-        className="product-detail"
-        data-aos="zoom-in"
-        data-aos-duration="600"
-        data-aos-delay="200"
-      >
-        <img src={product.imageUrl} alt={product.title} />
-        <div className="info">
-          <h2>{product.title}</h2>
-          <p>
-            <i className="fas fa-tag"></i> <strong>Marca:</strong>{" "}
-            {product.brand}
-          </p>
-          <p>
-            <i className="fas fa-dollar-sign"></i> <strong>Precio:</strong> $
-            {product.price}
-          </p>
-          <p>
-            <i className="fas fa-box"></i> <strong>Stock:</strong>{" "}
-            {product.stock}
-          </p>
-
-          {product.stock === 1 && (
-            <p className="stock-alert">¡Último disponible!</p>
-          )}
-
-          <div className="cart-controls">
-            <button
-              disabled={quantityInCart === 0}
-              onClick={handleRemoveFromCart}
-              className="remove-cart-btn"
-            >
-              Borrar del carrito
-            </button>
-
-            <span className="quantity-in-cart">
-              Productos Agregados {quantityInCart}
-            </span>
-
-            <button
-              disabled={product.stock === 0}
-              onClick={handleAddToCart}
-              className="add-cart-btn"
-            >
-              {product.stock === 0 ? "Sin stock" : "Agregar al carrito"}
-            </button>
+      <div className="product-detail-page">
+        <div
+          className="premium-product-detail-container"
+          data-aos="zoom-in"
+          data-aos-duration="600"
+          data-aos-delay="100"
+        >
+          <div className="product-image-section">
+            <img src={product.imageUrl} alt={product.title} />
           </div>
+          
+          <div className="product-info-section">
+            <div className="product-brand-badge">{product.brand}</div>
+            <h1 className="product-title">{product.title}</h1>
+            <div className="product-price">${product.price}</div>
+            
+            <div className="product-stock-info">
+              <span className={`stock-status ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                {product.stock > 0 ? `Stock Disponible: ${product.stock}` : "Sin Stock"}
+              </span>
+              {product.stock === 1 && (
+                <span className="stock-alert-badge">¡Último disponible!</span>
+              )}
+            </div>
 
-          <a className="back-to-shop" href="/shop">
-            Volver a la tienda
-          </a>
+            <div className="product-action-box">
+              {quantityInCart === 0 ? (
+                <button
+                  disabled={product.stock === 0}
+                  onClick={handleAddToCart}
+                  className="premium-add-btn"
+                >
+                  {product.stock === 0 ? "Sin stock" : "Agregar al Carrito"}
+                </button>
+              ) : (
+                <div className="premium-qty-selector">
+                  <button onClick={handleRemoveFromCart} className="qty-btn">-</button>
+                  <span className="qty-number">{quantityInCart}</span>
+                  <button onClick={handleAddToCart} disabled={product.stock === 0} className="qty-btn">+</button>
+                </div>
+              )}
+            </div>
+
+            <Link className="premium-back-btn" to="/shop">
+              ← Volver a la Tienda
+            </Link>
+          </div>
         </div>
       </div>
 
