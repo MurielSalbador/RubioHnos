@@ -7,6 +7,7 @@ import "./header.css";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const cartCount = useCart((state) => state.cart.reduce((total, item) => total + item.quantity, 0));
+  const favoritesCount = useCart((state) => state.favorites.length);
 
   return (
     <header className="main-header">
@@ -47,6 +48,13 @@ export default function Header() {
             <AccountButton />
           </div>
           
+          {favoritesCount > 0 && (
+            <a href="/favorites" className="cart-btn" style={{ marginRight: '1rem' }}>
+              <i className="fa-solid fa-heart" style={{ color: '#E81C4C' }}></i>
+              <span className="cart-badge" style={{ backgroundColor: '#E81C4C' }}>{favoritesCount}</span>
+            </a>
+          )}
+
           <a href="/cart" className="cart-btn">
             <i className="fa-solid fa-cart-shopping"></i>
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}

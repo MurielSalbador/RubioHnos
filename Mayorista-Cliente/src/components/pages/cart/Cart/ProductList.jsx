@@ -16,7 +16,9 @@ export default function ProductList({ search = "" }) {
   const addCart = useCart((state) => state.addCart);
   const removeCart = useCart((state) => state.removeCart);
   const cart = useCart((state) => state.cart);
-  const [favorites, setFavorites] = useState({});
+  const favoritesArray = useCart((state) => state.favorites);
+  const toggleFavorite = useCart((state) => state.toggleFavorite);
+  
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -65,9 +67,7 @@ export default function ProductList({ search = "" }) {
 
   const hasMore = data ? page < data.totalPages : false;
 
-  const toggleFavorite = (id) => {
-    setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
-  };
+  const isFavorite = (id) => favoritesArray.some((fav) => fav._id === id);
 
   return (
     <div className="product-list-container">
@@ -102,9 +102,9 @@ export default function ProductList({ search = "" }) {
                   )}
                   <button 
                     className="fav-btn" 
-                    onClick={() => toggleFavorite(product._id)}
+                    onClick={() => toggleFavorite(product)}
                   >
-                    {favorites[product._id] ? <FaHeart color="#e91e63" /> : <FaRegHeart />}
+                    {isFavorite(product._id) ? <FaHeart color="#e91e63" /> : <FaRegHeart />}
                   </button>
                 </div>
 
@@ -193,9 +193,9 @@ export default function ProductList({ search = "" }) {
                   <img src={product.imageUrl} alt={product.title} />
                   <button 
                     className="modal-fav-btn" 
-                    onClick={() => toggleFavorite(product._id)}
+                    onClick={() => toggleFavorite(product)}
                   >
-                    {favorites[product._id] ? <FaHeart color="#e91e63" size={24} /> : <FaRegHeart size={24} />}
+                    {isFavorite(product._id) ? <FaHeart color="#e91e63" size={24} /> : <FaRegHeart size={24} />}
                   </button>
                 </div>
                 <div className="modal-product-details">

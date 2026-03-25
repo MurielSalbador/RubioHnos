@@ -6,6 +6,22 @@ export const useCart = create(
     (set) => ({
       count: 0,
       cart: [],
+      favorites: [],
+
+      // Funciones de favoritos
+      toggleFavorite: (product) =>
+        set((state) => {
+          const isFavorited = state.favorites.some((fav) => fav._id === product._id);
+          if (isFavorited) {
+            return {
+              favorites: state.favorites.filter((fav) => fav._id !== product._id),
+            };
+          } else {
+            return {
+              favorites: [...state.favorites, product],
+            };
+          }
+        }),
 
       // Funciones para manejar el carrito stock
       addCart: (item) =>

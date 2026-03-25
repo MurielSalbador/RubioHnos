@@ -59,6 +59,9 @@ import CategoriesCarousel from "./components/pages/Home/categoriesCarousel/Categ
 //gastos
 import ExpenseManagement from "./components/pages/ExpenseManagement/ExpenseManagement.jsx";
 
+//favorites
+import FavoritesPage from "./components/pages/favorites/FavoritesPage.jsx";
+
 //css
 import "./App.css";
 
@@ -146,6 +149,7 @@ function App() {
           <Route path="/httpClients" element={<UserManagement />} />
           <Route path="/categoriesCarousel" element={<CategoriesCarousel />} />
           <Route path="/marca/:slug" element={<MarcaPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
           {/* Ruta 404: si no se encuentra ninguna coincidencia */}
           <Route path="*" element={<NotFound />} />
         </Routes>
