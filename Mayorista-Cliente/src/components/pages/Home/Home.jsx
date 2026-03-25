@@ -93,15 +93,13 @@ const openWhatsApp = (phone) => {
         data-aos-duration="700"
         data-aos-delay="200"
       >
-        {isMobile && (
-          <div className="mobile-quick-shop">
-            <Link to="/shop">
-              <button className="premium-mobile-btn">
-                Ir a la Tienda ➔
-              </button>
-            </Link>
-          </div>
-        )}
+        <div className="mobile-quick-shop">
+          <Link to="/shop">
+            <button className="premium-mobile-btn">
+              Ir a la Tienda ➔
+            </button>
+          </Link>
+        </div>
 
         <div className="home-hero-content">
           {userName && (
@@ -125,10 +123,6 @@ const openWhatsApp = (phone) => {
               🍫 <strong>Snacks saludables y ricos</strong>
             </p>
           </div>
-
-          <Link to="/shop">
-            <button className="home-hero-button">Ver productos</button>
-          </Link>
         </div>
 
         {!isMobile && (
@@ -287,15 +281,16 @@ const openWhatsApp = (phone) => {
         <h3 className="section-title">Algunos de nuestros productos</h3>
         <div className="category-grid">
           {featuredProducts.slice(0, 5).map((product) => (
-            <div className="category-card" key={product._id}>
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="category-image"
-              />
-
-              <div className="category-title">{product.title}</div>
-            </div>
+            <Link to={`/product/${product._id}`} key={product._id} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="category-card">
+                <img
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="category-image"
+                />
+                <div className="category-title">{product.title}</div>
+              </div>
+            </Link>
           ))}
         </div>
 

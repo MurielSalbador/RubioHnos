@@ -595,34 +595,34 @@
     width: 90%;
     max-width: 300px;
   }
+}
 
-  .mobile-quick-shop {
-    width: 100%;
-    padding: 0 1rem;
-    margin-bottom: 1rem;
-    display: flex;
-    justify-content: center;
-  }
+.mobile-quick-shop {
+  width: 100%;
+  padding: 0 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
 
-  .premium-mobile-btn {
-    background: #4CAF50;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
-    width: 100%;
-    max-width: 300px;
-    padding: 14px 24px;
-    border-radius: 50px;
-    border: none;
-    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-  }
+.premium-mobile-btn {
+  background: #4CAF50;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 100%;
+  max-width: 300px;
+  padding: 14px 24px;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
 
-  .premium-mobile-btn:active {
-    transform: scale(0.96);
-  }
+.premium-mobile-btn:active {
+  transform: scale(0.96);
 }
 
 /* Info section (imagen + texto) para tablets y móviles */
