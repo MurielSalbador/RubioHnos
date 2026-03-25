@@ -1,24 +1,19 @@
 .product-detail-page {
-  background-color: #fdfdfe;
+  background-color: #fcfcfc;
   min-height: 100vh;
-  padding: 3rem 1rem 6rem;
+  padding: 1rem 1rem 6rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
-/* Para considerar el header fixed si lo tiene */
-header.main-header {
-  margin-bottom: 2rem;
-}
-
 .centered-product-container {
   background: white;
   width: 100%;
-  max-width: 650px;
-  border-radius: 30px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.06);
-  padding: 3rem 1.5rem;
+  max-width: 450px;
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+  padding: 2.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,13 +21,13 @@ header.main-header {
   border: 1px solid rgba(0,0,0,0.03);
   position: relative;
   overflow: hidden;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .centered-product-image-container {
   width: 100%;
-  max-width: 320px;
-  height: 320px;
+  max-width: 220px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,25 +63,25 @@ header.main-header {
 }
 
 .centered-product-title {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #111;
   line-height: 1.2;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   letter-spacing: -0.5px;
 }
 
 .centered-product-price {
-  font-size: 2.8rem;
+  font-size: 2rem;
   font-weight: 900;
   color: #4CAF50;
-  margin-bottom: 2rem;
-  text-shadow: 0 4px 10px rgba(76, 175, 80, 0.1);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 5px rgba(76, 175, 80, 0.1);
 }
 
 .centered-stock-info {
-  margin-bottom: 2.5rem;
-  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  font-size: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -115,10 +110,10 @@ header.main-header {
 
 .centered-action-area {
   width: 100%;
-  max-width: 350px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 
 .centered-add-btn {
@@ -126,13 +121,13 @@ header.main-header {
   background: #4CAF50;
   color: white;
   border: none;
-  padding: 22px;
+  padding: 16px;
   border-radius: 50px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8px 15px rgba(76, 175, 80, 0.25);
 }
 
 .centered-add-btn:hover:not(:disabled) {
@@ -163,19 +158,19 @@ header.main-header {
 }
 
 .centered-qty-btn {
-  width: 55px;
-  height: 55px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   border: none;
   background: white;
   color: #111;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
   transition: all 0.2s;
 }
 
@@ -184,17 +179,17 @@ header.main-header {
 }
 
 .centered-qty-number {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: #111;
 }
 
 .centered-back-link {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   color: #888;
   text-decoration: none;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: color 0.2s;
   display: inline-block;
 }
@@ -209,18 +204,21 @@ header.main-header {
 }
 
 @media (min-width: 768px) {
+  .product-detail-page {
+    padding-top: 3rem;
+  }
   .centered-product-container {
-    padding: 4rem 3rem;
-    max-width: 750px;
+    padding: 3.5rem 2.5rem;
+    max-width: 500px;
   }
   .centered-product-title {
-    font-size: 3rem;
+    font-size: 2rem;
   }
   .centered-product-price {
-    font-size: 3.2rem;
+    font-size: 2.4rem;
   }
   .centered-product-image-container {
-    max-width: 400px;
-    height: 400px;
+    max-width: 250px;
+    height: 250px;
   }
 }

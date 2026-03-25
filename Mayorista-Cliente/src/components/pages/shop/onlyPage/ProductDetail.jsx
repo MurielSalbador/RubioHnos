@@ -9,25 +9,9 @@ import { useCart } from "../../../../store.js";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// importar componentes del carrito
-import Filters from "../../cart/Cart/Filters.jsx";
-import Cart from "../../cart/Cart/Cart.jsx";
-
-import { useState, useEffect } from "react";
-
 export default function ProductDetail() {
   const { id } = useParams();
   const queryClient = useQueryClient();
-
-  const [showCartModal, setShowCartModal] = useState(false);
-
-  useEffect(() => {
-    if (showCartModal) {
-      document.body.classList.add("cart-open");
-    } else {
-      document.body.classList.remove("cart-open");
-    }
-  }, [showCartModal]);
 
   // store
   const addCart = useCart((state) => state.addCart);
@@ -75,9 +59,7 @@ export default function ProductDetail() {
 
   return (
     <>
-      <header className="main-header">
-        <Header />
-      </header>
+      <Header />
 
       <div className="product-detail-page">
         <div
@@ -127,35 +109,6 @@ export default function ProductDetail() {
 
         </div>
       </div>
-
-      {/* Botón flotante 🛒 */}
-      <button
-        className="floating-cart-btn"
-        onClick={() => setShowCartModal(true)}
-      >
-        🛒
-      </button>
-
-      {/* Modal carrito */}
-      {showCartModal && (
-        <div className="cart-modal">
-          <div className="cart-modal-content">
-            <button
-              className="close-cart-btn"
-              onClick={() => setShowCartModal(false)}
-            >
-              ✖
-            </button>
-            <Filters />
-            <Cart />
-            <div className="classButton">
-              <Link to="/finish" onClick={() => setShowCartModal(false)}>
-                Finalizar tu compra
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Notificaciones de toast */}
       <ToastContainer />
