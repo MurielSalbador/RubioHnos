@@ -93,14 +93,6 @@ const openWhatsApp = (phone) => {
         data-aos-duration="700"
         data-aos-delay="200"
       >
-        <div className="mobile-quick-shop">
-          <Link to="/shop">
-            <button className="premium-mobile-btn">
-              Ir a la Tienda ➔
-            </button>
-          </Link>
-        </div>
-
         <div className="home-hero-content">
           {userName && (
             <h2 className="home-hero-welcome">
@@ -122,6 +114,14 @@ const openWhatsApp = (phone) => {
             <p>
               🍫 <strong>Snacks saludables y ricos</strong>
             </p>
+          </div>
+
+          <div className="mobile-quick-shop">
+            <Link to="/shop">
+              <button className="premium-mobile-btn">
+                Ir a la Tienda ➔
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -281,13 +281,18 @@ const openWhatsApp = (phone) => {
         <h3 className="section-title">Algunos de nuestros productos</h3>
         <div className="category-grid">
           {featuredProducts.slice(0, 5).map((product) => (
-            <Link to={`/product/${product._id}`} key={product._id} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link to={`/product/${product._id}`} key={product._id} className="premium-category-link">
               <div className="category-card">
-                <img
-                  src={product.imageUrl}
-                  alt={product.title}
-                  className="category-image"
-                />
+                <div className="category-image-wrapper">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="category-image"
+                  />
+                  <div className="category-overlay">
+                    <span className="category-badge">Ver producto ➔</span>
+                  </div>
+                </div>
                 <div className="category-title">{product.title}</div>
               </div>
             </Link>
