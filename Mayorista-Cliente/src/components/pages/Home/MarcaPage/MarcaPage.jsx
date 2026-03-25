@@ -1,26 +1,32 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Modal, Button } from "react-bootstrap";
+import { useQuery } from "@tanstack/react-query";
+import { Modal } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaHeart, FaRegHeart, FaPlus, FaMinus } from "react-icons/fa";
 
-import "./MarcaPage.css";
+import Header from "../../../header/Header.jsx";
 import { useCart } from "../../../../store.js";
 import { getAdjustedStock } from "../../../../utils/calculateStock.js";
+
+import "./MarcaPage.css";
+// Reutilizamos los elegantes estilos de grid y modal del catálogo
+import "../../cart/Cart/ProductList.css";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 export default function MarcaPage() {
   const { slug } = useParams();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const addCart = useCart((state) => state.addCart);
   const removeCart = useCart((state) => state.removeCart);
   const cart = useCart((state) => state.cart);
+  const favoritesArray = useCart((state) => state.favorites);
+  const toggleFavorite = useCart((state) => state.toggleFavorite);
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const { data: products = [], isLoading, error } = useQuery({
     queryKey: ["products", slug],
@@ -31,139 +37,182 @@ export default function MarcaPage() {
     },
   });
 
-  const handleAddToCart = (product) => {
-    if (getAdjustedStock(product, cart) === 0) return;
+  const isFavorite = (id) => favoritesArray.some((fav) => fav._id === id);
 
-    const storedUser = localStorage.getItem("user");
-    const user = storedUser ? JSON.parse(storedUser) : null;
-
-    if (!user) {
-      // Guardamos la URL actual para redirigir después del login
-      localStorage.setItem("redirectAfterLogin", window.location.pathname);
-      setShowLoginModal(true);
-      return;
-    }
-
-    addCart(product);
-    toast.success("¡Producto agregado al carrito!");
-  };
-
-  const handleRemoveFromCart = (product) => {
-    const productInCart = cart.find((item) => item._id === product._id);
-    const quantityInCart = productInCart ? productInCart.quantity : 0;
-
-    if (quantityInCart > 0) {
-      removeCart(product._id);
-      toast.info("Producto eliminado del carrito");
-    } else {
-      toast.info("No hay unidades de este producto en el carrito");
-    }
-  };
-
-  if (isLoading) return <p>Cargando productos de {slug}...</p>;
-  if (error) return <p>{error.message}</p>;
-  if (products.length === 0)
-    return <p>No hay productos disponibles para esta marca.</p>;
+  if (isLoading) return <p className="marca-status">Cargando productos de {slug}...</p>;
+  if (error) return <p className="marca-status error">{error.message}</p>;
+  if (products.length === 0) return <p className="marca-status">No hay productos disponibles para esta marca.</p>;
 
   return (
-    <div className="products-container">
-      <button className="back-button" onClick={() => window.history.back()}>
-        ← Volver
-      </button>
+    <>
+      <Header />
+      <div className="marca-page-container">
+        <button className="marca-back-button" onClick={() => window.history.back()}>
+          ← Volver
+        </button>
 
-      <div className="product-title">
-        <h2>Productos de la marca: {slug}</h2>
-      </div>
+        <div className="marca-product-title">
+          <h2>Explorá productos de: <span>{slug}</span></h2>
+        </div>
 
-      <ul className="product-list-marcaPage">
-        {products.map((product) => {
-          const productInCart = cart.find((item) => item._id === product._id);
-          const quantityInCart = productInCart ? productInCart.quantity : 0;
+        <div className="modern-product-grid">
+          {products.map((product) => {
+            const cartItem = cart.find((item) => item._id === product._id);
+            const quantity = cartItem ? cartItem.quantity : 0;
 
-          return (
-            <li key={product._id} className="product-card-marcaPage">
-              <img
-                loading="lazy"
-                decoding="async"
-                src={
-                  product.imageUrl ||
-                  product.image ||
-                  "https://via.placeholder.com/250x150?text=Sin+imagen"
-                }
-                alt={product.title}
-                className="product-image"
-              />
-              <h3 className="product-title">
-                {product.title.length > 80
-                  ? `${product.title.slice(0, 80)}...`
-                  : product.title}
-              </h3>
-              <p className="product-brand">Marca: {product.brand}</p>
-              <p className="product-price">Precio: ${product.price}</p>
-              <p className="product-stock">
-                Stock: {getAdjustedStock(product, cart)}
-              </p>
+            return (
+              <div 
+                key={product._id} 
+                className="modern-product-card"
+                data-aos="fade-up"
+              >
+                <div className="card-image-wrapper">
+                  <img 
+                    loading="lazy" 
+                    decoding="async" 
+                    src={product.imageUrl || product.image || "https://via.placeholder.com/250x150?text=Sin+imagen"} 
+                    alt={product.title} 
+                    onClick={() => setSelectedProduct(product)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <button 
+                    className="fav-btn" 
+                    onClick={() => toggleFavorite(product)}
+                  >
+                    {isFavorite(product._id) ? <FaHeart color="#e91e63" /> : <FaRegHeart />}
+                  </button>
+                </div>
 
-              {getAdjustedStock(product, cart) === 1 && (
-                <p className="stock-alert">¡Último disponible!</p>
-              )}
-
-              <div className="product-buttons">
-                <button
-                  disabled={getAdjustedStock(product, cart) === 0}
-                  onClick={() => handleAddToCart(product)}
-                >
-                  {getAdjustedStock(product, cart) === 0
-                    ? "Sin stock"
-                    : "Agregar al carrito"}
-                </button>
-
-                <button
-                  disabled={quantityInCart === 0}
-                  onClick={() => handleRemoveFromCart(product)}
-                >
-                  Borrar del carrito
-                </button>
-
-                <span className="quantity-in-cart">
-                  Agregados: {quantityInCart}
-                </span>
+                <div className="card-info">
+                  <h3 title={product.title}>{product.title.length > 80 ? `${product.title.slice(0, 80)}...` : product.title}</h3>
+                  <p className="card-brand">{product.brand}</p>
+                  
+                  <div className="card-footer">
+                    <p className="card-price">${product.price}</p>
+                    
+                    {quantity === 0 ? (
+                      <button
+                        className="add-to-cart-btn"
+                        disabled={getAdjustedStock(product, cart) === 0}
+                        onClick={() => {
+                          addCart(product);
+                          toast.success(`¡${product.title.substring(0,20)}... agregado!`, {
+                            position: "bottom-right",
+                            autoClose: 2000,
+                            theme: "colored"
+                          });
+                        }}
+                      >
+                        {getAdjustedStock(product, cart) === 0 ? "Sin stock" : "Agregar"}
+                      </button>
+                    ) : (
+                      <div className="quantity-selector-modern">
+                        <button 
+                          className="qty-btn" 
+                          onClick={() => removeCart(product._id)}
+                        >
+                          <FaMinus size={10} />
+                        </button>
+                        <span className="qty-number">{quantity}</span>
+                        <button 
+                          className="qty-btn" 
+                          disabled={getAdjustedStock(product, cart) === 0}
+                          onClick={() => addCart(product)}
+                        >
+                          <FaPlus size={10} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {getAdjustedStock(product, cart) < 5 && getAdjustedStock(product, cart) > 0 && (
+                     <span className="low-stock-label">Quedan pocos</span>
+                  )}
+                </div>
               </div>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          })}
+        </div>
 
-      {/* ✅ Modal de login */}
-      <Modal
-        show={showLoginModal}
-        onHide={() => setShowLoginModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Iniciar sesión requerido</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Para agregar productos al carrito necesitás iniciar sesión.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowLoginModal(false)}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setShowLoginModal(false);
-              navigate("/login");
-            }}
-          >
-            Ir al login
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        {/* Modal de Detalle Móvil */}
+        <Modal 
+          show={!!selectedProduct} 
+          onHide={() => setSelectedProduct(null)} 
+          centered 
+          contentClassName="premium-product-modal"
+        >
+          {selectedProduct && (() => {
+            const product = selectedProduct;
+            const cartItem = cart.find((item) => item._id === product._id);
+            const quantity = cartItem ? cartItem.quantity : 0;
+            
+            return (
+              <>
+                <Modal.Header closeButton className="modal-borderless">
+                </Modal.Header>
+                <Modal.Body className="p-0">
+                  <div className="modal-product-image">
+                    <img src={product.imageUrl || product.image} alt={product.title} />
+                    <button 
+                      className="modal-fav-btn" 
+                      onClick={() => toggleFavorite(product)}
+                    >
+                      {isFavorite(product._id) ? <FaHeart color="#e91e63" size={24} /> : <FaRegHeart size={24} />}
+                    </button>
+                  </div>
+                  <div className="modal-product-details">
+                    <p className="modal-brand">{product.brand}</p>
+                    <h3>{product.title}</h3>
+                    <p className="modal-price">${product.price}</p>
+                    
+                    {product.description && (
+                      <p className="modal-desc">{product.description}</p>
+                    )}
+                    
+                    <div className="modal-actions">
+                      {quantity === 0 ? (
+                        <button
+                          className="modal-add-btn"
+                          disabled={getAdjustedStock(product, cart) === 0}
+                          onClick={() => {
+                            addCart(product);
+                            toast.success(`¡Agregado al carrito!`, {
+                              position: "bottom-center",
+                              autoClose: 1500,
+                              theme: "colored"
+                            });
+                          }}
+                        >
+                          {getAdjustedStock(product, cart) === 0 ? "Sin stock" : "Agregar al Carrito"}
+                        </button>
+                      ) : (
+                        <div className="modal-qty-selector">
+                          <button 
+                            className="mqty-btn" 
+                            onClick={() => removeCart(product._id)}
+                          >
+                            <FaMinus />
+                          </button>
+                          <span className="mqty-number">{quantity}</span>
+                          <button 
+                            className="mqty-btn" 
+                            disabled={getAdjustedStock(product, cart) === 0}
+                            onClick={() => addCart(product)}
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Modal.Body>
+              </>
+            );
+          })()}
+        </Modal>
 
-      {/* Toasts */}
-      <ToastContainer position="top-right" autoClose={3000} />
-    </div>
+        <ToastContainer />
+      </div>
+    </>
   );
 }

@@ -1,143 +1,64 @@
-.products-container {
-  margin-top: 6rem;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #4a3c31;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.marca-page-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 6rem 1rem 4rem; /* 6rem para no pisarse con el header fixed */
+  background-color: #fcfcfc;
+  min-height: 100vh;
 }
 
-.back-button {
-  align-self: flex-start;
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #c49e45;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.back-button:hover {
-  background-color: #a67c1a;
-}
-
-.product-title {
-  width: 100%;
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.products-container h2 {
-  font-size: 2rem;
-  color: #6b4c24;
-}
-
-.product-list-marcaPage {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  padding: 0;
-  width: 100%;
-}
-
-.product-card-marcaPage {
-  background: #f5e6b8;
-  border: 2px solid #c49e45;
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgb(101 67 33 / 0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.product-card-marcaPage:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgb(101 67 33 / 0.3);
-}
-
-.product-image {
-  width: 100%;
-  height: 180px;
-  object-fit: contain;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  background-color: white;
-}
-
-.product-title {
-  margin: 0 0 0.5rem 0;
-  color: #7a5c22;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.product-brand,
-.product-price,
-.product-stock {
-  margin: 0.2rem 0;
-  color: #5d4a1f;
-  font-weight: 600;
-}
-
-.stock-alert {
-  color: #b3561e;
+.marca-back-button {
+  display: inline-block;
+  background: white;
+  color: #333;
+  margin-bottom: 2rem;
+  padding: 10px 20px;
+  border-radius: 50px;
   font-weight: 700;
-  margin: 0.5rem 0;
-}
-
-.product-buttons {
-  margin-top: auto;
-  display: flex;
-  gap: 0.5rem;
-  width: 100%;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.product-buttons button {
-  flex: 1 1 45%;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.marca-back-button:hover {
+  background: #f8f8f8;
+  transform: translateX(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+.marca-product-title {
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #eee;
+}
+
+.marca-product-title h2 {
+  font-size: 2.2rem;
+  color: #222;
+  font-weight: 800;
+  margin: 0;
+}
+
+.marca-product-title span {
+  color: #4CAF50;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.marca-status {
+  text-align: center;
+  padding: 8rem 2rem;
+  font-size: 1.2rem;
+  color: #666;
   font-weight: 600;
-  background-color: #c49e45;
-  color: white;
-  transition: background-color 0.3s ease;
 }
 
-.product-buttons button:hover:not(:disabled) {
-  background-color: #a67c1a;
+.marca-status.error {
+  color: #e76f51;
 }
 
-.product-buttons button:disabled {
-  background-color: #a9a9a9;
-  cursor: not-allowed;
-}
-
-@media (max-width: 600px) {
-  .product-list-marcaPage {
-    grid-template-columns: 1fr;
-  }
-
-  .product-buttons button {
-    flex: 1 1 100%;
-  }
-
-  .product-image {
-    height: 150px;
-  }
-
-  .products-container h2 {
-    font-size: 1.5rem;
+@media (max-width: 768px) {
+  .marca-product-title h2 {
+    font-size: 1.8rem;
   }
 }
