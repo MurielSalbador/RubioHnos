@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useProducts } from "../../../../../Mayorista-Server/src/hooks/serch/useProducts.js";
+import { useProducts } from "../../../hooks/serch/useProducts.js";
 import { Products } from "../serch/productsList.jsx";
 import { Link } from "react-router-dom";
 import "./Home.css";
