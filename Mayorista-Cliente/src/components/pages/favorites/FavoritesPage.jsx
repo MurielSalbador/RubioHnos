@@ -13,7 +13,6 @@ export default function FavoritesPage() {
   const toggleFavorite = useCart((state) => state.toggleFavorite);
   const addCart = useCart((state) => state.addCart);
   const removeCart = useCart((state) => state.removeCart);
-  const removeAllFromCart = useCart((state) => state.removeAllFromCart);
   const cart = useCart((state) => state.cart);
 
   return (
@@ -72,25 +71,10 @@ export default function FavoritesPage() {
                           {stockAvailable === 0 ? "Sin stock" : "Agregar al Carrito"}
                         </button>
                       ) : (
-                        <div className="favorite-qty-selector" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <div className="favorite-qty-selector">
                           <button onClick={() => removeCart(product._id)} className="favorite-qty-btn"><FaMinus size={12}/></button>
                           <span className="favorite-qty-number">{quantityInCart}</span>
                           <button onClick={() => addCart(product)} disabled={stockAvailable === 0} className="favorite-qty-btn"><FaPlus size={12}/></button>
-                          <button 
-                            onClick={() => removeAllFromCart(product._id)}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#e91e63",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              marginLeft: "5px"
-                            }}
-                            title="Quitar todo del carrito"
-                          >
-                            <FaTrash size={14} />
-                          </button>
                         </div>
                       )}
 

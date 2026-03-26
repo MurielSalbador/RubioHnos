@@ -27,6 +27,7 @@ export default function Home() {
 
   // Detectar si es mobile
   useEffect(() => {
+    window.scrollTo(0, 0); // Forzar scroll arriba al cargar
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -226,7 +227,6 @@ const openWhatsApp = (phone) => {
                 placeholder="Ej: Yerba Orgánica, Mix de Frutos..."
                 value={search}
                 onChange={handleInputChange}
-                autoFocus
               />
               <div className="search-glow"></div>
             </div>
