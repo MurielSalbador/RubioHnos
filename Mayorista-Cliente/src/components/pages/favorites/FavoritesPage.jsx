@@ -5,13 +5,15 @@ import CloseButton from "react-bootstrap/CloseButton";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./FavoritesPage.css";
-import { FaHeart, FaTrash } from "react-icons/fa";
+import { FaHeart, FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 
 export default function FavoritesPage() {
   const navigate = useNavigate();
   const favorites = useCart((state) => state.favorites);
   const toggleFavorite = useCart((state) => state.toggleFavorite);
   const addCart = useCart((state) => state.addCart);
+  const removeCart = useCart((state) => state.removeCart);
+  const removeAllFromCart = useCart((state) => state.removeAllFromCart);
   const cart = useCart((state) => state.cart);
 
   return (
@@ -37,6 +39,8 @@ export default function FavoritesPage() {
             <div className="favorites-list">
               {favorites.map((product) => {
                 const stockAvailable = getAdjustedStock(product, cart);
+                const cartItem = cart.find((item) => item._id === product._id);
+                const quantityInCart = cartItem ? cartItem.quantity : 0;
 
                 return (
                   <div key={product._id} className="favorite-item">
@@ -52,20 +56,43 @@ export default function FavoritesPage() {
                     </div>
 
                     <div className="favorite-item-actions">
-                      <button
-                        className="favorite-add-btn"
-                        disabled={stockAvailable === 0}
-                        onClick={() => {
-                          addCart(product);
-                          toast.success(`¡${product.title} agregado!`, {
-                            position: "bottom-center",
-                            autoClose: 1500,
-                            theme: "colored",
-                          });
-                        }}
-                      >
-                        {stockAvailable === 0 ? "Sin stock" : "Agregar al Carrito"}
-                      </button>
+                      {quantityInCart === 0 ? (
+                        <button
+                          className="favorite-add-btn"
+                          disabled={stockAvailable === 0}
+                          onClick={() => {
+                            addCart(product);
+                            toast.success(`¡${product.title} agregado!`, {
+                              position: "bottom-center",
+                              autoClose: 1500,
+                              theme: "colored",
+                            });
+                          }}
+                        >
+                          {stockAvailable === 0 ? "Sin stock" : "Agregar al Carrito"}
+                        </button>
+                      ) : (
+                        <div className="favorite-qty-selector" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                          <button onClick={() => removeCart(product._id)} className="favorite-qty-btn"><FaMinus size={12}/></button>
+                          <span className="favorite-qty-number">{quantityInCart}</span>
+                          <button onClick={() => addCart(product)} disabled={stockAvailable === 0} className="favorite-qty-btn"><FaPlus size={12}/></button>
+                          <button 
+                            onClick={() => removeAllFromCart(product._id)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#e91e63",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "5px"
+                            }}
+                            title="Quitar todo del carrito"
+                          >
+                            <FaTrash size={14} />
+                          </button>
+                        </div>
+                      )}
 
                       <button
                         className="favorite-remove-btn"
