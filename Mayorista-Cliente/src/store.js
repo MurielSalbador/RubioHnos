@@ -76,6 +76,18 @@ export const useCart = create(
           };
         }),
 
+      removeAllFromCart: (id) =>
+        set((state) => {
+          const existingItem = state.cart.find((item) => item._id === id);
+          if (existingItem) {
+            return {
+              count: state.count - existingItem.quantity,
+              cart: state.cart.filter((item) => item._id !== id),
+            };
+          }
+          return state;
+        }),
+
       clearCart: () => set({ count: 0, cart: [] }),
     }),
     { name: "cart-storage" }

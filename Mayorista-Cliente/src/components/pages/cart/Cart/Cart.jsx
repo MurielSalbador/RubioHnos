@@ -6,11 +6,12 @@ import { FaPlus, FaMinus, FaTrash } from "react-icons/fa";
 import "./Cart.css";
 
 export default function Cart() {
-  const { cart, addCart, removeCart } = useCart(
+  const { cart, addCart, removeCart, removeAllFromCart } = useCart(
     useShallow((state) => ({
       cart: state.cart,
       addCart: state.addCart,
       removeCart: state.removeCart,
+      removeAllFromCart: state.removeAllFromCart,
     }))
   );
 
@@ -72,9 +73,26 @@ export default function Cart() {
                   <FaPlus size={10} />
                 </button>
               </div>
-              <span className="cart-item-total-price">
-                ${(item.price * item.quantity).toFixed(2)}
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span className="cart-item-total-price">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </span>
+                <button
+                  onClick={() => removeAllFromCart(item._id)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--primary-color)",
+                    padding: "5px",
+                    display: "flex",
+                    alignItems: "center"
+                  }}
+                  title="Eliminar todos"
+                >
+                  <FaTrash size={15} />
+                </button>
+              </div>
             </div>
           </li>
         ))}

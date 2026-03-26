@@ -79,6 +79,7 @@ function ProductList() {
             setEditingProductId(null);
             fetchProducts();
           }}
+          onCancel={() => setEditingProductId(null)}
         />
       </section>
 

@@ -3,11 +3,12 @@ import axios from "axios";
 import CloseButton from "react-bootstrap/CloseButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FaTrash } from "react-icons/fa";
 import "./addProducts.css";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
-function ProductForm({ productId, onSuccess }) {
+function ProductForm({ productId, onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
     title: "",
     brand: "",
@@ -122,6 +123,29 @@ function ProductForm({ productId, onSuccess }) {
       toast.success("Categoría creada y seleccionada");
     } catch (error) {
       toast.error("Error al crear la categoría");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async (catId) => {
+    if (!window.confirm("¿Estás seguro de que querés eliminar esta categoría? Se desvinculará de los productos que la tengan.")) return;
+    
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_URL}/api/categories/${catId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setCategorias(prev => prev.filter(c => c._id !== catId));
+      setFormData(prev => ({
+        ...prev,
+        categoryIds: prev.categoryIds.filter(id => id !== catId)
+      }));
+      toast.success("Categoría eliminada");
+    } catch (error) {
+      toast.error("Error al eliminar la categoría");
     } finally {
       setLoading(false);
     }
@@ -300,14 +324,32 @@ function ProductForm({ productId, onSuccess }) {
               <label>Categorías (Seleccioná una o varias)</label>
               <div className="categories-multi-select">
                 {categorias.map((cat) => (
-                  <button
-                    key={cat._id}
-                    type="button"
-                    className={`cat-chip ${formData.categoryIds.includes(cat._id) ? "active" : ""}`}
-                    onClick={() => handleCategoryToggle(cat._id)}
-                  >
-                    {cat.nombre}
-                  </button>
+                  <div key={cat._id} style={{ display: "inline-flex", alignItems: "center", gap: "4px", marginBottom: "8px" }}>
+                    <button
+                      type="button"
+                      className={`cat-chip ${formData.categoryIds.includes(cat._id) ? "active" : ""}`}
+                      onClick={() => handleCategoryToggle(cat._id)}
+                      style={{ margin: 0 }}
+                    >
+                      {cat.nombre}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCategory(cat._id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#ef4444",
+                        cursor: "pointer",
+                        padding: "4px",
+                        display: "flex",
+                        alignItems: "center"
+                      }}
+                      title="Eliminar categoría"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
                 ))}
               </div>
               <div className="add-new-category-inline">
@@ -352,9 +394,22 @@ function ProductForm({ productId, onSuccess }) {
           </div>
         </div>
 
-        <button type="submit" className="admin-submit-btn" disabled={loading}>
-          {loading ? "Procesando..." : productId ? "Actualizar Producto" : "Finalizar y Guardar"}
-        </button>
+        <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+          {productId && (
+            <button
+              type="button"
+              className="admin-submit-btn"
+              style={{ background: "#6c757d", flex: 1 }}
+              onClick={onCancel}
+              disabled={loading}
+            >
+              Volver Atrás / Cancelar
+            </button>
+          )}
+          <button type="submit" className="admin-submit-btn" style={{ flex: 2 }} disabled={loading}>
+            {loading ? "Procesando..." : productId ? "Actualizar Producto" : "Finalizar y Guardar"}
+          </button>
+        </div>
       </form>
     </div>
   );
