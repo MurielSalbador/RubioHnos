@@ -27,7 +27,10 @@ export default function Home() {
 
   // Detectar si es mobile
   useEffect(() => {
-    window.scrollTo(0, 0); // Forzar scroll arriba al cargar
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, 50); // Forzar scroll arriba al cargar
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

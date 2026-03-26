@@ -203,6 +203,24 @@ export default function MarcaPage() {
                           </button>
                         </div>
                       )}
+                      
+                      <button 
+                        onClick={() => navigate('/shop')} 
+                        style={{
+                          background: 'none', 
+                          border: 'none', 
+                          color: '#2a9d8f', 
+                          fontWeight: '800', 
+                          marginTop: '1.5rem', 
+                          display: 'block', 
+                          width: '100%', 
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          fontSize: '1rem'
+                        }}
+                      >
+                        Ir a la Tienda ➔
+                      </button>
                     </div>
                   </div>
                 </Modal.Body>

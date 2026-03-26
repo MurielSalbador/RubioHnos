@@ -77,21 +77,6 @@ export default function Cart() {
                 <span className="cart-item-total-price">
                   ${(item.price * item.quantity).toFixed(2)}
                 </span>
-                <button
-                  onClick={() => removeAllFromCart(item._id)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "var(--primary-color)",
-                    padding: "5px",
-                    display: "flex",
-                    alignItems: "center"
-                  }}
-                  title="Eliminar todos"
-                >
-                  <FaTrash size={15} />
-                </button>
               </div>
             </div>
           </li>

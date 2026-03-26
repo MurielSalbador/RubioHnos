@@ -67,46 +67,46 @@ export default function ProductDetail() {
           data-aos="zoom-in"
           data-aos-duration="600"
         >
-          <div className="centered-product-brand">{product.brand}</div>
-          
           <div className="centered-product-image-container">
             <img src={product.imageUrl} alt={product.title} className="centered-product-image"/>
           </div>
           
-          <h1 className="centered-product-title">{product.title}</h1>
-          <div className="centered-product-price">${product.price}</div>
-          
-          <div className="centered-stock-info">
-            <span className={`centered-stock-status ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
-              {product.stock > 0 ? `Stock Disponible: ${product.stock}` : "Sin Stock"}
-            </span>
-            {product.stock === 1 && (
-              <span className="centered-stock-badge">¡Último disponible!</span>
-            )}
-          </div>
-
-          <div className="centered-action-area">
-            {quantityInCart === 0 ? (
-              <button
-                disabled={product.stock === 0}
-                onClick={handleAddToCart}
-                className="centered-add-btn"
-              >
-                {product.stock === 0 ? "Sin stock" : "Agregar al Carrito"}
-              </button>
-            ) : (
-              <div className="centered-qty-selector">
-                <button onClick={handleRemoveFromCart} className="centered-qty-btn">-</button>
-                <span className="centered-qty-number">{quantityInCart}</span>
-                <button onClick={handleAddToCart} disabled={product.stock === 0} className="centered-qty-btn">+</button>
-              </div>
-            )}
+          <div className="centered-product-info-wrapper">
+            <div className="centered-product-brand">{product.brand}</div>
+            <h1 className="centered-product-title">{product.title}</h1>
+            <div className="centered-product-price">${product.price}</div>
             
-            <Link className="centered-back-link" to="/shop">
-              ← Volver a la Tienda
-            </Link>
-          </div>
+            <div className="centered-stock-info">
+              <span className={`centered-stock-status ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                {product.stock > 0 ? `Stock Disponible: ${product.stock}` : "Sin Stock"}
+              </span>
+              {product.stock === 1 && (
+                <span className="centered-stock-badge">¡Último disponible!</span>
+              )}
+            </div>
 
+            <div className="centered-action-area">
+              {quantityInCart === 0 ? (
+                <button
+                  disabled={product.stock === 0}
+                  onClick={handleAddToCart}
+                  className="centered-add-btn"
+                >
+                  {product.stock === 0 ? "Sin stock" : "Agregar al Carrito"}
+                </button>
+              ) : (
+                <div className="centered-qty-selector">
+                  <button onClick={handleRemoveFromCart} className="centered-qty-btn">-</button>
+                  <span className="centered-qty-number">{quantityInCart}</span>
+                  <button onClick={handleAddToCart} disabled={product.stock === 0} className="centered-qty-btn">+</button>
+                </div>
+              )}
+              
+              <Link className="centered-back-link" to="/shop">
+                ← Volver a la Tienda
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
