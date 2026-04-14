@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useProducts } from "../../../hooks/serch/useProducts.js";
 import { Products } from "../serch/productsList.jsx";
 import { Link } from "react-router-dom";
@@ -24,6 +25,10 @@ export default function Home() {
   const [userName, setUserName] = useState("");
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const { scrollY } = useScroll();
+  const parallaxY = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroImageOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   // Detectar si es mobile
   useEffect(() => {
@@ -108,16 +113,16 @@ const openWhatsApp = (phone) => {
 
           <p className="home-hero-slogan">✨ Comé rico. Comé natural.</p>
 
-          <div className="home-hero-tags">
-            <p>
+          <div className="home-hero-tags" style={{ perspective: "1000px" }}>
+            <motion.p initial={{ opacity: 0, y: 20, rotateX: -90 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
               🍵 <strong>Infusiones artesanales</strong>
-            </p>
-            <p>
+            </motion.p>
+            <motion.p initial={{ opacity: 0, y: 20, rotateX: -90 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
               🌾 <strong>Productos sin TACC</strong>
-            </p>
-            <p>
+            </motion.p>
+            <motion.p initial={{ opacity: 0, y: 20, rotateX: -90 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
               🍫 <strong>Snacks saludables y ricos</strong>
-            </p>
+            </motion.p>
           </div>
 
           <div className="mobile-quick-shop">
@@ -130,13 +135,14 @@ const openWhatsApp = (phone) => {
         </div>
 
         {!isMobile && (
-          <img
+          <motion.img
             src={backgroundHome}
             alt="Mascota"
             className="home-hero-image"
-            style={{ transform: "scaleX(1)" }}
-            data-aos="fade-left"
-            data-aos-duration="800"
+            style={{ y: parallaxY, opacity: heroImageOpacity }}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           />
         )}
       </section>
@@ -280,12 +286,16 @@ const openWhatsApp = (phone) => {
       </section>
 
       {/* Productos destacados */}
-      <section className="categories">
+      <section className="categories" style={{ perspective: "1500px" }}>
         <h3 className="section-title">Algunos de nuestros productos</h3>
         <div className="category-grid">
-          {featuredProducts.slice(0, 5).map((product) => (
+          {featuredProducts.slice(0, 5).map((product, index) => (
             <Link to={`/product/${product._id}`} key={product._id} className="premium-category-link">
-              <div className="category-card">
+              <motion.div 
+                className="category-card"
+                whileHover={{ scale: 1.05, rotateX: 8, rotateY: -8, z: 20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
                 <div className="category-image-wrapper">
                   <img
                     src={product.imageUrl}
@@ -297,7 +307,7 @@ const openWhatsApp = (phone) => {
                   </div>
                 </div>
                 <div className="category-title">{product.title}</div>
-              </div>
+              </motion.div>
             </Link>
           ))}
         </div>
