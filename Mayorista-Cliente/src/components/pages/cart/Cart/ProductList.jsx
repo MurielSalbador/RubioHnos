@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import SkeletonCard from "./SkeletonCard.jsx";
+import { motion } from "framer-motion";
 import "./ProductList.css";
 import "./SkeletonCard.css";
 
@@ -84,10 +85,14 @@ export default function ProductList({ search = "" }) {
             const quantity = cartItem ? cartItem.quantity : 0;
 
             return (
-              <div 
+              <motion.div 
                 key={product._id} 
                 className="modern-product-card"
-                data-aos="fade-up"
+                initial={{ opacity: 0, y: 30, rotateX: 10 }}
+                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                whileHover={{ scale: 1.02, rotateX: 5, rotateY: -5, z: 10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <div className="card-image-wrapper">
                   {product.imageUrl && (
@@ -154,7 +159,7 @@ export default function ProductList({ search = "" }) {
                      <span className="low-stock-label">Quedan pocos</span>
                   )}
                 </div>
-              </div>
+              </motion.div>
             );
           })
         )}

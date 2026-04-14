@@ -66,12 +66,8 @@
   font-weight: 600;
   margin: 0 0 5px 0;
   color: #333;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  height: 2.8rem;
+  height: auto;
+  min-height: 2.8rem;
 }
 
 .card-brand {
@@ -213,9 +209,8 @@
 
   .card-info h3 {
     font-size: 0.85rem;
-    height: 2.4rem;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    height: auto;
+    min-height: 2.4rem;
   }
 
   .card-brand {

@@ -302,6 +302,7 @@
     order: 1;
     max-width: none;
     width: 100%;
+    flex: 0 0 100%;
   }
 
   .sort-wrapper {

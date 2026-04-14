@@ -663,6 +663,10 @@
     width: 90%;
     max-width: 300px;
   }
+
+  .mobile-quick-shop {
+    justify-content: center;
+  }
 }
 
 .mobile-quick-shop {
