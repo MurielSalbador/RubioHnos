@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "../../auth.css";
+import { FaLock, FaArrowRight } from "react-icons/fa";
+import AuthLayout, { AuthField } from "../../AuthLayout.jsx";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
@@ -35,48 +36,45 @@ const PasswordReset = () => {
   };
 
   return (
-    <div className="login-background">
-      <form className="auth-card" onSubmit={handleSubmit} noValidate>
-        <div className="auth-card-icon">🔒</div>
-        <h1 className="auth-title">Creá tu nueva contraseña</h1>
-        <p className="auth-subtitle">Elegí una que tengas a mano y que tenga al menos 6 caracteres.</p>
-
-        <label className="auth-field">
-          <span>Nueva contraseña</span>
-          <input
-            type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Mínimo 6 caracteres"
-          />
-        </label>
-        <label className="auth-field">
-          <span>Repetí la contraseña</span>
-          <input
-            type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Igual a la de arriba"
-          />
-        </label>
-        <label className="auth-show">
+    <AuthLayout showTabs={false}>
+      <h1 className="auth-title">Creá tu nueva contraseña</h1>
+      <p className="auth-subtitle">Elegí una que recuerdes, de al menos 6 caracteres.</p>
+      <form onSubmit={handleSubmit} noValidate className="auth-form">
+        <AuthField
+          id="reset-new"
+          type={showPassword ? "text" : "password"}
+          label="Nueva contraseña"
+          autoComplete="new-password"
+          icon={<FaLock />}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+        <AuthField
+          id="reset-confirm"
+          type={showPassword ? "text" : "password"}
+          label="Repetí la contraseña"
+          autoComplete="new-password"
+          icon={<FaLock />}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+        <label className="auth-check">
           <input type="checkbox" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} />
-          Mostrar contraseñas
+          <span /> Mostrar contraseñas
         </label>
 
         {error && (
-          <p className="auth-error">
+          <p className="auth-alert">
             {error} {error.includes("enlace") && <Link to="/forgot-password">Pedir otro</Link>}
           </p>
         )}
 
-        <button type="submit" className="btn-leaf auth-submit" disabled={loading}>
-          {loading ? "Guardando…" : "Guardar contraseña"}
+        <button type="submit" className={`auth-submit ${loading ? "loading" : ""}`} disabled={loading}>
+          <span>{loading ? "Guardando…" : "Guardar contraseña"}</span>
+          {!loading && <FaArrowRight />}
         </button>
       </form>
-    </div>
+    </AuthLayout>
   );
 };
 

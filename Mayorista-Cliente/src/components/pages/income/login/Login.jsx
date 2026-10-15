@@ -1,161 +1,115 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Form from "react-bootstrap/Form";
 import { toast } from "react-toastify";
-import LoginImg from "../../../../assets/login/imgLogin.webp";
-import "./Login.css";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight } from "react-icons/fa";
+import AuthLayout, { AuthField } from "../AuthLayout.jsx";
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
+const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const [validated, setValidated] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
+  const emailError = touched && !emailOk(email) ? "Revisá el email (ej: nombre@gmail.com)." : "";
+  const passwordError = touched && password.length < 6 ? "La contraseña tiene al menos 6 caracteres." : "";
 
-    if (!form.checkValidity()) {
-      event.stopPropagation();
-      setValidated(true);
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setTouched(true);
+    setServerError("");
+    if (!emailOk(email) || password.length < 6 || loading) return;
 
-    setValidated(true);
     setLoading(true);
-
-   try {
-    const res = await fetch(`${API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    if (
-      res.status === 403 &&
-      data.error === "Este usuario está bloqueado."
-    ) {
-      toast.error("🚫 Tu cuenta ha sido bloqueada por un administrador.", {
-        autoClose: 4000,
-        theme: "colored",
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-    } else {
-      toast.error(data.error || "❌ Contraseña o Email incorrecto", {
-        autoClose: 3000,
-        theme: "colored",
-      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setServerError(
+          res.status === 403 && data.error === "Este usuario está bloqueado."
+            ? "Tu cuenta fue bloqueada por un administrador."
+            : data.error || "Email o contraseña incorrectos."
+        );
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      toast.success(`¡Hola, ${data.user?.username || ""}! 👋`);
+
+      const redirect = localStorage.getItem("redirectAfterLogin");
+      localStorage.removeItem("redirectAfterLogin");
+      navigate(redirect || "/");
+    } catch {
+      setServerError("No pudimos conectar con el servidor. Probá de nuevo en unos segundos.");
+    } finally {
+      setLoading(false);
     }
-    return;
-  }
- 
-
-  // Guardar token y user en localStorage
-  localStorage.setItem("token", data.token);
-  localStorage.setItem("user", JSON.stringify(data.user));
-
-  toast.success("✔ Bienvenido!", {
-    position: "top-right",
-    autoClose: 3000,
-    theme: "colored",
-  });
-
-  //Revisamos si había un destino pendiente
-   const redirect = localStorage.getItem("redirectAfterLogin");
-   if (redirect) {
-     localStorage.removeItem("redirectAfterLogin"); // limpiar para no repetir
-     navigate(redirect);
-   } else {
-     navigate("/");
-   }
-
-} catch {
-  toast.error("⚠️ No pudimos conectar con el servidor. Probá de nuevo en unos segundos.", {
-    autoClose: 4000,
-    theme: "colored",
-  });
-} finally {
-  setLoading(false);
-}
   };
 
   return (
-    <div className="login-background">
-      <div className="login-container" data-aos="zoom-in">
-        <div
-          className="login-left"
-          style={{ backgroundImage: `url(${LoginImg})` }}
-        ></div>
-        <div className="login-right">
-          <Link to="/" className="auth-back">
-            <i className="fas fa-arrow-left"></i> Volver
-          </Link>
-          <h1 className="auth-title">¡Hola de nuevo! 👋</h1>
-          <p className="auth-subtitle">Entrá a tu cuenta para hacer pedidos y ver tu historial.</p>
+    <AuthLayout>
+      <h1 className="auth-title">¡Hola de nuevo!</h1>
+      <p className="auth-subtitle">Entrá para hacer pedidos y seguir tus compras.</p>
 
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Correo electrónico</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="tu@email.com"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                Revisá el email (ej: nombre@gmail.com).
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Contraseña</Form.Label>
-              <div className="auth-password">
-              <Form.Control
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="Tu contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-              <button
-                type="button"
-                className="auth-eye"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
-              </button>
-              <Form.Control.Feedback type="invalid">
-                La contraseña tiene al menos 6 caracteres.
-              </Form.Control.Feedback>
-              </div>
-            </Form.Group>
-
-            <Link to="/forgot-password" className="auth-forgot">
-              ¿Olvidaste tu contraseña?
-            </Link>
-
-            <button type="submit" className="btn-leaf auth-submit" disabled={loading}>
-              {loading ? "Entrando…" : "Iniciar sesión"}
+      <form onSubmit={handleSubmit} noValidate className="auth-form">
+        <AuthField
+          id="login-email"
+          type="email"
+          label="Correo electrónico"
+          autoComplete="email"
+          icon={<FaEnvelope />}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={emailError}
+        />
+        <AuthField
+          id="login-password"
+          type={showPassword ? "text" : "password"}
+          label="Contraseña"
+          autoComplete="current-password"
+          icon={<FaLock />}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={passwordError}
+          right={
+            <button
+              type="button"
+              className="auth-eye"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
-          </Form>
+          }
+        />
 
-          <p className="auth-switch">
-            ¿Es tu primera vez? <Link to="/register">Creá tu cuenta gratis</Link>
-          </p>
+        <div className="auth-row">
+          <Link to="/forgot-password" className="auth-link">¿Olvidaste tu contraseña?</Link>
         </div>
-      </div>
-    </div>
+
+        {serverError && <p className="auth-alert">{serverError}</p>}
+
+        <button type="submit" className={`auth-submit ${loading ? "loading" : ""}`} disabled={loading}>
+          <span>{loading ? "Entrando…" : "Iniciar sesión"}</span>
+          {!loading && <FaArrowRight />}
+        </button>
+      </form>
+
+      <p className="auth-switch">
+        ¿Es tu primera vez? <Link to="/register">Creá tu cuenta gratis</Link>
+      </p>
+    </AuthLayout>
   );
 }
 

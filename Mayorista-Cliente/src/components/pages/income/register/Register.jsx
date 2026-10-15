@@ -1,180 +1,153 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Form from "react-bootstrap/Form";
-import "./Register.css";
-import ModalSuccess from "../../../modalRegister/ModalRegister.jsx";
-import RegisterImg from "../../../../assets/register/imgRegister.webp";
+import { toast } from "react-toastify";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight, FaCheck } from "react-icons/fa";
+import AuthLayout, { AuthField } from "../AuthLayout.jsx";
 
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
+const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+// Qué tan segura es la contraseña (0 a 4) para la barrita de colores
+function passwordScore(p) {
+  let s = 0;
+  if (p.length >= 6) s++;
+  if (p.length >= 10) s++;
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+  if (/\d/.test(p) || /[^A-Za-z0-9]/.test(p)) s++;
+  return s;
+}
+const SCORE_LABEL = ["Muy corta", "Débil", "Aceptable", "Buena", "Excelente"];
 
 function Register() {
-  const [validated, setValidated] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  const errors = {
+    username: form.username.trim().length < 2 ? "Contanos tu nombre." : "",
+    email: !emailOk(form.email) ? "Revisá el email (ej: nombre@gmail.com)." : "",
+    password: form.password.length < 6 ? "Mínimo 6 caracteres." : "",
+    confirmPassword:
+      form.confirmPassword !== form.password || !form.confirmPassword ? "Las contraseñas no coinciden." : "",
   };
+  const hasErrors = Object.values(errors).some(Boolean);
+  const score = passwordScore(form.password);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const formIsValid = event.currentTarget.checkValidity();
-    const passwordsMatch = formData.password === formData.confirmPassword;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setTouched(true);
+    setServerError("");
+    if (hasErrors || loading) return;
 
-    setValidated(true);
-
-    // Verificación de validación del formulario y si las contraseñas coinciden
-    if (!formIsValid || !passwordsMatch) return;
-
-console.log("Datos recibidos para registro:", formData);
-
+    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
+          username: form.username.trim(),
+          email: form.email.trim(),
+          password: form.password,
         }),
       });
-
       const data = await res.json();
+      if (!res.ok) {
+        setServerError(data.message || data.error || "No pudimos crear la cuenta.");
+        return;
+      }
 
-      if (res.ok) {
-        setShowModal(true);
-        setTimeout(() => {
-          setShowModal(false);
-          navigate("/login");
-        }, 1500);
+      // Entramos directo con la cuenta nueva (antes había que volver a escribir todo)
+      const loginRes = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email.trim(), password: form.password }),
+      });
+      const session = await loginRes.json();
+      if (loginRes.ok) {
+        localStorage.setItem("token", session.token);
+        localStorage.setItem("user", JSON.stringify(session.user));
+        toast.success(`¡Bienvenido/a, ${session.user?.username || ""}! Tu cuenta está lista 🎉`);
+        const redirect = localStorage.getItem("redirectAfterLogin");
+        localStorage.removeItem("redirectAfterLogin");
+        navigate(redirect || "/shop");
       } else {
-        setError(data.message || data.error || "Error al registrarse");
+        toast.success("¡Cuenta creada! Ya podés iniciar sesión.");
+        navigate("/login");
       }
     } catch {
-      setError("No pudimos conectar con el servidor. Probá de nuevo en unos segundos.");
+      setServerError("No pudimos conectar con el servidor. Probá de nuevo en unos segundos.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const show = (field) => (touched ? errors[field] : "");
+
   return (
-    <div
-      className="register-background"
-    >
-      <div className="register-container">
-        <div
-          className="register-left"
-          style={{ backgroundImage: `url(${RegisterImg})` }}
-        ></div>
-        <div className="register-right">
-          <Link to="/" className="auth-back">
-            <i className="fas fa-arrow-left"></i> Volver
-          </Link>
-          <Form
-            noValidate
-            validated={validated}
-            onSubmit={handleSubmit}
-            className="register-form"
-          >
-            <h1 className="auth-title">Creá tu cuenta 🌱</h1>
-            <p className="auth-subtitle">Es gratis y te lleva un minuto. Así podés hacer pedidos y seguirlos.</p>
+    <AuthLayout>
+      <h1 className="auth-title">Creá tu cuenta</h1>
+      <p className="auth-subtitle">Es gratis y te lleva un minuto.</p>
 
-            <Form.Group className="mb-3" controlId="formUsername">
-                  <Form.Label>Nombre</Form.Label>
-                  <Form.Control
-                    required
-                    type="text"
-                    placeholder="Tu nombre"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    isInvalid={validated && !formData.username}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Ingresá tu nombre.
-                  </Form.Control.Feedback>
-                </Form.Group>
-            <Form.Group className="mb-3" controlId="formEmail">
-                  <Form.Label>Correo electrónico</Form.Label>
-                  <Form.Control
-                    required
-                    type="email"
-                    placeholder="tu@email.com"
-                    autoComplete="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    isInvalid={validated && !formData.email}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Ingresá un correo válido.
-                  </Form.Control.Feedback>
-                </Form.Group>
-            <Form.Group className="mb-3" controlId="formPassword">
-                  <Form.Label>Contraseña</Form.Label>
-                  <Form.Control
-                    required
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    autoComplete="new-password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    minLength={6}
-                    isInvalid={validated && formData.password.length < 6}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    La contraseña debe tener al menos 6 caracteres.
-                  </Form.Control.Feedback>
-                </Form.Group>
-            <Form.Group className="mb-3" controlId="formConfirmPassword">
-                  <Form.Label>Confirmar contraseña</Form.Label>
-                  <Form.Control
-                    required
-                    type="password"
-                    placeholder="Repetí tu contraseña"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    minLength={6}
-                    isInvalid={
-                      validated &&
-                      formData.confirmPassword !== formData.password
-                    }
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Las contraseñas no coinciden.
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-            {error && <p className="auth-error">{error}</p>}
-
-            <button type="submit" className="btn-leaf auth-submit">
-              Crear mi cuenta
+      <form onSubmit={handleSubmit} noValidate className="auth-form">
+        <AuthField id="reg-name" label="Tu nombre" autoComplete="given-name" icon={<FaUser />}
+          value={form.username} onChange={set("username")} error={show("username")} />
+        <AuthField id="reg-email" type="email" label="Correo electrónico" autoComplete="email" icon={<FaEnvelope />}
+          value={form.email} onChange={set("email")} error={show("email")} />
+        <AuthField
+          id="reg-password"
+          type={showPassword ? "text" : "password"}
+          label="Contraseña"
+          autoComplete="new-password"
+          icon={<FaLock />}
+          value={form.password}
+          onChange={set("password")}
+          error={show("password")}
+          right={
+            <button type="button" className="auth-eye" onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
-            <p className="auth-switch">
-              ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
-            </p>
-          </Form>
-        </div>
-      </div>
+          }
+        />
+        {form.password && (
+          <div className={`auth-strength s${score}`} aria-live="polite">
+            <div className="auth-strength-bar"><span /><span /><span /><span /></div>
+            <small>{SCORE_LABEL[score]}</small>
+          </div>
+        )}
+        <AuthField
+          id="reg-confirm"
+          type={showPassword ? "text" : "password"}
+          label="Repetí la contraseña"
+          autoComplete="new-password"
+          icon={<FaLock />}
+          value={form.confirmPassword}
+          onChange={set("confirmPassword")}
+          error={show("confirmPassword")}
+          right={
+            form.confirmPassword && form.confirmPassword === form.password ? (
+              <span className="auth-match" aria-label="Coinciden"><FaCheck /></span>
+            ) : null
+          }
+        />
 
-      <ModalSuccess
-        show={showModal}
-        handleClose={() => {
-          setShowModal(false);
-          navigate("/login");
-        }}
-      />
-    </div>
+        {serverError && <p className="auth-alert">{serverError}</p>}
+
+        <button type="submit" className={`auth-submit ${loading ? "loading" : ""}`} disabled={loading}>
+          <span>{loading ? "Creando tu cuenta…" : "Crear mi cuenta"}</span>
+          {!loading && <FaArrowRight />}
+        </button>
+      </form>
+
+      <p className="auth-switch">
+        ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
+      </p>
+    </AuthLayout>
   );
 }
 
