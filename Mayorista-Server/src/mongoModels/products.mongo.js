@@ -21,6 +21,9 @@ productSchema.index({ brand: 1 });
 productSchema.index({ categoryIds: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ title: 'text' }); // Para búsqueda de texto
+// Orden por defecto del listado (más nuevos primero) y orden por precio
+productSchema.index({ createdAt: -1, _id: -1 });
+productSchema.index({ price: 1, createdAt: -1 });
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;

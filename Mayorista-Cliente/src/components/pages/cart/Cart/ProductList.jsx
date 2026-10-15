@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useFilters } from "../../../../hooks/useFilters.js";
 import { useInView } from "../../../../hooks/useInView.js";
+import { useDebouncedValue } from "../../../../hooks/useDebouncedValue.js";
 import { getAllProducts } from "../../../../api/fakeStoreApi.js";
 import SkeletonCard from "./SkeletonCard.jsx";
 import ProductCard from "./ProductCard.jsx";
@@ -15,6 +16,8 @@ export default function ProductList({ search = "" }) {
   const { filters } = useFilters();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sentinelRef, sentinelInView] = useInView();
+  // El deslizador de precio cambia muy seguido: esperamos a que se suelte
+  const maxPrice = useDebouncedValue(filters.maxPrice, 400);
 
   // Solo los filtros que realmente se mandan al servidor forman parte de la
   // clave del cache. Así mover controles que no afectan la búsqueda no
@@ -24,10 +27,11 @@ export default function ProductList({ search = "" }) {
       brand: filters.brand,
       category: filters.category,
       minPrice: filters.minPrice,
+      maxPrice,
       sortByPrice: filters.sortByPrice,
       search,
     }),
-    [filters.brand, filters.category, filters.minPrice, filters.sortByPrice, search]
+    [filters.brand, filters.category, filters.minPrice, maxPrice, filters.sortByPrice, search]
   );
 
   const {

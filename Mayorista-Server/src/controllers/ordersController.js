@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Order from "../mongoModels/orders.mongo.js";
 import Product from "../mongoModels/products.mongo.js";
 
@@ -11,17 +12,44 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ error: "Faltan datos del pedido o el carrito está vacío" });
     }
 
-    // 🔽 Validar stock y descontar
- await Promise.all(items.map(async ({ _id, quantity }) => {
-  const product = await Product.findById(_id);
-  if (!product) throw new Error(`Producto no encontrado: ${_id}`);
-  if (product.stock < quantity) throw new Error(`Stock insuficiente para ${product.title}`);
-  product.stock -= quantity;
-  await product.save();
-}));
+    // 🔽 Validar stock y descontar de forma atómica.
+    // Si un producto no tiene stock suficiente, devolvemos lo que ya se
+    // descontó de los demás (antes ese stock se perdía) y avisamos cuál falló.
+    const applied = [];
+    const rollback = () =>
+      Promise.all(
+        applied.map(({ id, qty }) => Product.updateOne({ _id: id }, { $inc: { stock: qty } }))
+      );
+
+    for (const { _id, quantity } of items) {
+      const qty = parseInt(quantity);
+      if (!mongoose.Types.ObjectId.isValid(_id) || !(qty > 0)) {
+        await rollback();
+        return res.status(400).json({ error: "Hay un producto inválido en el carrito" });
+      }
+
+      const updated = await Product.findOneAndUpdate(
+        { _id, stock: { $gte: qty } },
+        { $inc: { stock: -qty } },
+        { new: true }
+      ).lean();
+
+      if (!updated) {
+        await rollback();
+        const product = await Product.findById(_id).select("title stock").lean();
+        return res.status(400).json({
+          error: product
+            ? `Stock insuficiente para ${product.title} (quedan ${product.stock})`
+            : "Uno de los productos ya no existe",
+        });
+      }
+      applied.push({ id: _id, qty });
+    }
 
     // Crear pedido
-    const newOrder = await Order.create({
+    let newOrder;
+    try {
+      newOrder = await Order.create({
       name,
       city,
       address,
@@ -30,7 +58,11 @@ export const createOrder = async (req, res) => {
       email: userEmail,
       date: new Date().toISOString(),
       status: "Pendiente", // valor inicial
-    });
+      });
+    } catch (orderError) {
+      await rollback();
+      throw orderError;
+    }
 
     res.status(201).json({ message: "Pedido creado con éxito", order: newOrder });
   } catch (error) {

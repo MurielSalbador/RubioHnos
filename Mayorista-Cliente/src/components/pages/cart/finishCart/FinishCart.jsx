@@ -247,7 +247,7 @@ const FinishCart = () => {
             },
           });
 
-          queryClient.invalidateQueries(["products"]);
+          queryClient.invalidateQueries({ queryKey: ["products"] });
 
           const message = `🛒 Nuevo Pedido Realizado por ${
             user.name || "usuario"
@@ -296,7 +296,8 @@ const FinishCart = () => {
           console.error("Error al guardar pedido:", err);
           Swal.fire(
             "Error",
-            "Hubo un error al guardar el pedido. Intentalo de nuevo.",
+            err.response?.data?.error ||
+              "Hubo un error al guardar el pedido. Intentalo de nuevo.",
             "error"
           );
         }

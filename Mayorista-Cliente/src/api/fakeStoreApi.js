@@ -2,6 +2,8 @@
 
 const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
 
+export const MAX_PRICE_FILTER = 400000;
+
 export async function getAllProducts(filters = {}) {
   const query = new URLSearchParams();
 
@@ -17,6 +19,11 @@ export async function getAllProducts(filters = {}) {
 
   if (filters.minPrice) {
     query.append("minPrice", filters.minPrice);
+  }
+
+  // Solo filtramos por precio máximo si el usuario movió el control
+  if (filters.maxPrice && Number(filters.maxPrice) < MAX_PRICE_FILTER) {
+    query.append("maxPrice", filters.maxPrice);
   }
 
   // 🔥 Soporte para búsqueda desde el backend

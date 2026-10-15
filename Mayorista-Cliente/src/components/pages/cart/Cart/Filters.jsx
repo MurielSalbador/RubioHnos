@@ -76,8 +76,12 @@ export default function Filters({ onClose, isMobile = false }) {
         {isPriceOpen && (
           <div className="price-filter-container">
             <div className="price-range-labels">
-               <span>$ 0.50</span>
-               <span>$ {filters.maxPrice || "366,363.63"}</span>
+               <span>$ 0</span>
+               <span>
+                 {!filters.maxPrice || filters.maxPrice >= 400000
+                   ? "Sin límite"
+                   : `Hasta $ ${Number(filters.maxPrice).toLocaleString("es-AR")}`}
+               </span>
             </div>
             <input
               type="range"
@@ -99,7 +103,7 @@ export default function Filters({ onClose, isMobile = false }) {
       <div className="drawer-footer">
          <button className="clear-filters-btn" onClick={() => {
             if (clearFilters) clearFilters();
-            else setFilters({ category: [], brand: [], maxPrice: 400000 });
+            else setFilters({ category: [], brand: [], minPrice: 0, maxPrice: 400000, sortByPrice: "" });
          }}>
             Eliminar filtros
          </button>

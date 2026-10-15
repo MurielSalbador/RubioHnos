@@ -46,17 +46,9 @@ router.get("/:id", getProductById);
 // Rutas protegidas para admin y superAdmin
 router.post(
   "/",
-  (req, res, next) => {
-    console.log("📥 Paso por el router: antes de multer");
-    next();
-  },
   verifyToken,
   isAdminOrSuperAdmin,
   upload.single("image"),
-  (req, res, next) => {
-    console.log("📤 Paso por el router: después de multer");
-    next();
-  },
   createProduct
 );
 

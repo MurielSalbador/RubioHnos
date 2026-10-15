@@ -2,6 +2,12 @@ import Product from "../mongoModels/products.mongo.js";
 import Category from "../mongoModels/categories.mongo.js";
 import mongoose from "mongoose";
 
+// Escapa caracteres especiales para usar texto del usuario dentro de un RegExp
+// (antes buscar algo como "(" o "+" rompía la consulta con un error 500).
+const escapeRegex = (text = "") => String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const MAX_LIMIT = 200;
+
 const getImageUrl = (req) => {
   if (!req.file) return null;
 
@@ -49,15 +55,16 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
     const imageUrl = getImageUrl(req);
 
     const product = await Product.create({
-      title,
+      title: String(title).trim(),
       price: parseFloat(price),
-      stock: parseInt(stock),
-      brand,
+      stock: parseInt(stock) || 0,
+      brand: String(brand).trim(),
       categoryIds: finalCategoryIds,
       available: available === "true" || available === true,
       imageUrl,
     });
 
+    await product.populate("categoryIds", "nombre");
     res.status(201).json(product);
   } catch (err) {
     console.error("❌ Error en createProduct:", err.message);
@@ -70,67 +77,83 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
 // 🔻 Obtener todos los productos con filtros y paginado
 export const getAllProducts = async (req, res) => {
   try {
-    const { brand, category, minPrice, maxPrice, sortByPrice, search, page = 1, limit = 20 } = req.query;
+    const { brand, category, minPrice, maxPrice, sortByPrice, search } = req.query;
 
-    const query = {};
+    // Usamos $and para poder combinar varios $or (categorías + búsqueda)
+    const conditions = [];
+
     if (brand && brand !== "all") {
-      const brandsArray = brand.split(",");
-      query.brand = brandsArray.length > 1 ? { $in: brandsArray } : { $regex: brand, $options: "i" };
-    }
-
-    if (category && category !== "all") {
-      const categoriesArray = category.split(",");
-      const cats = await Category.find({ nombre: { $in: categoriesArray } }).lean();
-      if (cats.length > 0) {
-        const catIds = cats.map(c => c._id);
-        query.$or = [
-          { categoryIds: { $in: catIds } },
-          { categoryId: { $in: catIds } }
-        ];
+      const brandsArray = brand.split(",").map((b) => b.trim()).filter(Boolean);
+      if (brandsArray.length > 0) {
+        conditions.push({
+          brand: { $in: brandsArray.map((b) => new RegExp(`^${escapeRegex(b)}$`, "i")) },
+        });
       }
     }
 
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = parseFloat(minPrice);
-      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    if (category && category !== "all") {
+      const categoriesArray = category.split(",").map((c) => c.trim()).filter(Boolean);
+      const cats = await Category.find({ nombre: { $in: categoriesArray } }).select("_id").lean();
+      const catIds = cats.map((c) => c._id);
+      // Si la categoría no existe no devolvemos todo el catálogo, sino nada
+      conditions.push({
+        $or: [{ categoryIds: { $in: catIds } }, { categoryId: { $in: catIds } }],
+      });
     }
 
-    // 🔥 Soporte para búsqueda por texto
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+    if ((!isNaN(min) && min > 0) || !isNaN(max)) {
+      const price = {};
+      if (!isNaN(min) && min > 0) price.$gte = min;
+      if (!isNaN(max)) price.$lte = max;
+      conditions.push({ price });
+    }
+
+    // 🔥 Búsqueda por nombre o marca
     if (search && search.trim() !== "") {
-      query.title = { $regex: search, $options: "i" };
+      const term = new RegExp(escapeRegex(search.trim()), "i");
+      conditions.push({ $or: [{ title: term }, { brand: term }] });
     }
 
-    const sort = {};
-    if (req.query.sortByPrice === "asc") sort.price = 1;
-    else if (req.query.sortByPrice === "desc") sort.price = -1;
+    const query = conditions.length > 0 ? { $and: conditions } : {};
 
-    // 🔥 Paginación
-    const pageNumber = parseInt(req.query.page) || 1;
-    const limitNumber = parseInt(req.query.limit) || 20;
+    // Siempre hay un orden estable: sin esto, al paginar con skip MongoDB
+    // puede repetir o saltear productos entre una página y otra.
+    const sort = {};
+    if (sortByPrice === "asc") sort.price = 1;
+    else if (sortByPrice === "desc") sort.price = -1;
+    sort.createdAt = -1;
+    sort._id = -1;
+
+    // 🔥 Paginación (con tope para que nadie pida 100.000 productos de golpe)
+    const pageNumber = Math.max(parseInt(req.query.page) || 1, 1);
+    const limitNumber = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), MAX_LIMIT);
     const skip = (pageNumber - 1) * limitNumber;
 
-    // Ejecutar consulta + lean() + select() para velocidad y ahorro de datos
-    const totalDocs = await Product.countDocuments(query);
-    const totalPages = Math.ceil(totalDocs / limitNumber);
+    // Conteo y consulta en paralelo
+    const [totalDocs, products] = await Promise.all([
+      Product.countDocuments(query),
+      Product.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limitNumber)
+        .select("title price brand imageUrl categoryIds available stock slug categoryId createdAt")
+        .populate("categoryIds", "nombre")
+        .lean(),
+    ]);
 
-    const products = await Product.find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNumber)
-      .select("title price brand imageUrl categoryIds available stock slug categoryId")
-      .lean();
-
-    // Devolvemos objeto de paginado
+    res.set("Cache-Control", "public, max-age=15");
     res.json({
       docs: products,
       totalDocs,
-      totalPages,
+      totalPages: Math.ceil(totalDocs / limitNumber),
       page: pageNumber,
       limit: limitNumber,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Error en getAllProducts:", err.message);
+    res.status(500).json({ error: "Error al obtener productos" });
   }
 };
 
@@ -139,15 +162,22 @@ export const decrementStock = async (req, res) => {
   const { productId, quantity } = req.body;
 
   try {
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
-
-    if (product.stock < quantity) {
-      return res.status(400).json({ message: "Stock insuficiente" });
+    const qty = parseInt(quantity);
+    if (!mongoose.Types.ObjectId.isValid(productId) || !(qty > 0)) {
+      return res.status(400).json({ message: "Datos inválidos" });
     }
 
-    product.stock -= quantity;
-    await product.save();
+    const product = await Product.findOneAndUpdate(
+      { _id: productId, stock: { $gte: qty } },
+      { $inc: { stock: -qty } },
+      { new: true }
+    );
+
+    if (!product) {
+      const exists = await Product.exists({ _id: productId });
+      if (!exists) return res.status(404).json({ message: "Producto no encontrado" });
+      return res.status(400).json({ message: "Stock insuficiente" });
+    }
 
     res.json({ message: "Stock actualizado", product });
   } catch (error) {
@@ -156,37 +186,52 @@ export const decrementStock = async (req, res) => {
 };
 
 // 🔻 Decrementar múltiples productos
+// Cada descuento es atómico (solo se aplica si hay stock suficiente), así dos
+// pedidos al mismo tiempo no pueden dejar el stock en negativo. Si algún
+// producto falla, se devuelve el stock de los que ya se descontaron.
 export const decrementMultipleStock = async (req, res) => {
-  const updates = req.body;
-  console.log("🛒 Updates recibidos en decrementMultipleStock:", updates);
+  const updates = Array.isArray(req.body) ? req.body : [];
+  const applied = [];
 
   try {
     for (const { productId, quantity } of updates) {
-      console.log(`➡️ Procesando producto ${productId}, cantidad ${quantity}`);
-      const product = await Product.findById(productId);
-
-      if (!product) {
-        console.warn(`⚠️ Producto no encontrado: ${productId}`);
+      const qty = parseInt(quantity);
+      if (!mongoose.Types.ObjectId.isValid(productId) || !(qty > 0)) {
         continue;
       }
 
-      if (product.stock < quantity) {
+      const updated = await Product.findOneAndUpdate(
+        { _id: productId, stock: { $gte: qty } },
+        { $inc: { stock: -qty } },
+        { new: true }
+      ).lean();
+
+      if (!updated) {
+        const product = await Product.findById(productId).select("title").lean();
+        if (!product) {
+          console.warn(`⚠️ Producto no encontrado: ${productId}`);
+          continue;
+        }
+        // Devolvemos lo descontado hasta ahora
+        await Promise.all(
+          applied.map((a) => Product.updateOne({ _id: a.productId }, { $inc: { stock: a.qty } }))
+        );
         return res.status(400).json({
           message: `Stock insuficiente para ${product.title}`,
         });
       }
 
-      product.stock -= quantity;
-      await product.save();
-      console.log(`✅ Nuevo stock de ${product.title}: ${product.stock}`);
+      applied.push({ productId, qty });
     }
 
     res.json({ message: "Stock de productos actualizado" });
   } catch (error) {
     console.error("❌ Error en decrementMultipleStock:", error);
+    await Promise.all(
+      applied.map((a) => Product.updateOne({ _id: a.productId }, { $inc: { stock: a.qty } }))
+    ).catch(() => {});
     res.status(500).json({
       message: "Error al actualizar múltiples productos",
-      error,
     });
   }
 };
@@ -196,7 +241,12 @@ export const decrementMultipleStock = async (req, res) => {
 export const getUniqueBrands = async (req, res) => {
   try {
     const brands = await Product.distinct("brand");
-    res.json(brands);
+    res.set("Cache-Control", "public, max-age=60");
+    res.json(
+      brands
+        .filter((b) => typeof b === "string" && b.trim() !== "")
+        .sort((a, b) => a.localeCompare(b, "es"))
+    );
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -206,7 +256,10 @@ export const getUniqueBrands = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id).populate("categoryIds", "nombre").lean(); 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+    const product = await Product.findById(id).populate("categoryIds", "nombre").lean();
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
     res.json(product);
   } catch (err) {
@@ -245,16 +298,16 @@ export const updateProduct = async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       {
-        ...(title && { title }),
-        ...(price && { price: parseFloat(price) }),
-        ...(stock && { stock: parseInt(stock) }),
-        ...(brand && { brand }),
+        ...(title && { title: String(title).trim() }),
+        ...(price !== undefined && price !== "" && !isNaN(parseFloat(price)) && { price: parseFloat(price) }),
+        ...(stock !== undefined && stock !== "" && !isNaN(parseInt(stock)) && { stock: parseInt(stock) }),
+        ...(brand && { brand: String(brand).trim() }),
         ...(finalCategoryIds && { categoryIds: finalCategoryIds }),
         ...(available !== undefined && { available: available === "true" || available === true }),
         ...(imageUrl && { imageUrl }),
       },
-      { new: true }
-    );
+      { new: true, runValidators: true }
+    ).populate("categoryIds", "nombre");
 
     if (!updatedProduct) {
       return res.status(404).json({ error: "Producto no encontrado" });
@@ -271,6 +324,9 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "ID de producto inválido" });
+    }
     const result = await Product.deleteOne({ _id: id });
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: "No se pudo eliminar" });
@@ -302,13 +358,13 @@ export const getProductsByBrand = async (req, res) => {
   try {
     const { slug } = req.params;
     const products = await Product.find({
-      brand: { $regex: new RegExp(`^${slug}$`, "i") },
-    }).populate("categoryIds", "nombre").lean(); 
+      brand: new RegExp(`^${escapeRegex(slug)}$`, "i"),
+    })
+      .sort({ createdAt: -1, _id: -1 })
+      .populate("categoryIds", "nombre")
+      .lean();
 
-    if (!products.length) {
-      return res.status(404).json({ error: "No se encontraron productos para esa marca" });
-    }
-
+    // Lista vacía (no 404) para que la página muestre "no hay productos"
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener productos por marca" });

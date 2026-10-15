@@ -20,7 +20,6 @@ import expensesRoutes from "./routes/expense.routes.js";
 
 import fs from "fs";
 
-console.log("🔥 expensesRoutes LOADED");
 
 const uploadsDir = path.resolve("uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -34,19 +33,16 @@ const app = express();
 
 // Middleware
 app.use(compression());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(cors());
-
-app.use((req, res, next) => {
-  if (req.is('application/json')) {
-    express.json()(req, res, next);
-  } else {
-    next();
-  }
-});
 
 // 📂 Servir archivos estáticos
 app.use("/uploads", express.static(path.resolve("uploads")));
+
+// Ruta raíz (también sirve para "despertar" el servidor en Render)
+app.get('/', (req, res) => {
+  res.send('El backend con MongoDB funciona correctamente');
+});
 
 // Rutas de la API
 app.use("/api/auth", authRoutes);
@@ -71,17 +67,13 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Ruta raíz
-app.get('/', (req, res) => {
-  res.send('El backend con MongoDB funciona correctamente');
-});
 
 // Conectar y lanzar el servidor
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 10000,
     });
     console.log("✅ Conectado a MongoDB Atlas");
 

@@ -34,11 +34,9 @@ async function fetchAllProducts() {
     for (const res of rest) docs = docs.concat(res.data.docs || []);
   }
 
-  // Sin duplicados y los más nuevos primero
+  // Sin duplicados (el servidor ya los manda con los más nuevos primero)
   const seen = new Set();
-  return docs
-    .filter((p) => (seen.has(p._id) ? false : seen.add(p._id)))
-    .reverse();
+  return docs.filter((p) => (seen.has(p._id) ? false : seen.add(p._id)));
 }
 
 const normalize = (text) =>
