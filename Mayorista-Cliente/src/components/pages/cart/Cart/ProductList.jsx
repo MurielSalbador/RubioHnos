@@ -27,12 +27,13 @@ export default function ProductList({ search = "" }) {
     () => ({
       brand: filters.brand,
       category: filters.category,
+      tags: filters.tags,
       minPrice: filters.minPrice,
       maxPrice,
       sortByPrice: filters.sortByPrice,
       search,
     }),
-    [filters.brand, filters.category, filters.minPrice, maxPrice, filters.sortByPrice, search]
+    [filters.brand, filters.category, filters.tags, filters.minPrice, maxPrice, filters.sortByPrice, search]
   );
 
   const {

@@ -17,6 +17,10 @@ export async function getAllProducts(filters = {}) {
     query.append("category", categoryValue);
   }
 
+  if (Array.isArray(filters.tags) && filters.tags.length > 0) {
+    query.append("tags", filters.tags.join(","));
+  }
+
   if (filters.minPrice) {
     query.append("minPrice", filters.minPrice);
   }

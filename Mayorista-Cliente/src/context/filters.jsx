@@ -7,6 +7,7 @@ export function FiltersProvider({ children }) {
   const [filters, setFilters] = useState({
     category: [],
     brand: [],
+    tags: [], // "Sin TACC", "Vegano", ...
     minPrice: 0,
     maxPrice: 400000, // 400000 = sin límite (ver MAX_PRICE_FILTER)
     sortByPrice: "", // "" | "asc" | "desc"

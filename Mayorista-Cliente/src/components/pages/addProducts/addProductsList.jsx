@@ -66,6 +66,14 @@ const AdminProductRow = memo(function AdminProductRow({ product, onEdit, onDelet
           <span className="brand-tag">{product.brand}</span>
         </div>
 
+        {Array.isArray(product.tags) && product.tags.length > 0 && (
+          <div className="category-chips-list">
+            {product.tags.map((t) => (
+              <span key={t} className="admin-cat-chip admin-tag-chip">{t}</span>
+            ))}
+          </div>
+        )}
+
         <div className="category-chips-list">
           {Array.isArray(product.categoryIds) && product.categoryIds.length > 0 ? (
             product.categoryIds.map((cat) =>

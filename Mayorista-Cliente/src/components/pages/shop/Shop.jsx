@@ -14,6 +14,7 @@ import BackToTop from "../../BackToTop/BackToTop.jsx";
 import { useDebouncedValue } from "../../../hooks/useDebouncedValue.js";
 import { getCategories } from "../../../api/categoriesApi.js";
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
+import { PRODUCT_TAGS, tagInfo } from "../../../utils/productTags.js";
 
 import "./Shop.css";
 
@@ -39,8 +40,13 @@ const ShopContent = () => {
   // Desde el inicio se puede entrar con una categoría elegida (?categoria=Snacks)
   useEffect(() => {
     const cat = searchParams.get("categoria");
-    if (cat) {
-      setFilters((prev) => ({ ...prev, category: [cat] }));
+    const tag = searchParams.get("etiqueta");
+    if (cat || tag) {
+      setFilters((prev) => ({
+        ...prev,
+        ...(cat && { category: [cat] }),
+        ...(tag && { tags: [tag] }),
+      }));
       setSearchParams({}, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,6 +60,13 @@ const ShopContent = () => {
 
   const selectedCategories = Array.isArray(filters.category) ? filters.category : [];
   const selectedBrands = Array.isArray(filters.brand) ? filters.brand : [];
+  const selectedTags = Array.isArray(filters.tags) ? filters.tags : [];
+
+  const toggleTag = (name) =>
+    setFilters((prev) => {
+      const current = Array.isArray(prev.tags) ? prev.tags : [];
+      return { ...prev, tags: current.includes(name) ? current.filter((t) => t !== name) : [...current, name] };
+    });
   const hasPriceFilter = filters.maxPrice && filters.maxPrice < DEFAULT_MAX_PRICE;
 
   const toggleCategory = (nombre) => {
@@ -71,10 +84,11 @@ const ShopContent = () => {
 
   const clearAll = () => {
     setSearch("");
-    setFilters((prev) => ({ ...prev, category: [], brand: [], maxPrice: DEFAULT_MAX_PRICE, sortByPrice: "" }));
+    setFilters((prev) => ({ ...prev, category: [], brand: [], tags: [], maxPrice: DEFAULT_MAX_PRICE, sortByPrice: "" }));
   };
 
-  const activeCount = selectedCategories.length + selectedBrands.length + (hasPriceFilter ? 1 : 0);
+  const activeCount =
+    selectedCategories.length + selectedBrands.length + selectedTags.length + (hasPriceFilter ? 1 : 0);
 
   return (
     <main className="shop-main-layout">
@@ -109,6 +123,20 @@ const ShopContent = () => {
       </section>
 
       <div className="shop-container">
+        {/* Etiquetas rápidas: Sin TACC, Vegano, ... */}
+        <div className="shop-tags" role="group" aria-label="Filtrar por etiqueta">
+          {PRODUCT_TAGS.map((t) => (
+            <button
+              key={t.name}
+              className={`shop-tag ${selectedTags.includes(t.name) ? "active" : ""}`}
+              onClick={() => toggleTag(t.name)}
+              aria-pressed={selectedTags.includes(t.name)}
+            >
+              <span>{t.emoji}</span> {t.name}
+            </button>
+          ))}
+        </div>
+
         {/* Categorías rápidas */}
         {categories.length > 0 && (
           <div className="shop-cats" role="list">
@@ -170,6 +198,9 @@ const ShopContent = () => {
                 {debouncedSearch && (
                   <button onClick={() => setSearch("")}>“{debouncedSearch}” <FaTimes /></button>
                 )}
+                {selectedTags.map((t) => (
+                  <button key={`t-${t}`} onClick={() => removeFrom("tags", t)}>{tagInfo(t).emoji} {t} <FaTimes /></button>
+                ))}
                 {selectedCategories.map((c) => (
                   <button key={`c-${c}`} onClick={() => removeFrom("category", c)}>{c} <FaTimes /></button>
                 ))}

@@ -415,3 +415,47 @@
   .shop-sort span { display: none; }
   .cart-bar-cta { padding: 10px 14px; font-size: 0.85rem; }
 }
+
+/* ---------- Etiquetas rápidas ---------- */
+.shop-tags {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 18px 20px 0;
+  margin: 0 -20px;
+  scrollbar-width: none;
+}
+
+.shop-tags::-webkit-scrollbar { display: none; }
+
+.shop-tags + .shop-cats { padding-top: 10px; }
+
+.shop-tag {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #cfe5d7;
+  background: var(--leaf-soft);
+  color: var(--leaf-dark);
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s var(--ease);
+}
+
+.shop-tag:hover { border-color: var(--leaf); }
+
+.shop-tag.active {
+  background: var(--leaf);
+  border-color: var(--leaf);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(47, 125, 79, 0.28);
+}
+
+@media (max-width: 600px) {
+  .shop-tags { margin: 0 -12px; padding: 14px 12px 0; }
+}

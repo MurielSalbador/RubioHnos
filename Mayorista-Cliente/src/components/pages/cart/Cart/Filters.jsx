@@ -4,6 +4,7 @@ import { useFilters } from "../../../../hooks/useFilters.js";
 import { getCategories } from "../../../../api/categoriesApi.js";
 import { getBrands } from "../../../../api/brandsApi.js";
 import { FaTimes, FaChevronDown } from "react-icons/fa";
+import { PRODUCT_TAGS } from "../../../../utils/productTags.js";
 import "./Filters.css";
 
 const MAX_PRICE = 400000;
@@ -40,6 +41,7 @@ export default function Filters({ onClose, isMobile = false }) {
 
   const selectedCats = Array.isArray(filters.category) ? filters.category : [];
   const selectedBrands = Array.isArray(filters.brand) ? filters.brand : [];
+  const selectedTags = Array.isArray(filters.tags) ? filters.tags : [];
   const maxPrice = filters.maxPrice || MAX_PRICE;
 
   const toggle = (type, value) => {
@@ -53,7 +55,7 @@ export default function Filters({ onClose, isMobile = false }) {
   };
 
   const clear = () =>
-    setFilters((prev) => ({ ...prev, category: [], brand: [], minPrice: 0, maxPrice: MAX_PRICE, sortByPrice: "" }));
+    setFilters((prev) => ({ ...prev, category: [], brand: [], tags: [], minPrice: 0, maxPrice: MAX_PRICE, sortByPrice: "" }));
 
   return (
     <div className={`filters-sidebar ${isMobile ? "mobile-ver" : ""}`}>
@@ -67,6 +69,22 @@ export default function Filters({ onClose, isMobile = false }) {
       </div>
 
       <div className="filters-scroll">
+        <FilterGroup title="Etiquetas" count={selectedTags.length}>
+          <div className="filter-list">
+            {PRODUCT_TAGS.map((t) => (
+              <label key={t.name} className="filter-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={selectedTags.includes(t.name)}
+                  onChange={() => toggle("tags", t.name)}
+                />
+                <span className="checkbox-custom"></span>
+                {t.emoji} {t.name}
+              </label>
+            ))}
+          </div>
+        </FilterGroup>
+
         <FilterGroup title="Categorías" count={selectedCats.length}>
           <div className="filter-list">
             {categories.map((category) => (

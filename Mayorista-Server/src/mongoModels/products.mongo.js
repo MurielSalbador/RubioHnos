@@ -1,5 +1,6 @@
 // mongoModels/products.mongo.js
 import mongoose from "mongoose";
+import { PRODUCT_TAGS } from "../enums/productTags.js";
 
 const productSchema = new mongoose.Schema({
   title:     { type: String, required: true },
@@ -8,6 +9,7 @@ const productSchema = new mongoose.Schema({
   stock:     { type: Number, default: 0 },
   imageUrl:  { type: String },
   description: { type: String, trim: true, maxlength: 1000, default: "" },
+  tags: { type: [{ type: String, enum: PRODUCT_TAGS }], default: [] },
   available: { type: Boolean, default: false },
   categoryIds: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -20,6 +22,7 @@ const productSchema = new mongoose.Schema({
 // Agregar índices para mejorar el rendimiento de búsqueda y filtros
 productSchema.index({ brand: 1 });
 productSchema.index({ categoryIds: 1 });
+productSchema.index({ tags: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ title: 'text' }); // Para búsqueda de texto
 // Orden por defecto del listado (más nuevos primero) y orden por precio

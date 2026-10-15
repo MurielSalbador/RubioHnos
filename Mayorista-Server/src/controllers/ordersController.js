@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { notifyNewOrder } from "../utils/notifyNewOrder.js";
 
 // Mismos costos de envío que muestra la tienda (FinishCart.jsx)
 const SHIPPING_COSTS = {
@@ -91,6 +92,12 @@ export const createOrder = async (req, res) => {
     }
 
     res.status(201).json({ message: "Pedido creado con éxito", order: newOrder });
+
+    // Aviso por mail a los vendedores. Se manda después de responder para
+    // que el cliente no espere, y si falla no afecta al pedido.
+    notifyNewOrder(newOrder.toObject()).catch((err) =>
+      console.error("⚠️ No se pudo enviar el aviso del pedido:", err.message)
+    );
   } catch (error) {
     console.error("❌ Error al crear pedido:", error);
     res.status(500).json({ error: "Error al crear pedido" });

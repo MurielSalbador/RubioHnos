@@ -14,6 +14,7 @@ import ServerWaking from "../../ServerWaking/ServerWaking.jsx";
 import BrandsMarquee from "./categoriesCarousel/CategoriesCarousel.jsx";
 import { getAllProducts } from "../../../api/fakeStoreApi.js";
 import { getCategories } from "../../../api/categoriesApi.js";
+import { PRODUCT_TAGS } from "../../../utils/productTags.js";
 
 import Barrita from "../../../assets/img/barritaCereal.webp";
 import HomePhoto from "../../../assets/background/backgroundHome.webp";
@@ -140,6 +141,21 @@ export default function Home() {
             <strong>Te asesoramos</strong>
             <p>Escribinos y te ayudamos a elegir.</p>
           </div>
+        </div>
+      </section>
+
+      {/* ---------- Etiquetas ---------- */}
+      <section className="home-section home-tags-section">
+        <div className="home-section-head">
+          <h2>¿Buscás algo especial?</h2>
+        </div>
+        <div className="home-tags">
+          {PRODUCT_TAGS.map((t) => (
+            <Link key={t.name} to={`/shop?etiqueta=${encodeURIComponent(t.name)}`} className="home-tag">
+              <span className="home-tag-emoji">{t.emoji}</span>
+              {t.name}
+            </Link>
+          ))}
         </div>
       </section>
 

@@ -417,3 +417,31 @@
   /* En celular ya están "Consultanos" y el pie: el botón flotante estorba */
   .whatsapp-button { display: none; }
 }
+
+/* ---------- Etiquetas (Sin TACC, Vegano...) ---------- */
+.home-tags-section { padding-bottom: 0; }
+
+.home-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.home-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--leaf-soft);
+  border: 1.5px solid #cfe5d7;
+  color: var(--leaf-dark);
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s var(--ease);
+}
+
+.home-tag:hover { background: var(--leaf); border-color: var(--leaf); color: #fff; transform: translateY(-2px); }
+.home-tag-emoji { font-size: 1.2rem; }
+
+@media (max-width: 600px) {
+  .home-tags { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 6px; scrollbar-width: none; }
+  .home-tags::-webkit-scrollbar { display: none; }
+  .home-tag { flex: 0 0 auto; padding: 10px 14px; }
+}

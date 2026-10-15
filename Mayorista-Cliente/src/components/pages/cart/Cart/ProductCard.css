@@ -350,3 +350,51 @@
   .pm-title { font-size: 1.35rem; }
   .pm-price { font-size: 1.6rem; }
 }
+
+/* ---------- Etiquetas (Sin TACC, Vegano, ...) ---------- */
+.pc-tags {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 52px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.pc-tags span {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--leaf-dark);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.pm-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.pm-tags span,
+.pm-tags a {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--leaf-soft);
+  color: var(--leaf-dark);
+  text-decoration: none;
+}
+
+.pm-tags a:hover { background: var(--leaf); color: #fff; }
+
+@media (max-width: 600px) {
+  .pc-tags { top: 8px; left: 8px; right: 44px; }
+  .pc-tags span { font-size: 0.62rem; padding: 2px 6px; }
+}

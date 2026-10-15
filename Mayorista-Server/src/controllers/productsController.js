@@ -1,6 +1,7 @@
 import Product from "../mongoModels/products.mongo.js";
 import Category from "../mongoModels/categories.mongo.js";
 import mongoose from "mongoose";
+import { parseTags } from "../enums/productTags.js";
 
 // Escapa caracteres especiales para usar texto del usuario dentro de un RegExp
 // (antes buscar algo como "(" o "+" rompía la consulta con un error 500).
@@ -31,7 +32,7 @@ export const createProduct = async (req, res) => {
 console.log("🛬 LLEGÓ LA REQUEST A createProduct");
 
   try {
-    let { title, price, brand, stock, categoryId, categoryIds, available, description } = req.body;
+    let { title, price, brand, stock, categoryId, categoryIds, available, description, tags } = req.body;
 
     if (!title || !brand) {
       return res.status(400).json({ error: "Faltan campos obligatorios: título o marca" });
@@ -60,6 +61,7 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
       stock: parseInt(stock) || 0,
       brand: String(brand).trim(),
       description: description ? String(description).trim().slice(0, 1000) : "",
+      tags: parseTags(tags) || [],
       categoryIds: finalCategoryIds,
       available: available === "true" || available === true,
       imageUrl,
@@ -78,7 +80,7 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
 // 🔻 Obtener todos los productos con filtros y paginado
 export const getAllProducts = async (req, res) => {
   try {
-    const { brand, category, minPrice, maxPrice, sortByPrice, search } = req.query;
+    const { brand, category, minPrice, maxPrice, sortByPrice, search, tags } = req.query;
 
     // Usamos $and para poder combinar varios $or (categorías + búsqueda)
     const conditions = [];
@@ -100,6 +102,12 @@ export const getAllProducts = async (req, res) => {
       conditions.push({
         $or: [{ categoryIds: { $in: catIds } }, { categoryId: { $in: catIds } }],
       });
+    }
+
+    // Etiquetas: el producto tiene que tener TODAS las elegidas (ej. Sin TACC + Vegano)
+    const tagList = parseTags(tags);
+    if (tagList && tagList.length > 0) {
+      conditions.push({ tags: { $all: tagList } });
     }
 
     const min = parseFloat(minPrice);
@@ -139,7 +147,7 @@ export const getAllProducts = async (req, res) => {
         .sort(sort)
         .skip(skip)
         .limit(limitNumber)
-        .select("title price brand imageUrl categoryIds available stock slug categoryId createdAt description")
+        .select("title price brand imageUrl categoryIds available stock slug categoryId createdAt description tags")
         .populate("categoryIds", "nombre")
         .lean(),
     ]);
@@ -272,7 +280,9 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    let { title, price, brand, stock, categoryId, categoryIds, available, description } = req.body;
+    let { title, price, brand, stock, categoryId, categoryIds, available, description, tags } = req.body;
+    // El formulario manda "tagsSent" para poder dejar un producto sin etiquetas
+    const finalTags = req.body.tagsSent ? parseTags(tags ?? []) : parseTags(tags);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "ID de producto inválido" });
@@ -304,6 +314,7 @@ export const updateProduct = async (req, res) => {
         ...(stock !== undefined && stock !== "" && !isNaN(parseInt(stock)) && { stock: parseInt(stock) }),
         ...(brand && { brand: String(brand).trim() }),
         ...(description !== undefined && { description: String(description).trim().slice(0, 1000) }),
+        ...(finalTags !== undefined && { tags: finalTags }),
         ...(finalCategoryIds && { categoryIds: finalCategoryIds }),
         ...(available !== undefined && { available: available === "true" || available === true }),
         ...(imageUrl && { imageUrl }),

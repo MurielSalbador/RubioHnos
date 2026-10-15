@@ -6,6 +6,7 @@ import { FaTrash } from "react-icons/fa";
 import { getCategories } from "../../../api/categoriesApi.js";
 import { getBrands } from "../../../api/brandsApi.js";
 import { compressImage, getImageUrl } from "../../../utils/image.js";
+import { PRODUCT_TAGS } from "../../../utils/productTags.js";
 import "./addProducts.css";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
@@ -19,6 +20,7 @@ const EMPTY_FORM = {
   image: null,
   available: false,
   categoryIds: [],
+  tags: [],
 };
 
 function productToForm(productData) {
@@ -39,6 +41,7 @@ function productToForm(productData) {
     stock: productData.stock != null ? String(productData.stock) : "",
     available: Boolean(productData.available),
     categoryIds,
+    tags: Array.isArray(productData.tags) ? productData.tags : [],
     image: null,
   };
 }
@@ -211,6 +214,9 @@ function ProductForm({ productId, initialProduct, onSuccess, onCancel }) {
     const formToSend = new FormData();
     formToSend.append("title", formData.title.trim());
     formToSend.append("description", (formData.description || "").trim());
+    // "tagsSent" avisa al servidor que mandamos etiquetas (aunque sean cero)
+    formToSend.append("tagsSent", "1");
+    (formData.tags || []).forEach((t) => formToSend.append("tags", t));
     formToSend.append("brand", brandToUse);
     formToSend.append("price", priceParsed);
     formToSend.append("stock", stockParsed);
@@ -283,6 +289,31 @@ function ProductForm({ productId, initialProduct, onSuccess, onCancel }) {
                 onChange={handleChange}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label>Etiquetas (se pueden filtrar en la tienda)</label>
+              <div className="brand-multi-select">
+                {PRODUCT_TAGS.map((t) => {
+                  const on = (formData.tags || []).includes(t.name);
+                  return (
+                    <button
+                      key={t.name}
+                      type="button"
+                      className={`cat-chip ${on ? "active" : ""}`}
+                      aria-pressed={on}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          tags: on ? prev.tags.filter((x) => x !== t.name) : [...(prev.tags || []), t.name],
+                        }))
+                      }
+                    >
+                      {t.emoji} {t.name}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="form-group">
