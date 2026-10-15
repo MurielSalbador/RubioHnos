@@ -77,6 +77,9 @@ const ExpenseManagement = lazy(() => import("./components/pages/ExpenseManagemen
 //favorites
 const FavoritesPage = lazy(() => import("./components/pages/favorites/FavoritesPage.jsx"));
 
+// barra de navegación inferior (celulares)
+import BottomNav from "./components/BottomNav/BottomNav.jsx";
+
 //css
 import "./App.css";
 
@@ -172,7 +175,8 @@ function App() {
         </Routes>
         </Suspense>
 
-        <ToastContainer />
+        <BottomNav />
+        <ToastContainer position="top-center" autoClose={2000} newestOnTop limit={3} />
       </div>
     </Router>
   );

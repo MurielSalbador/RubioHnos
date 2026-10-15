@@ -1,109 +1,50 @@
-import { getImageUrl } from "../../../utils/image.js";
-import { Link, useNavigate } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
+import { FaArrowLeft, FaHeart } from "react-icons/fa";
 import { useCart } from "../../../store.js";
-import { getAdjustedStock } from "../../../utils/calculateStock.js";
-import CloseButton from "react-bootstrap/CloseButton";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import ProductCard from "../cart/Cart/ProductCard.jsx";
+import ProductModal from "../cart/Cart/ProductModal.jsx";
+import CartBar from "../cart/Cart/CartBar.jsx";
+import "../shop/Shop.css";
 import "./FavoritesPage.css";
-import { FaHeart, FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 
 export default function FavoritesPage() {
-  const navigate = useNavigate();
   const favorites = useCart((state) => state.favorites);
-  const toggleFavorite = useCart((state) => state.toggleFavorite);
-  const addCart = useCart((state) => state.addCart);
-  const removeCart = useCart((state) => state.removeCart);
-  const cart = useCart((state) => state.cart);
+  const [selected, setSelected] = useState(null);
+  const handleOpen = useCallback((p) => setSelected(p), []);
 
   return (
-    <main className="favorites-main">
+    <main className="page-shell favorites-main">
       <div className="favorites-container">
-        <div className="favorites-header">
-          <h1 className="favorites-title">
-            <FaHeart style={{ color: "#e91e63", marginRight: "10px" }} />
-            Mis Favoritos
-          </h1>
-          <CloseButton onClick={() => navigate("/shop")} />
-        </div>
+        <Link to="/shop" className="favorites-back">
+          <FaArrowLeft /> Volver a la tienda
+        </Link>
+        <h1 className="favorites-title">
+          Mis favoritos <FaHeart className="favorites-heart" />
+        </h1>
 
         {favorites.length === 0 ? (
           <div className="favorites-empty">
-            <p>Todavía no agregaste ningún producto a favoritos.</p>
-            <Link to="/shop" className="favorites-shop-btn">
-              Ir a la tienda
-            </Link>
+            <div className="favorites-empty-icon">💛</div>
+            <h2>Todavía no guardaste favoritos</h2>
+            <p>Tocá el corazón de cualquier producto para tenerlo siempre a mano acá.</p>
+            <Link to="/shop" className="btn-leaf">Descubrir productos</Link>
           </div>
         ) : (
           <>
-            <div className="favorites-list">
-              {favorites.map((product) => {
-                const stockAvailable = getAdjustedStock(product, cart);
-                const cartItem = cart.find((item) => item._id === product._id);
-                const quantityInCart = cartItem ? cartItem.quantity : 0;
-
-                return (
-                  <div key={product._id} className="favorite-item">
-                    <img
-                      src={getImageUrl(product.imageUrl, 200)}
-                      loading="lazy"
-                      alt={product.title}
-                      className="favorite-item-img"
-                    />
-                    <div className="favorite-item-info">
-                      <h3>{product.title}</h3>
-                      <p className="favorite-item-brand">{product.brand}</p>
-                      <p className="favorite-item-price">${product.price}</p>
-                    </div>
-
-                    <div className="favorite-item-actions">
-                      {quantityInCart === 0 ? (
-                        <button
-                          className="favorite-add-btn"
-                          disabled={stockAvailable === 0}
-                          onClick={() => {
-                            addCart(product);
-                            toast.success(`¡${product.title} agregado!`, {
-                              position: "bottom-center",
-                              autoClose: 1500,
-                              theme: "colored",
-                            });
-                          }}
-                        >
-                          {stockAvailable === 0 ? "Sin stock" : "Agregar al Carrito"}
-                        </button>
-                      ) : (
-                        <div className="favorite-qty-selector">
-                          <button onClick={() => removeCart(product._id)} className="favorite-qty-btn"><FaMinus size={12}/></button>
-                          <span className="favorite-qty-number">{quantityInCart}</span>
-                          <button onClick={() => addCart(product)} disabled={stockAvailable === 0} className="favorite-qty-btn"><FaPlus size={12}/></button>
-                        </div>
-                      )}
-
-                      <button
-                        className="favorite-remove-btn"
-                        onClick={() => toggleFavorite(product)}
-                        title="Eliminar de favoritos"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="favorites-footer">
-              <Link to="/shop" className="favorites-link-btn">
-                Volver a la tienda
-              </Link>
-              <Link to="/cart" className="favorites-primary-btn">
-                Ver mi carrito
-              </Link>
+            <p className="favorites-count">
+              {favorites.length === 1 ? "1 producto guardado" : `${favorites.length} productos guardados`}
+            </p>
+            <div className="modern-product-grid">
+              {favorites.map((product, i) => (
+                <ProductCard key={product._id} product={product} index={i} onOpen={handleOpen} />
+              ))}
             </div>
           </>
         )}
       </div>
+      <ProductModal product={selected} onHide={() => setSelected(null)} />
+      <CartBar />
     </main>
   );
 }

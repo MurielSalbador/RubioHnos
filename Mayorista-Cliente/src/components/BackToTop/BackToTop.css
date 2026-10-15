@@ -1,10 +1,10 @@
 .back-to-top {
     position: fixed;
-    bottom: 30px;
+    bottom: calc(30px + var(--bottom-nav-h));
     right: 30px;
     width: 45px;
     height: 45px;
-    background: #000;
+    background: var(--cacao-700);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -33,8 +33,8 @@
 
 @media (max-width: 768px) {
     .back-to-top {
-        bottom: 20px;
-        right: 20px;
+        bottom: calc(90px + var(--bottom-nav-h));
+        right: 16px;
         width: 40px;
         height: 40px;
     }

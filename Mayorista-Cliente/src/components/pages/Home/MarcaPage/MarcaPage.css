@@ -1,64 +1,61 @@
 .marca-page-container {
-  max-width: 1300px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 6rem 1rem 4rem; /* 6rem para no pisarse con el header fixed */
-  background-color: #fcfcfc;
+  padding: 20px 16px 120px;
   min-height: 100vh;
 }
 
 .marca-back-button {
-  display: inline-block;
-  background: white;
-  color: #333;
-  margin-bottom: 2rem;
-  padding: 10px 20px;
-  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--cacao-700);
   font-weight: 700;
-  border: 1px solid #eee;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  padding: 0;
+  margin-bottom: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.marca-back-button:hover {
-  background: #f8f8f8;
-  transform: translateX(-4px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+.marca-back-button:hover { text-decoration: underline; }
+
+.marca-hero {
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  margin-bottom: 22px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 90% 20%, rgba(244, 183, 64, 0.45) 0, transparent 40%),
+    linear-gradient(135deg, var(--cacao-800), var(--cacao-700));
 }
 
-.marca-product-title {
-  margin-bottom: 3rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #eee;
-}
-
-.marca-product-title h2 {
-  font-size: 2.2rem;
-  color: #222;
+.marca-eyebrow {
+  font-size: 0.75rem;
   font-weight: 800;
-  margin: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--honey);
 }
 
-.marca-product-title span {
-  color: #4CAF50;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+.marca-hero h1 { color: #fff; font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; margin: 2px 0 2px; }
+.marca-hero p { margin: 0; color: rgba(255, 255, 255, 0.8); font-weight: 600; }
 
 .marca-status {
   text-align: center;
-  padding: 8rem 2rem;
-  font-size: 1.2rem;
-  color: #666;
-  font-weight: 600;
+  padding: 40px 16px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
 }
 
-.marca-status.error {
-  color: #e76f51;
-}
+.marca-status.error { color: var(--danger); }
 
-@media (max-width: 768px) {
-  .marca-product-title h2 {
-    font-size: 1.8rem;
-  }
+.marca-go-shop {
+  background: none;
+  border: none;
+  color: var(--leaf);
+  font-weight: 800;
+  padding: 8px;
+  cursor: pointer;
 }

@@ -1,91 +1,88 @@
-import { memo } from "react";
-import { FaHeart, FaRegHeart, FaPlus, FaMinus } from "react-icons/fa";
+import { memo, useState } from "react";
+import { FaHeart, FaRegHeart, FaPlus, FaMinus, FaCheck } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useProductCartState, formatPrice } from "./useProductCartState.js";
 import { getImageUrl } from "../../../../utils/image.js";
+import { useProductCartState, formatPrice } from "./useProductCartState.js";
+import "./ProductCard.css";
 
 function ProductCard({ product, onOpen, index = 0 }) {
   const { quantity, isFavorite, addCart, removeCart, toggleFavorite, stockLeft } =
     useProductCartState(product);
+  const [justAdded, setJustAdded] = useState(false);
 
   const imageUrl = getImageUrl(product.imageUrl || product.image, 400);
+  const outOfStock = Number(product.stock) <= 0;
+
+  const handleAdd = () => {
+    addCart(product);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 900);
+    if (quantity === 0) {
+      toast.success(`¡${product.title} al carrito!`, { autoClose: 1500, icon: "🧺" });
+    }
+  };
 
   return (
-    <div
-      className="modern-product-card card-appear"
+    <article
+      className={`pc-card card-appear ${outOfStock ? "is-out" : ""}`}
       style={{ animationDelay: `${Math.min(index % 12, 8) * 30}ms` }}
     >
-      <div className="card-image-wrapper">
+      <div className="pc-media" onClick={() => onOpen?.(product)} role="button" tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && onOpen?.(product)} aria-label={`Ver ${product.title}`}>
         {imageUrl ? (
-          <img
-            loading="lazy"
-            decoding="async"
-            src={imageUrl}
-            alt={product.title}
-            width="400"
-            height="275"
-            onClick={() => onOpen?.(product)}
-            style={{ cursor: "pointer" }}
-          />
+          <img loading="lazy" decoding="async" src={imageUrl} alt={product.title} width="400" height="400" />
         ) : (
-          <div className="card-image-placeholder" onClick={() => onOpen?.(product)}>
-            Sin imagen
-          </div>
+          <div className="pc-placeholder">🌾</div>
         )}
-        <button
-          className="fav-btn"
-          aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
-          onClick={() => toggleFavorite(product)}
-        >
-          {isFavorite ? <FaHeart color="#e91e63" /> : <FaRegHeart />}
-        </button>
+
+        {outOfStock ? (
+          <span className="pc-tag out">Sin stock</span>
+        ) : stockLeft > 0 && stockLeft < 5 ? (
+          <span className="pc-tag few">{stockLeft === 1 ? "¡Última unidad!" : `¡Últimas ${stockLeft}!`}</span>
+        ) : null}
       </div>
 
-      <div className="card-info">
-        <h3 title={product.title}>{product.title}</h3>
-        <p className="card-brand">{product.brand}</p>
+      <button
+        className={`pc-fav ${isFavorite ? "on" : ""}`}
+        aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+        onClick={() => toggleFavorite(product)}
+      >
+        {isFavorite ? <FaHeart /> : <FaRegHeart />}
+      </button>
 
-        <div className="card-footer">
-          <p className="card-price">{formatPrice(product.price)}</p>
+      <div className="pc-body">
+        {product.brand && <span className="pc-brand">{product.brand}</span>}
+        <h3 className="pc-title" title={product.title} onClick={() => onOpen?.(product)}>
+          {product.title}
+        </h3>
+
+        <div className="pc-footer">
+          <span className="pc-price">{formatPrice(product.price)}</span>
 
           {quantity === 0 ? (
             <button
-              className="add-to-cart-btn"
+              className={`pc-add ${justAdded ? "added" : ""}`}
               disabled={stockLeft <= 0}
-              onClick={() => {
-                addCart(product);
-                toast.success(`¡${product.title} agregado!`, {
-                  position: "bottom-right",
-                  autoClose: 2000,
-                  theme: "colored",
-                });
-              }}
+              onClick={handleAdd}
+              aria-label={`Agregar ${product.title} al carrito`}
             >
-              {stockLeft <= 0 ? "Sin stock" : "Agregar"}
+              {justAdded ? <FaCheck /> : <FaPlus />}
+              <span className="pc-add-label">{stockLeft <= 0 ? "Agotado" : "Agregar"}</span>
             </button>
           ) : (
-            <div className="quantity-selector-modern">
-              <button className="qty-btn" aria-label="Quitar uno" onClick={() => removeCart(product._id)}>
+            <div className="pc-qty">
+              <button aria-label="Quitar uno" onClick={() => removeCart(product._id)}>
                 <FaMinus size={10} />
               </button>
-              <span className="qty-number">{quantity}</span>
-              <button
-                className="qty-btn"
-                aria-label="Agregar uno"
-                disabled={stockLeft <= 0}
-                onClick={() => addCart(product)}
-              >
+              <span className={justAdded ? "pop" : ""}>{quantity}</span>
+              <button aria-label="Agregar uno" disabled={stockLeft <= 0} onClick={handleAdd}>
                 <FaPlus size={10} />
               </button>
             </div>
           )}
         </div>
-
-        {stockLeft < 5 && stockLeft > 0 && (
-          <span className="low-stock-label">Quedan pocos</span>
-        )}
       </div>
-    </div>
+    </article>
   );
 }
 

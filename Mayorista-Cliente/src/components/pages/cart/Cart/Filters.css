@@ -1,186 +1,201 @@
 .filters-sidebar {
   width: 100%;
-  padding: 1rem;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
   max-height: calc(100vh - 120px);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.filter-group {
-  margin-bottom: 1.5rem;
+.filters-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 6px;
 }
+
+.filters-top h2 { font-size: 1.25rem; margin: 0; }
+
+.filters-scroll {
+  overflow-y: auto;
+  padding: 6px 20px;
+  flex: 1;
+}
+
+.filter-group { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.filter-group:last-child { border-bottom: none; }
 
 .filter-header {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: none;
+  border: none;
+  padding: 6px 0;
   cursor: pointer;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 1rem;
+  color: var(--text);
 }
 
 .filter-header h3 {
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 800;
   margin: 0;
-  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
 }
 
-.arrow {
-  font-size: 0.8rem;
-  transition: transform 0.3s ease;
+.filter-count {
+  background: var(--leaf);
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
 }
 
-.arrow.open {
-  transform: rotate(180deg);
-}
+.arrow { font-size: 0.75rem; color: var(--muted); transition: transform 0.3s ease; }
+.arrow.open { transform: rotate(180deg); }
 
 .filter-list {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 2px;
+  padding: 6px 0 4px;
+  max-height: 260px;
+  overflow-y: auto;
 }
 
 .filter-checkbox-label {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.85rem;
-  color: #555;
+  font-size: 0.9rem;
+  color: var(--text);
   cursor: pointer;
   user-select: none;
+  padding: 7px 8px;
+  border-radius: 10px;
+  transition: background 0.15s;
 }
 
-.filter-checkbox-label input {
-  display: none;
-}
+.filter-checkbox-label:hover { background: var(--cream); }
+
+.filter-checkbox-label input { display: none; }
 
 .checkbox-custom {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d8cbb8;
+  border-radius: 6px;
   position: relative;
   transition: all 0.2s;
+  background: #fff;
 }
 
 .filter-checkbox-label input:checked + .checkbox-custom {
-  background: #4CAF50;
-  border-color: #4CAF50;
+  background: var(--leaf);
+  border-color: var(--leaf);
 }
 
 .filter-checkbox-label input:checked + .checkbox-custom::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
+  color: #fff;
   font-size: 12px;
+  font-weight: 800;
 }
 
-/* Mobile Drawer Specific */
-.filters-sidebar.mobile-ver {
-  height: 100%;
-  padding: 0;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-}
+.price-filter-container { padding: 8px 2px 4px; }
 
-.drawer-header {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.close-drawer-btn {
-  align-self: flex-end;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #666;
-  cursor: pointer;
-}
-
-.drawer-search-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.drawer-search-wrapper input {
-  width: 100%;
-  padding: 10px 15px;
-  padding-right: 40px;
-  background: #f5f5f5;
-  border: none;
-  border-radius: 8px;
-  outline: none;
-}
-
-.drawer-search-icon {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888;
-}
-
-.mobile-ver .filter-group {
-  padding: 15px;
-  margin-bottom: 0;
-  border-bottom: 1px solid #f9f9f9;
-}
-
-.mobile-ver .filter-header {
-  border-bottom: none;
-}
-
-.mobile-ver .filter-header h3 {
-  font-size: 1.1rem;
-}
-
-/* Price Range */
-.price-filter-container {
-  padding: 10px 0;
-}
-
-.price-range-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 15px;
+.price-range-value {
+  font-weight: 800;
+  color: var(--cacao-800);
+  margin-bottom: 6px;
 }
 
 .price-filter-container input[type="range"] {
   width: 100%;
-  accent-color: #8B4513; /* Rubio color */
+  accent-color: var(--leaf);
 }
 
-/* Footer */
-.drawer-footer {
-  margin-top: auto;
-  padding: 20px 15px;
-  border-top: 1px solid #eee;
+.price-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
 }
 
-.clear-filters-btn {
-  width: 100%;
-  padding: 12px;
-  background: #f8f8f8;
-  border: none;
-  border-radius: 6px;
-  font-weight: 500;
-  color: #666;
+.price-presets button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
   cursor: pointer;
 }
 
-.clear-filters-btn:hover {
-  background: #eee;
+.price-presets button.active {
+  background: var(--leaf-soft);
+  border-color: var(--leaf);
+  color: var(--leaf-dark);
+}
+
+.drawer-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--line);
+}
+
+.clear-filters-btn {
+  flex: 1;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 11px;
+  font-weight: 700;
+  color: var(--cacao-700);
+  cursor: pointer;
+}
+
+.clear-filters-btn:hover { border-color: var(--cacao-500); }
+.apply-filters-btn { flex: 2; }
+
+.close-drawer-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cream);
+  color: var(--cacao-800);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+/* Versión cajón (celular) */
+.filters-sidebar.mobile-ver {
+  height: 100%;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+}
+
+.filters-sidebar.mobile-ver .drawer-footer {
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
 }

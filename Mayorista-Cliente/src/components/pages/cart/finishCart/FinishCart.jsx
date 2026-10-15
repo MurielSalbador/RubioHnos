@@ -1,409 +1,318 @@
-import { useState, useEffect } from "react";
-import { useCart } from "../../../../store.js";
-import { useNavigate } from "react-router-dom";
-import { Modal } from "react-bootstrap";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import ModalPurchase from "../../../modal/ModalPurchase.jsx";
-import CloseButton from "react-bootstrap/CloseButton";
-import styles from "./FinishCart.module.css";
-
 import Swal from "sweetalert2";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import { useQueryClient } from "@tanstack/react-query";
+import { FaArrowLeft, FaWhatsapp, FaMapMarkerAlt, FaUser, FaLock } from "react-icons/fa";
+import ModalPurchase from "../../../modal/ModalPurchase.jsx";
+import { useCart } from "../../../../store.js";
+import { getImageUrl } from "../../../../utils/image.js";
+import { formatPrice } from "../Cart/useProductCartState.js";
+import styles from "./FinishCart.module.css";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
+const CONTACTS = [
+  { name: "Hernan", phone: "5493416863976" },
+  { name: "Ruddi", phone: "5493416946454" },
+  { name: "Nacho", phone: "5493413916661" },
+];
+
+// Costos de envío por ciudad (el servidor usa la misma tabla)
+const SHIPPING_COSTS = {
+  Rosario: 2500,
+  Alvarez: 1000,
+  Piñero: 0,
+  Soldini: 2500,
+  "Pueblo Muñoz": 2500,
+};
+
+function getUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  } catch {
+    return null;
+  }
+}
+
+function buildWhatsappMessage({ user, order, fallbackItems, shippingCost }) {
+  const items = order?.items?.length ? order.items : fallbackItems;
+  const lines = items
+    .map((item) => `• ${item.title} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`)
+    .join("\n");
+
+  return `🛒 Nuevo pedido de ${user?.username || order?.name || "cliente"} (${user?.email || "sin email"})
+
+👤 Nombre: ${order?.name}
+🏙️ Localidad: ${order?.city}
+📍 Dirección: ${order?.address}
+
+📦 Productos:
+${lines}
+
+🚚 Envío: ${formatPrice(Number(order?.shippingCost ?? shippingCost))}
+💰 Total: ${formatPrice(Number(order?.total))}
+
+¡Gracias! 🙌`;
+}
+
 const FinishCart = () => {
-  const contacts = [
-    {
-      name: "Hernan",
-      phone: "5493416863976",
-      image: "https://ui-avatars.com/api/?name=Hernan",
-    },
-    {
-      name: "Ruddi",
-      phone: "5493416946454",
-      image: "https://ui-avatars.com/api/?name=Ruddi",
-    },
-    {
-      name: "Nacho",
-      phone: "5493413916661",
-      image: "https://ui-avatars.com/api/?name=Nacho",
-    },
-  ];
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const cart = useCart((s) => s.cart);
+  const clearCart = useCart((s) => s.clearCart);
+  const user = getUser();
 
-  // Costos de envío por ciudad
-  const shippingCosts = {
-    Rosario: 2500,
-    Alvarez: 1000,
-    Piñero: 0,
-    Soldini: 2500,
-    "Pueblo Muñoz": 2500,
-  };
-
-  const { cart, clearCart, setCart } = useCart();
   const [formData, setFormData] = useState(() => {
-    // Intentar recuperar datos guardados previamente
-    const savedData = localStorage.getItem("pendingCheckoutData");
-    if (savedData) {
+    // Recuperar datos si tuvo que iniciar sesión en el medio
+    const saved = localStorage.getItem("pendingCheckoutData");
+    if (saved) {
       localStorage.removeItem("pendingCheckoutData");
-      return JSON.parse(savedData);
+      try {
+        return { name: "", city: "", address: "", contact: "", ...JSON.parse(saved) };
+      } catch {
+        /* datos corruptos: empezamos de cero */
+      }
     }
-    return { name: "", city: "", address: "" };
+    return { name: user?.username || "", city: "", address: "", contact: "" };
   });
-
-  const [shippingCost, setShippingCost] = useState(() => {
-    const cost = shippingCosts[formData.city] || 0;
-    return cost;
-  });
-  const [selectedContact, setSelectedContact] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [sending, setSending] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const navigate = useNavigate();
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shippingCost = SHIPPING_COSTS[formData.city] ?? 0;
+  const finalTotal = subtotal + shippingCost;
+  const itemsCount = cart.reduce((t, i) => t + i.quantity, 0);
 
-  // Usuario
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const userEmail = user?.email || "";
-
-  const userOrdersKey = `orders_${userEmail}`;
-
-  // Total del carrito
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  // Total final con envío incluido
-  const finalTotal = total + shippingCost;
-
-  // React Query
-  const queryClient = useQueryClient();
-
-  // Manejar cambios en el formulario
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Si cambia la ciudad, actualizamos el costo de envío
-    if (name === "city") {
-      const cost = shippingCosts[value] || 0;
-      setShippingCost(cost);
-    }
+  const update = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const handleContactClick = (contact) => {
-    const { name, city, address } = formData;
-
-    if (
-      name.trim().length < 3 ||
-      city.trim().length < 2 ||
-      address.trim().length < 5
-    ) {
-      Swal.fire(
-        "Error",
-        "Por favor completá todos los campos correctamente antes de elegir el contacto.",
-        "error"
-      );
-      return;
-    }
-
-    setSelectedContact(contact);
+  const validate = () => {
+    const e = {};
+    if (formData.name.trim().length < 3) e.name = "Escribí tu nombre (mínimo 3 letras).";
+    if (!formData.city) e.city = "Elegí tu localidad.";
+    if (formData.address.trim().length < 5) e.address = "Escribí la dirección de entrega.";
+    if (!formData.contact) e.contact = "Elegí con quién querés hablar.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
-
-  // Agregar producto al carrito validando stock
-  const addToCart = (product) => {
-    const existingProduct = cart.find((item) => item._id === product._id);
-
-    if (existingProduct) {
-      if (existingProduct.quantity < product.stock) {
-        setCart(
-          cart.map((item) =>
-            item._id === product._id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        );
-      } else {
-        Swal.fire(
-          "Error",
-          "Has alcanzado el límite de stock disponible para este producto.",
-          "error"
-        );
-      }
-    } else {
-      if (product.stock > 0) {
-        setCart([...cart, { ...product, quantity: 1 }]);
-      } else {
-        Swal.fire("Error", "Este producto no tiene stock disponible.", "error");
-      }
-    }
-  };
-
-  // Mostrar modal al volver de WhatsApp
-  useEffect(() => {
-    const showFlag = localStorage.getItem("showPurchaseModal") === "true";
-    if (showFlag && cart.length > 0) {
-      setShowModal(true);
-    }
-    localStorage.removeItem("showPurchaseModal");
-  }, [cart]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { name, city, address } = formData;
+    if (sending || cart.length === 0) return;
+    if (!validate()) return;
 
-    if (cart.length === 0) {
-      Swal.fire("Error", "Tu carrito está vacío...", "error");
-      return;
-    }
-
-    if (name.trim().length < 3) {
-      Swal.fire(
-        "Error",
-        "El nombre debe tener al menos 3 caracteres.",
-        "error"
-      );
-      return;
-    }
-    if (city.trim().length < 2) {
-      Swal.fire(
-        "Error",
-        "La localidad debe tener al menos 2 caracteres.",
-        "error"
-      );
-      return;
-    }
-    if (address.trim().length < 5) {
-      Swal.fire(
-        "Error",
-        "La dirección debe tener al menos 5 caracteres.",
-        "error"
-      );
-      return;
-    }
-    if (!selectedContact) {
-      Swal.fire(
-        "Error",
-        "Por favor seleccioná un contacto antes de confirmar la compra.",
-        "error"
-      );
-      return;
-    }
-
-    // 🛑 NUEVO: Verificar autenticación justo antes de procesar
     const token = localStorage.getItem("token");
     if (!token) {
-      Swal.fire({
+      const result = await Swal.fire({
         title: "Iniciá sesión para continuar",
-        text: "Para registrar tu pedido necesitamos que estés ingresado en tu cuenta.",
+        text: "Para registrar tu pedido necesitamos que entres a tu cuenta. Tus datos quedan guardados.",
         icon: "info",
         showCancelButton: true,
-        confirmButtonText: "Ir al Login",
+        confirmButtonText: "Iniciar sesión",
         cancelButtonText: "Cancelar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Guardamos los datos para no perderlos al volver
-          localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));
-          localStorage.setItem("redirectAfterLogin", "/finish");
-          navigate("/login");
-        }
+        confirmButtonColor: "#2f7d4f",
       });
+      if (result.isConfirmed) {
+        localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));
+        localStorage.setItem("redirectAfterLogin", "/finish");
+        navigate("/login");
+      }
       return;
     }
 
-    const newOrder = {
-      name,
-      city,
-      address,
-      items: cart.map((item) => ({ _id: item._id, quantity: item.quantity })),
-      total: finalTotal.toFixed(2),
-      shippingCost: shippingCost.toFixed(2),
-      date: new Date().toLocaleString(),
-    };
+    const contact = CONTACTS.find((c) => c.phone === formData.contact);
 
-    const previousOrders =
-      JSON.parse(localStorage.getItem(userOrdersKey)) || [];
-    localStorage.setItem(
-      userOrdersKey,
-      JSON.stringify([...previousOrders, newOrder])
-    );
+    // Abrimos la pestaña YA (en el clic). Si la abrimos después de esperar
+    // al servidor, Safari/iPhone la bloquea como "ventana emergente".
+    const waWindow = window.open("", "_blank");
 
+    setSending(true);
+    try {
+      const newOrder = {
+        name: formData.name.trim(),
+        city: formData.city,
+        address: formData.address.trim(),
+        // El servidor toma precios y nombres de la base; esto es de respaldo
+        items: cart.map((item) => ({
+          _id: item._id,
+          quantity: item.quantity,
+          title: item.title,
+          price: item.price,
+        })),
+        total: finalTotal.toFixed(2),
+        shippingCost: shippingCost.toFixed(2),
+        date: new Date().toLocaleString(),
+      };
 
+      const { data } = await axios.post(`${API_URL}/api/orders`, newOrder, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const order = data?.order || newOrder;
 
-    Swal.fire({
-      title: "¿Confirmar compra?",
-      text: "Vas a enviar tu pedido por WhatsApp",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sí, confirmar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.post(`${API_URL}/api/orders`, newOrder, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+      const message = buildWhatsappMessage({ user, order, fallbackItems: newOrder.items, shippingCost });
+      const whatsappUrl = `https://wa.me/${contact.phone}?text=${encodeURIComponent(message)}`;
 
-          queryClient.invalidateQueries({ queryKey: ["products"] });
+      if (waWindow) waWindow.location.href = whatsappUrl;
+      else window.location.href = whatsappUrl;
 
-          const message = `🛒 Nuevo Pedido Realizado por ${
-            user.name || "usuario"
-          } (${user.email || "email no disponible"}):
-
-          👤 Nombre: ${name}
-          🏙️ Localidad: ${city}
-          📍 Dirección: ${address}
-          🕒 Fecha: ${newOrder.date}
-
-          📦 Productos:
-          ${cart
-            .map(
-              (item) =>
-                `• ${item.title} x${item.quantity} - $${(
-                  item.price * item.quantity
-                ).toFixed(2)}`
-            )
-            .join("\n")}
-
-          🚚 Costo de envío: $${shippingCost.toFixed(2)}
-          💰 Total final: $${finalTotal.toFixed(2)}
-
-          ¡Gracias por tu compra! 🙌`;
-
-          const whatsappUrl = /Android|iPhone/i.test(navigator.userAgent)
-            ? `whatsapp://send?phone=${
-                selectedContact.phone
-              }&text=${encodeURIComponent(message)}`
-            : `https://api.whatsapp.com/send?phone=${
-                selectedContact.phone
-              }&text=${encodeURIComponent(message)}`;
-
-          localStorage.setItem("showPurchaseModal", "true");
-
-          clearCart();
-          setShowModal(true);
-          window.open(whatsappUrl, "_blank");
-
-          Swal.fire(
-            "¡Pedido confirmado!",
-            "Tu compra fue registrada ✅",
-            "success"
-          );
-        } catch (err) {
-          console.error("Error al guardar pedido:", err);
-          Swal.fire(
-            "Error",
-            err.response?.data?.error ||
-              "Hubo un error al guardar el pedido. Intentalo de nuevo.",
-            "error"
-          );
-        }
+      // Copia local para "Mis pedidos" si no hay conexión
+      const key = `orders_${user?.email || ""}`;
+      try {
+        const previous = JSON.parse(localStorage.getItem(key)) || [];
+        localStorage.setItem(key, JSON.stringify([...previous, order]));
+      } catch {
+        /* sin espacio en el navegador: no pasa nada */
       }
-    });
+
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+      clearCart();
+      setShowModal(true);
+    } catch (err) {
+      waWindow?.close();
+      console.error("Error al guardar pedido:", err);
+      Swal.fire({
+        title: "No pudimos registrar el pedido",
+        text: err.response?.data?.error || "Revisá tu conexión e intentá de nuevo.",
+        icon: "error",
+        confirmButtonColor: "#5a3412",
+      });
+    } finally {
+      setSending(false);
+    }
   };
+
+  if (cart.length === 0 && !showModal) {
+    return (
+      <main className={`page-shell ${styles.page}`}>
+        <div className={styles.empty}>
+          <div className={styles.emptyIcon}>🧺</div>
+          <h1>No hay nada para finalizar</h1>
+          <p>Tu carrito está vacío. ¡Sumá algo rico y volvé!</p>
+          <Link to="/shop" className="btn-leaf">Ir a la tienda</Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <>
-      <main className={styles.finishCart}>
-        <div className={styles.container} data-aos="fade-up">
-          <div className={styles.contactClose}>
-            <CloseButton
-              aria-label="Cerrar formulario"
-              onClick={() => navigate("/")}
-            />
-          </div>
+      <main className={`page-shell ${styles.page}`}>
+        <div className={styles.wrap}>
+          <Link to="/cart" className={styles.back}>
+            <FaArrowLeft /> Volver al carrito
+          </Link>
+          <h1 className={styles.title}>Finalizar compra</h1>
+          <ol className={styles.steps}>
+            <li className={styles.done}>Carrito</li>
+            <li className={styles.current}>Datos de entrega</li>
+            <li>WhatsApp</li>
+          </ol>
 
-          <div className={styles.header}>
-            <h1>Checkout</h1>
-            <p className={styles.subtitle}>Completá tus datos para finalizar el pedido</p>
-          </div>
-
-          <form className={styles.checkoutForm} onSubmit={handleSubmit}>
-            <div className={styles.formSection}>
-              <label htmlFor="name">Nombre completo</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Juan Pérez"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                minLength={3}
-              />
-            </div>
-
-            <div className={styles.formSection}>
-              <label htmlFor="city">Localidad</label>
-              <select
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Seleccioná una localidad</option>
-                <option value="Rosario">Rosario</option>
-                <option value="Alvarez">Alvarez</option>
-                <option value="Piñero">Piñero</option>
-                <option value="Soldini">Soldini</option>
-                <option value="Pueblo Muñoz">Pueblo Muñoz</option>
-              </select>
-
-              {formData.city && (
-                <div className={styles.shippingBadge}>
-                  {shippingCost === 0
-                    ? "✨ ¡Envío gratis para esta localidad!"
-                    : `🚚 Costo de envío: $${shippingCost}`}
-                </div>
-              )}
-            </div>
-
-            <div className={styles.formSection}>
-              <label htmlFor="address">Dirección de envío</label>
-              <textarea
-                id="address"
-                name="address"
-                placeholder="Calle 123, Piso 1, Depto A"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                minLength={5}
-              />
-            </div>
-
-            <p className={styles.contactOptionsTitle}>Seleccioná un vendedor</p>
-            <div className={styles.contactOptions}>
-              {contacts.map((contact) => (
-                <button
-                  key={contact.phone}
-                  type="button"
-                  onClick={() => handleContactClick(contact)}
-                  className={`${styles.contactButton} ${
-                    selectedContact?.phone === contact.phone
-                      ? styles.contactButtonSelected
-                      : ""
-                  }`}
-                >
-                  <img
-                    src={contact.image}
-                    alt={contact.name}
-                    className={styles.contactImage}
+          <form className={styles.grid} onSubmit={handleSubmit} noValidate>
+            <div className={styles.formCol}>
+              <section className={styles.card}>
+                <h2><FaUser /> Tus datos</h2>
+                <label className={styles.field}>
+                  <span>Nombre y apellido</span>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => update("name", e.target.value)}
+                    placeholder="Juan Pérez"
+                    autoComplete="name"
+                    className={errors.name ? styles.invalid : ""}
                   />
-                  <span>{contact.name}</span>
-                </button>
-              ))}
+                  {errors.name && <small className={styles.error}>{errors.name}</small>}
+                </label>
+              </section>
+
+              <section className={styles.card}>
+                <h2><FaMapMarkerAlt /> ¿Dónde lo entregamos?</h2>
+                <div className={styles.cities} role="radiogroup" aria-label="Localidad">
+                  {Object.entries(SHIPPING_COSTS).map(([city, cost]) => (
+                    <button
+                      type="button"
+                      key={city}
+                      role="radio"
+                      aria-checked={formData.city === city}
+                      className={`${styles.city} ${formData.city === city ? styles.selected : ""}`}
+                      onClick={() => update("city", city)}
+                    >
+                      <strong>{city}</strong>
+                      <small className={cost === 0 ? styles.free : ""}>
+                        {cost === 0 ? "Envío gratis" : `Envío ${formatPrice(cost)}`}
+                      </small>
+                    </button>
+                  ))}
+                </div>
+                {errors.city && <small className={styles.error}>{errors.city}</small>}
+
+                <label className={styles.field}>
+                  <span>Dirección</span>
+                  <textarea
+                    value={formData.address}
+                    onChange={(e) => update("address", e.target.value)}
+                    placeholder="Calle 123, piso 1, depto A (y alguna referencia)"
+                    autoComplete="street-address"
+                    rows={2}
+                    className={errors.address ? styles.invalid : ""}
+                  />
+                  {errors.address && <small className={styles.error}>{errors.address}</small>}
+                </label>
+              </section>
+
+              <section className={styles.card}>
+                <h2><FaWhatsapp /> ¿Con quién hablás?</h2>
+                <p className={styles.hint}>Le mandamos tu pedido por WhatsApp para coordinar el pago y la entrega.</p>
+                <div className={styles.contacts}>
+                  {CONTACTS.map((c) => (
+                    <button
+                      type="button"
+                      key={c.phone}
+                      className={`${styles.contact} ${formData.contact === c.phone ? styles.selected : ""}`}
+                      onClick={() => update("contact", c.phone)}
+                      aria-pressed={formData.contact === c.phone}
+                    >
+                      <span className={styles.avatar}>{c.name[0]}</span>
+                      <span>{c.name}</span>
+                    </button>
+                  ))}
+                </div>
+                {errors.contact && <small className={styles.error}>{errors.contact}</small>}
+              </section>
             </div>
 
-            <div className={styles.checkoutSummary}>
-              <span className={styles.totalLabel}>Total del pedido</span>
-              <span className={styles.totalAmount}>${finalTotal.toFixed(2)}</span>
-            </div>
+            <aside className={styles.summary}>
+              <h2>Tu pedido</h2>
+              <ul className={styles.items}>
+                {cart.map((item) => (
+                  <li key={item._id}>
+                    <img src={getImageUrl(item.imageUrl, 120)} alt="" loading="lazy" />
+                    <span className={styles.itemName}>
+                      {item.title}
+                      <small>x{item.quantity}</small>
+                    </span>
+                    <span>{formatPrice(item.price * item.quantity)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.row}><span>Productos ({itemsCount})</span><span>{formatPrice(subtotal)}</span></div>
+              <div className={styles.row}>
+                <span>Envío</span>
+                <span>{!formData.city ? "—" : shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}</span>
+              </div>
+              <div className={styles.total}><span>Total</span><span>{formatPrice(finalTotal)}</span></div>
 
-            <button type="submit">Enviar pedido por WhatsApp</button>
+              <button type="submit" className={`btn-leaf ${styles.submit}`} disabled={sending}>
+                <FaWhatsapp /> {sending ? "Enviando…" : "Enviar pedido por WhatsApp"}
+              </button>
+              <p className={styles.secure}><FaLock /> El pago se coordina con el vendedor</p>
+            </aside>
           </form>
         </div>
       </main>

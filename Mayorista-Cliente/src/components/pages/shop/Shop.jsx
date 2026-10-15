@@ -1,25 +1,31 @@
-import { FaInstagram, FaSearch, FaCogs } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { FaInstagram, FaSearch, FaSlidersH, FaTimes, FaCogs, FaLeaf, FaTruck, FaHeart } from "react-icons/fa";
 import "animate.css";
 
-//cart
 import { FiltersProvider } from "../../../context/filters.jsx";
 import ProductList from "../cart/Cart/ProductList.jsx";
-import Cart from "../cart/Cart/Cart.jsx";
+import CartBar from "../cart/Cart/CartBar.jsx";
 import Filters from "../cart/Cart/Filters.jsx";
 import Header from "../../header/Header.jsx";
 import { useFilters } from "../../../hooks/useFilters.js";
 import BackToTop from "../../BackToTop/BackToTop.jsx";
 import { useDebouncedValue } from "../../../hooks/useDebouncedValue.js";
-import { getBrands } from "../../../api/brandsApi.js";
-
-//protected
+import { getCategories } from "../../../api/categoriesApi.js";
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
 
-//styles
 import "./Shop.css";
+
+const DEFAULT_MAX_PRICE = 400000;
+
+function getUserName() {
+  try {
+    return JSON.parse(localStorage.getItem("user"))?.username || "";
+  } catch {
+    return "";
+  }
+}
 
 const ShopContent = () => {
   const [search, setSearch] = useState("");
@@ -27,31 +33,102 @@ const ShopContent = () => {
   const debouncedSearch = useDebouncedValue(search.trim(), 400);
   const { filters, setFilters } = useFilters();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const userName = getUserName();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Las marcas quedan en cache: no se vuelven a pedir cada vez que entrás a la tienda
-  const { data: brands = [] } = useQuery({
-    queryKey: ["brands"],
-    queryFn: getBrands,
+  // Desde el inicio se puede entrar con una categoría elegida (?categoria=Snacks)
+  useEffect(() => {
+    const cat = searchParams.get("categoria");
+    if (cat) {
+      setFilters((prev) => ({ ...prev, category: [cat] }));
+      setSearchParams({}, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
     staleTime: 1000 * 60 * 30,
   });
 
-  const handleChipClick = (brandName) => {
-    setFilters(prev => {
-      const currentValues = Array.isArray(prev.brand) ? prev.brand : [];
-      const isSelected = currentValues.includes(brandName);
-      const newValues = isSelected ? [] : [brandName];
-      return { ...prev, brand: newValues };
+  const selectedCategories = Array.isArray(filters.category) ? filters.category : [];
+  const selectedBrands = Array.isArray(filters.brand) ? filters.brand : [];
+  const hasPriceFilter = filters.maxPrice && filters.maxPrice < DEFAULT_MAX_PRICE;
+
+  const toggleCategory = (nombre) => {
+    setFilters((prev) => {
+      const current = Array.isArray(prev.category) ? prev.category : [];
+      return {
+        ...prev,
+        category: current.includes(nombre) ? current.filter((c) => c !== nombre) : [...current, nombre],
+      };
     });
   };
 
+  const removeFrom = (type, value) =>
+    setFilters((prev) => ({ ...prev, [type]: (prev[type] || []).filter((v) => v !== value) }));
+
+  const clearAll = () => {
+    setSearch("");
+    setFilters((prev) => ({ ...prev, category: [], brand: [], maxPrice: DEFAULT_MAX_PRICE, sortByPrice: "" }));
+  };
+
+  const activeCount = selectedCategories.length + selectedBrands.length + (hasPriceFilter ? 1 : 0);
+
   return (
     <main className="shop-main-layout">
-      <div className="shop-container">
-        {/* Banner Informativo */}
-        <div className="info-banner">
-          <div className="info-icon">i</div>
-          <p>Los productos son 100% NATURALES y seleccionados con amor.</p>
+      {/* Bienvenida + buscador */}
+      <section className="shop-hero">
+        <div className="shop-hero-inner">
+          <p className="shop-hero-hello">{userName ? `¡Hola, ${userName}! 👋` : "¡Hola! 👋"}</p>
+          <h1>¿Qué se te antoja hoy?</h1>
+
+          <div className="shop-search">
+            <FaSearch className="shop-search-icon" />
+            <input
+              type="search"
+              placeholder="Buscá granola, miel, yerba, galletitas…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Buscar productos"
+            />
+            {search && (
+              <button className="shop-search-clear" onClick={() => setSearch("")} aria-label="Borrar búsqueda">
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <ul className="shop-perks">
+            <li><FaLeaf /> 100% natural</li>
+            <li><FaTruck /> Envíos a Rosario y zona</li>
+            <li><FaHeart /> Elegidos con amor</li>
+          </ul>
         </div>
+      </section>
+
+      <div className="shop-container">
+        {/* Categorías rápidas */}
+        {categories.length > 0 && (
+          <div className="shop-cats" role="list">
+            <button
+              className={`shop-cat ${selectedCategories.length === 0 ? "active" : ""}`}
+              onClick={() => setFilters((prev) => ({ ...prev, category: [] }))}
+            >
+              ✨ Todo
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat._id}
+                className={`shop-cat ${selectedCategories.includes(cat.nombre) ? "active" : ""}`}
+                onClick={() => toggleCategory(cat.nombre)}
+              >
+                {cat.nombre}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="shop-grid-layout">
           {/* Sidebar de Filtros (Escritorio) */}
@@ -60,83 +137,77 @@ const ShopContent = () => {
           </aside>
 
           {/* Drawer de Filtros (Mobile) */}
-          <div className={`mobile-filters-drawer ${isDrawerOpen ? 'open' : ''}`}>
-             <div className="drawer-overlay" onClick={() => setIsDrawerOpen(false)}></div>
-             <div className="drawer-content">
-                <Filters onClose={() => setIsDrawerOpen(false)} isMobile={true} />
-             </div>
+          <div className={`mobile-filters-drawer ${isDrawerOpen ? "open" : ""}`} aria-hidden={!isDrawerOpen}>
+            <div className="drawer-overlay" onClick={() => setIsDrawerOpen(false)}></div>
+            <div className="drawer-content" data-lenis-prevent>
+              <Filters onClose={() => setIsDrawerOpen(false)} isMobile={true} />
+            </div>
           </div>
 
-          {/* Contenido Principal */}
           <section className="shop-content-area">
-            <header className="shop-results-header">
-              <h1>Todos los productos</h1>
-              
-              {/* Chips de Marcas */}
-              <div className="category-chips">
-                {brands.map(brand => (
-                  <button 
-                    key={brand} 
-                    className={`chip ${filters.brand.includes(brand) ? 'active' : ''}`}
-                    onClick={() => handleChipClick(brand)}
-                  >
-                    {brand.toUpperCase()}
-                  </button>
-                ))}
-              </div>
+            <div className="shop-toolbar">
+              <button className="shop-filter-btn" onClick={() => setIsDrawerOpen(true)}>
+                <FaSlidersH /> Filtros
+                {activeCount > 0 && <span className="shop-filter-count">{activeCount}</span>}
+              </button>
 
-              {/* Barra de Controles (Rediseñada para Mobile/Desktop) */}
-              <div className="shop-controls">
-                <div className="search-bar-container">
-                  <input
-                    type="text"
-                    className="shop-search-input"
-                    placeholder="Buscar productos..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  <FaSearch className="search-icon" />
-                </div>
-
-                <div className="sort-wrapper">
-                  <select 
-                    value={filters.sortByPrice || ""}
-                    onChange={(e) => setFilters(prev => ({ ...prev, sortByPrice: e.target.value }))}
-                  >
-                    <option value="">Ordenar</option>
-                    <option value="asc">Precio: Menor</option>
-                    <option value="desc">Precio: Mayor</option>
-                  </select>
-                </div>
-
-                <button className="mobile-filters-trigger" onClick={() => setIsDrawerOpen(true)}>
-                   <FaCogs /> <span className="trigger-text">Filtros</span>
-                </button>
-              </div>
-            </header>
-
-            <div className="products-grid-wrapper">
-              <ProductList search={debouncedSearch} />
+              <label className="shop-sort">
+                <span>Ordenar</span>
+                <select
+                  value={filters.sortByPrice || ""}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, sortByPrice: e.target.value }))}
+                >
+                  <option value="">Más nuevos</option>
+                  <option value="asc">Menor precio</option>
+                  <option value="desc">Mayor precio</option>
+                </select>
+              </label>
             </div>
+
+            {/* Filtros activos */}
+            {(activeCount > 0 || debouncedSearch) && (
+              <div className="shop-active-filters">
+                {debouncedSearch && (
+                  <button onClick={() => setSearch("")}>“{debouncedSearch}” <FaTimes /></button>
+                )}
+                {selectedCategories.map((c) => (
+                  <button key={`c-${c}`} onClick={() => removeFrom("category", c)}>{c} <FaTimes /></button>
+                ))}
+                {selectedBrands.map((b) => (
+                  <button key={`b-${b}`} onClick={() => removeFrom("brand", b)}>{b} <FaTimes /></button>
+                ))}
+                {hasPriceFilter && (
+                  <button onClick={() => setFilters((p) => ({ ...p, maxPrice: DEFAULT_MAX_PRICE }))}>
+                    Hasta ${Number(filters.maxPrice).toLocaleString("es-AR")} <FaTimes />
+                  </button>
+                )}
+                <button className="clear" onClick={clearAll}>Limpiar todo</button>
+              </div>
+            )}
+
+            <ProductList search={debouncedSearch} />
           </section>
         </div>
       </div>
 
-      <Cart />
+      <CartBar />
 
       {isAdminOrSuperAdmin() && (
-        <Link to="/addProducts" className="admin-fab">
+        <Link to="/addProducts" className="admin-fab" aria-label="Administrar productos">
           <FaCogs />
         </Link>
       )}
 
       <footer className="footer-shop">
-         <div className="footer-content">
-            <p>RubioHnos © 2025 - Tienda Natural</p>
-            <div className="footer-links">
-               <a href="https://www.instagram.com/rubio.hnos" target="_blank" rel="noreferrer"><FaInstagram /></a>
-            </div>
-         </div>
+        <div className="footer-content">
+          <p>Rubio Hnos © {new Date().getFullYear()} · Tienda natural</p>
+          <div className="footer-links">
+            <Link to="/contact">Contacto</Link>
+            <a href="https://www.instagram.com/rubio.hnos" target="_blank" rel="noreferrer" aria-label="Instagram">
+              <FaInstagram />
+            </a>
+          </div>
+        </div>
       </footer>
       <BackToTop />
     </main>
@@ -144,12 +215,6 @@ const ShopContent = () => {
 };
 
 const Shop = () => {
-  return (
-    <RouterSafeShop />
-  );
-};
-
-const RouterSafeShop = () => {
   return (
     <>
       <Header />

@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button";
+import { Link, useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import "./Register.css";
 import ModalSuccess from "../../../modalRegister/ModalRegister.jsx";
-import RegisterImg from "../../../../assets/register/imgRegister.png";
+import RegisterImg from "../../../../assets/register/imgRegister.webp";
 
 const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
 
@@ -61,8 +60,8 @@ console.log("Datos recibidos para registro:", formData);
       } else {
         setError(data.message || "Error al registrarse");
       }
-    } catch (err) {
-      setError("Error en el servidor");
+    } catch {
+      setError("No pudimos conectar con el servidor. Probá de nuevo en unos segundos.");
     }
   };
 
@@ -76,20 +75,19 @@ console.log("Datos recibidos para registro:", formData);
           style={{ backgroundImage: `url(${RegisterImg})` }}
         ></div>
         <div className="register-right">
-          <button className="back-arrow" onClick={() => navigate("/")}>
-            <i className="fas fa-arrow-left"></i>
-          </button>
+          <Link to="/" className="auth-back">
+            <i className="fas fa-arrow-left"></i> Volver
+          </Link>
           <Form
             noValidate
             validated={validated}
             onSubmit={handleSubmit}
             className="register-form"
           >
-            <h3 className="text-center mb-4">Registrarse</h3>
+            <h1 className="auth-title">Creá tu cuenta 🌱</h1>
+            <p className="auth-subtitle">Es gratis y te lleva un minuto. Así podés hacer pedidos y seguirlos.</p>
 
-            <div className="form-row">
-              <div className="form-column">
-                <Form.Group className="mb-3" controlId="formUsername">
+            <Form.Group className="mb-3" controlId="formUsername">
                   <Form.Label>Nombre</Form.Label>
                   <Form.Control
                     required
@@ -104,13 +102,29 @@ console.log("Datos recibidos para registro:", formData);
                     Ingresá tu nombre.
                   </Form.Control.Feedback>
                 </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formPassword">
+            <Form.Group className="mb-3" controlId="formEmail">
+                  <Form.Label>Correo electrónico</Form.Label>
+                  <Form.Control
+                    required
+                    type="email"
+                    placeholder="tu@email.com"
+                    autoComplete="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    isInvalid={validated && !formData.email}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Ingresá un correo válido.
+                  </Form.Control.Feedback>
+                </Form.Group>
+            <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Contraseña</Form.Label>
                   <Form.Control
                     required
                     type="password"
-                    placeholder="Tu contraseña"
+                    placeholder="Mínimo 6 caracteres"
+                    autoComplete="new-password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
@@ -121,8 +135,7 @@ console.log("Datos recibidos para registro:", formData);
                     La contraseña debe tener al menos 6 caracteres.
                   </Form.Control.Feedback>
                 </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formConfirmPassword">
+            <Form.Group className="mb-3" controlId="formConfirmPassword">
                   <Form.Label>Confirmar contraseña</Form.Label>
                   <Form.Control
                     required
@@ -141,34 +154,15 @@ console.log("Datos recibidos para registro:", formData);
                     Las contraseñas no coinciden.
                   </Form.Control.Feedback>
                 </Form.Group>
-              </div>
 
-              <div className="form-column">
-                <Form.Group className="mb-3" controlId="formEmail">
-                  <Form.Label>Correo electrónico</Form.Label>
-                  <Form.Control
-                    required
-                    type="email"
-                    placeholder="Tu correo"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    isInvalid={validated && !formData.email}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Ingresá un correo válido.
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </div>
-            </div>
+            {error && <p className="auth-error">{error}</p>}
 
-            {error && <p className="text-danger text-center">{error}</p>}
-
-            <div className="button-group">
-              <Button type="submit" className="my-custom-button custom-button-ingresar">
-                Crear Usuario
-              </Button>
-            </div>
+            <button type="submit" className="btn-leaf auth-submit">
+              Crear mi cuenta
+            </button>
+            <p className="auth-switch">
+              ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
+            </p>
           </Form>
         </div>
       </div>

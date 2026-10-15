@@ -1,103 +1,80 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import CloseButton from "react-bootstrap/CloseButton";
-import "react-toastify/dist/ReactToastify.css";
-import "./ForgotPassword.css";
+import { toast } from "react-toastify";
+import "../../auth.css";
 
-
-const API_URL= import.meta.env.VITE_BASE_SERVER_URL;
+const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [validated, setValidated] = useState(false);
-  const navigate = useNavigate();
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setValidated(true);
-
-    const isEmpty = !email.trim();
-    const isInvalidFormat = email.trim() && !emailRegex.test(email);
-
-    if (isEmpty || isInvalidFormat) return;
-
-    try {
-      const res = await axios.post(
-        `${API_URL}/api/password/forgot-password`,
-        { email }
-      );
-
-      toast.success(
-        `📧 Si el correo está registrado, te enviamos un enlace a ${email}`,
-        {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "colored",
-        }
-      );
-
-      setEmail("");
-      setValidated(false);
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (error) {
-      toast.error("⚠️ Error del servidor. Intentá de nuevo más tarde.", {
-        position: "top-center",
-        autoClose: 3000,
-        theme: "colored",
-      });
-    }
-  };
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const isEmpty = validated && !email.trim();
   const isInvalidFormat = validated && email.trim() && !emailRegex.test(email);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setValidated(true);
+    if (!email.trim() || !emailRegex.test(email) || sending) return;
+
+    setSending(true);
+    try {
+      await axios.post(`${API_URL}/api/password/forgot-password`, { email: email.trim() });
+      setSent(true);
+    } catch {
+      toast.error("No pudimos enviar el correo. Intentá de nuevo más tarde.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div className="forgot-password-container">
-      <div className="contact-close">
-              <CloseButton
-                aria-label="Cerrar formulario"
-                onClick={() => navigate("/login")}
+    <div className="login-background">
+      <div className="auth-card">
+        <Link to="/login" className="auth-back">
+          <i className="fas fa-arrow-left"></i> Volver
+        </Link>
+
+        {sent ? (
+          <>
+            <div className="auth-card-icon">📬</div>
+            <h1 className="auth-title">¡Revisá tu correo!</h1>
+            <p className="auth-subtitle">
+              Si <strong>{email}</strong> está registrado, te mandamos un enlace para crear una contraseña nueva.
+              Vence en 1 hora. Mirá también en "Spam".
+            </p>
+            <Link to="/login" className="btn-leaf auth-submit">Volver a iniciar sesión</Link>
+          </>
+        ) : (
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="auth-card-icon">🔑</div>
+            <h1 className="auth-title">¿Olvidaste tu contraseña?</h1>
+            <p className="auth-subtitle">Tranqui, nos pasa a todos. Ingresá tu email y te mandamos un enlace para crear una nueva.</p>
+
+            <label className="auth-field">
+              <span>Correo electrónico</span>
+              <input
+                type="email"
+                placeholder="tu@email.com"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={isEmpty || isInvalidFormat ? "invalid" : ""}
               />
-            </div>
-      <form onSubmit={handleSubmit} className="forgot-password-form" noValidate>
-        <h2>¿Olvidaste tu contraseña?</h2>
-        <p>Ingresá tu correo y te enviaremos un enlace para restablecerla.</p>
+            </label>
+            {isEmpty && <p className="auth-error">Ingresá tu correo electrónico.</p>}
+            {isInvalidFormat && <p className="auth-error">Revisá el email (ej: nombre@gmail.com).</p>}
 
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className={`forgot-password-input ${
-            isEmpty || isInvalidFormat ? "is-invalid" : ""
-          }`}
-          aria-invalid={isEmpty || isInvalidFormat}
-        />
-
-        {isEmpty && (
-          <div className="forgot-password-error">
-            Por favor, ingresá tu correo electrónico.
-          </div>
+            <button type="submit" className="btn-leaf auth-submit" disabled={sending}>
+              {sending ? "Enviando…" : "Enviar enlace"}
+            </button>
+          </form>
         )}
-        {isInvalidFormat && (
-          <div className="forgot-password-error">
-            Por favor, ingresá un correo electrónico válido.
-          </div>
-        )}
-
-        <button type="submit" className="forgot-password-button">
-          Enviar enlace
-        </button>
-      </form>
-
-      <ToastContainer position="top-center" autoClose={3000} theme="colored" />
+      </div>
     </div>
   );
 };

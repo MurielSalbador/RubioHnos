@@ -1,13 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* =========================================================
+   Sistema de diseño Rubio Hnos
+   Colores cálidos y naturales: cacao, miel, hoja y crema.
+   ========================================================= */
 :root {
-  --primary-accent: #a36c2c;
-  --secondary-accent: #884101;
-  --bg-premium: #f8f9fa;
-  --text-main: #2d3436;
+  /* Marca */
+  --cacao-900: #2e1a0b;
+  --cacao-800: #4a2a12;
+  --cacao-700: #5a3412;
+  --cacao-500: #a36c2c;
+  --cacao-100: #f3e6d4;
+  --honey: #f4b740;
+  --honey-soft: #fff4d9;
+  --leaf: #2f7d4f;
+  --leaf-dark: #24653f;
+  --leaf-soft: #e5f3ea;
+  --berry: #e0496b;
+  --danger: #d64545;
+
+  /* Superficies */
+  --cream: #fbf6ee;
+  --surface: #ffffff;
+  --line: #eadfce;
+
+  /* Texto */
+  --text: #2b2118;
+  --muted: #7d6b5a;
+
+  /* Forma */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 2px 8px rgba(74, 42, 18, 0.06);
+  --shadow: 0 10px 30px rgba(74, 42, 18, 0.10);
+  --shadow-lg: 0 20px 50px rgba(74, 42, 18, 0.16);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Alto de la barra inferior en celulares */
+  --bottom-nav-h: 0px;
+
+  /* Compatibilidad con estilos existentes */
+  --primary-accent: var(--cacao-500);
+  --secondary-accent: var(--cacao-700);
+  --bg-premium: var(--cream);
+  --text-main: var(--text);
   --glass-bg: rgba(255, 255, 255, 0.8);
-  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.08);
-  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-premium: var(--shadow);
+  --transition-smooth: all 0.4s var(--ease);
+}
+
+@media (max-width: 768px) {
+  :root { --bottom-nav-h: 64px; }
 }
 
 * {
@@ -17,13 +64,81 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: var(--bg-premium);
-  color: var(--text-main);
+  font-family: var(--font-body);
+  background-color: var(--cream);
+  color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
 }
 
+h1, h2, .display-font {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--cacao-800);
+}
+
+::selection {
+  background: var(--honey);
+  color: var(--cacao-900);
+}
+
+:focus-visible {
+  outline: 3px solid var(--honey);
+  outline-offset: 2px;
+}
+
+/* ---------- Botones reutilizables ---------- */
+.btn-brand,
+.btn-leaf,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s;
+}
+
+.btn-brand { background: var(--cacao-700); color: #fff; box-shadow: 0 6px 16px rgba(90, 52, 18, 0.25); }
+.btn-brand:hover { background: var(--cacao-800); color: #fff; transform: translateY(-2px); }
+
+.btn-leaf { background: var(--leaf); color: #fff; box-shadow: 0 6px 16px rgba(47, 125, 79, 0.28); }
+.btn-leaf:hover { background: var(--leaf-dark); color: #fff; transform: translateY(-2px); }
+
+.btn-ghost { background: var(--surface); color: var(--cacao-700); border: 1.5px solid var(--line); }
+.btn-ghost:hover { border-color: var(--cacao-500); color: var(--cacao-800); }
+
+.btn-brand:active, .btn-leaf:active, .btn-ghost:active { transform: scale(0.97); }
+.btn-brand:disabled, .btn-leaf:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+/* Contenedor de página tipo "tarjeta" usado en carrito, checkout, etc. */
+.page-shell {
+  min-height: 100vh;
+  padding: 32px 16px 48px;
+  background:
+    radial-gradient(circle at 10% 0%, var(--honey-soft) 0, transparent 40%),
+    radial-gradient(circle at 100% 30%, var(--leaf-soft) 0, transparent 35%),
+    var(--cream);
+}
+
+/* Toasts con los colores de la marca */
+.Toastify__toast--success { background: var(--leaf) !important; }
+
+/* Animación compartida para contadores (carrito, favoritos) */
+@keyframes badgeBump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.22) rotate(-8deg); }
+  70% { transform: scale(0.95) rotate(4deg); }
+  100% { transform: scale(1); }
+}
 /* Custom properties for Lenis */
 html.lenis {
   height: auto;
@@ -43,4 +158,24 @@ html.lenis {
 
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Animaciones compartidas ---------- */
+.card-appear { animation: cardAppear 0.35s ease-out both; }
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInControls {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

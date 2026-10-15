@@ -1,398 +1,279 @@
-import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useProducts } from "../../../hooks/serch/useProducts.js";
-import { Products } from "../serch/productsList.jsx";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import "./Home.css";
-import backgroundHome from "../../../assets/background/backgroundHome.jpeg";
-import { Container, Row, Col, Button, Card, Modal } from "react-bootstrap";
-import { FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+import { Modal } from "react-bootstrap";
+import { motion } from "framer-motion";
+import { FaInstagram, FaWhatsapp, FaArrowRight, FaTruck, FaLeaf, FaComments, FaSearch } from "react-icons/fa";
 
-import CategoriesCarousel from "../Home/categoriesCarousel/CategoriesCarousel.jsx"; // o la ruta correcta
-
-import Barrita from "../../../assets/img/barritaCereal.png"; // o la ruta correcta
 import Header from "../../header/Header.jsx";
-import { getImageUrl } from "../../../utils/image.js";
+import ProductCard from "../cart/Cart/ProductCard.jsx";
+import ProductModal from "../cart/Cart/ProductModal.jsx";
+import SkeletonCard from "../cart/Cart/SkeletonCard.jsx";
+import CartBar from "../cart/Cart/CartBar.jsx";
+import BrandsMarquee from "./categoriesCarousel/CategoriesCarousel.jsx";
+import { getAllProducts } from "../../../api/fakeStoreApi.js";
+import { getCategories } from "../../../api/categoriesApi.js";
 
-const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
+import Barrita from "../../../assets/img/barritaCereal.webp";
+import HomePhoto from "../../../assets/background/backgroundHome.webp";
 
-export default function Home() {
-  const [search, setSearch] = useState("");
-  const { products, getProducts, loading, loadMore, hasMore } = useProducts({
-    search,
-    sort: false,
-  });
+import "../cart/Cart/ProductList.css";
+import "../cart/Cart/SkeletonCard.css";
+import "../shop/Shop.css";
+import "./Home.css";
 
-  const [userName, setUserName] = useState("");
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  const { scrollY } = useScroll();
-  const parallaxY = useTransform(scrollY, [0, 500], [0, 150]);
-  const heroImageOpacity = useTransform(scrollY, [0, 300], [1, 0]);
-
-  // Detectar si es mobile
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    }, 50); // Forzar scroll arriba al cargar
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  localStorage.setItem("fromPage", "home");
-
-  useEffect(() => {
-    getProducts({ search });
-  }, [search, getProducts]);
-
-  const handleInputChange = (e) => {
-    setSearch(e.target.value);
-  };
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser?.username) {
-          setUserName(parsedUser.username);
-        }
-      } catch (error) {
-        console.error("Error al parsear el usuario:", error);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchFeaturedProducts = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/products?limit=5`);
-        const data = await response.json();
-        setFeaturedProducts(data.docs || []);
-      } catch (error) {
-        console.error("Error al cargar productos destacados:", error);
-      }
-    };
-    fetchFeaturedProducts();
-  }, []);
-
-  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
-
-const contacts = [
-  { name: "Hernan", phone: "5493416863976", image: "https://ui-avatars.com/api/?name=Hernan" },
-  { name: "Ruddi", phone: "5493416946454", image: "https://ui-avatars.com/api/?name=Ruddi" },
-  { name: "Nacho", phone: "5493413916661", image: "https://ui-avatars.com/api/?name=Nacho" },
+const CONTACTS = [
+  { name: "Hernan", phone: "5493416863976" },
+  { name: "Ruddi", phone: "5493416946454" },
+  { name: "Nacho", phone: "5493413916661" },
 ];
 
-const openWhatsApp = (phone) => {
-  window.open(`https://wa.me/${phone}`, "_blank");
-};
+const CATEGORY_EMOJIS = ["🥣", "🍯", "🌾", "🍵", "🥜", "🍫", "🧉", "🍪", "🥗", "🍎"];
+
+function getUserName() {
+  try {
+    return JSON.parse(localStorage.getItem("user"))?.username || "";
+  } catch {
+    return "";
+  }
+}
+
+export default function Home() {
+  const userName = getUserName();
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const handleOpen = useCallback((p) => setSelected(p), []);
+
+  const { data: featured, isLoading: loadingFeatured } = useQuery({
+    queryKey: ["products", "featured"],
+    queryFn: () => getAllProducts({ page: 1, limit: 8 }),
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const featuredProducts = featured?.docs || [];
 
   return (
     <div className="home-container">
-      {/* HEADER */}
-
       <Header />
 
-      <section
-        className="home-hero-section"
-        data-aos="fade-right"
-        data-aos-duration="700"
-        data-aos-delay="200"
-      >
-        <div className="home-hero-content">
-          {userName && (
-            <h2 className="home-hero-welcome">
-              ¡Bienvenid@, <strong>{userName}!</strong> a <strong>RUBIO</strong>
-              <span className="space-between"> </span>
-              <strong>hnos.</strong>
-            </h2>
-          )}
+      {/* ---------- Portada ---------- */}
+      <section className="home-hero">
+        <div className="home-hero-inner">
+          <motion.div
+            className="home-hero-text"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="home-eyebrow">
+              {userName ? `¡Hola, ${userName}! 👋` : "🌿 Tienda natural en Rosario y zona"}
+            </span>
+            <h1>
+              Comé rico.
+              <br />
+              <span>Comé natural.</span>
+            </h1>
+            <p className="home-lead">
+              Granolas artesanales, snacks saludables, productos sin TACC, infusiones, miel pura y mucho más.
+              Elegidos con amor para acompañarte todos los días.
+            </p>
 
-          <p className="home-hero-slogan">✨ Comé rico. Comé natural.</p>
-
-          <div className="home-hero-tags" style={{ perspective: "1000px" }}>
-            <motion.p initial={{ opacity: 0, y: 20, rotateX: -90 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
-              🍵 <strong>Infusiones artesanales</strong>
-            </motion.p>
-            <motion.p initial={{ opacity: 0, y: 20, rotateX: -90 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
-              🌾 <strong>Productos sin TACC</strong>
-            </motion.p>
-            <motion.p initial={{ opacity: 0, y: 20, rotateX: -90 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
-              🍫 <strong>Snacks saludables y ricos</strong>
-            </motion.p>
-          </div>
-
-          <div className="mobile-quick-shop">
-            <Link to="/shop">
-              <button className="premium-mobile-btn">
-                Ir a la Tienda ➔
+            <div className="home-cta">
+              <Link to="/shop" className="btn-leaf home-cta-main">
+                Ir a la tienda <FaArrowRight />
+              </Link>
+              <button className="btn-ghost" onClick={() => setShowWhatsApp(true)}>
+                <FaWhatsapp /> Consultanos
               </button>
+            </div>
+
+            <Link to="/shop" className="home-fake-search">
+              <FaSearch /> Buscá granola, yerba, galletitas…
             </Link>
+          </motion.div>
+
+          <div className="home-hero-art">
+            <div className="home-hero-blob" />
+            <motion.img
+              src={Barrita}
+              alt="Barrita de cereal con frutos secos"
+              className="home-hero-img"
+              initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              width="520"
+              height="520"
+              fetchPriority="high"
+            />
+            <span className="home-sticker s1">🌾 Sin TACC</span>
+            <span className="home-sticker s2">🍯 Miel pura</span>
+            <span className="home-sticker s3">🥜 Frutos secos</span>
           </div>
         </div>
-
-        {!isMobile && (
-          <motion.img
-            src={backgroundHome}
-            alt="Mascota"
-            className="home-hero-image"
-            style={{ y: parallaxY, opacity: heroImageOpacity }}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          />
-        )}
       </section>
 
-      {!isMobile && (
-        <Container fluid className="bg-light py-3">
-          <Row className="text-center justify-content-center align-items-center">
-            <Col
-              xs={4}
-              md={3}
-              className="d-flex align-items-center justify-content-center gap-2"
-            >
-              <i className="fa-solid fa-truck-fast fa-2x text-dark"></i>
-              <div>
-                <strong>ENVÍOS A DOMICILIO</strong>
-                <br />
-                Sí, realizamos envíos a Rosario y alrededores con un costo
-                adicional.
-              </div>
-            </Col>
-            <Col
-              xs={4}
-              md={3}
-              className="d-flex align-items-center justify-content-center gap-2 border-start border-end"
-            >
-              <i className="fa-solid fa-wheat-awn fa-2x text-success"></i>
-              <div>
-                <strong>+100 PRODUCTOS</strong>
-                <br />
-                Infusiones, sin TACC, snacks saludables
-              </div>
-            </Col>
-            <Col
-              xs={4}
-              md={3}
-              className="d-flex align-items-center justify-content-center gap-2"
-            >
-              <i className="fa-solid fa-envelope-open-text fa-2x text-warning"></i>
-              <div>
-                <strong>CONSULTAS PERSONALIZADAS</strong>
-                <br />
-                Escribinos para recibir asesoramiento
-              </div>
-            </Col>
-          </Row>
-        </Container>
+      {/* ---------- Beneficios ---------- */}
+      <section className="home-perks">
+        <div className="home-perk">
+          <span className="home-perk-icon"><FaTruck /></span>
+          <div>
+            <strong>Envíos a domicilio</strong>
+            <p>Rosario, Alvarez, Piñero, Soldini y Pueblo Muñoz.</p>
+          </div>
+        </div>
+        <div className="home-perk">
+          <span className="home-perk-icon leaf"><FaLeaf /></span>
+          <div>
+            <strong>+100 productos</strong>
+            <p>Infusiones, sin TACC y snacks saludables.</p>
+          </div>
+        </div>
+        <div className="home-perk">
+          <span className="home-perk-icon honey"><FaComments /></span>
+          <div>
+            <strong>Te asesoramos</strong>
+            <p>Escribinos y te ayudamos a elegir.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Categorías ---------- */}
+      {categories.length > 0 && (
+        <section className="home-section">
+          <div className="home-section-head">
+            <h2>Explorá por categoría</h2>
+            <Link to="/shop" className="home-see-all">Ver todo <FaArrowRight /></Link>
+          </div>
+          <div className="home-cats">
+            {categories.slice(0, 10).map((cat, i) => (
+              <Link
+                key={cat._id}
+                to={`/shop?categoria=${encodeURIComponent(cat.nombre)}`}
+                className="home-cat"
+                style={{ "--i": i }}
+              >
+                <span className="home-cat-emoji">{CATEGORY_EMOJIS[i % CATEGORY_EMOJIS.length]}</span>
+                <span>{cat.nombre}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
-      <section className="info-section">
-        <div className="barrita-img">
-          <img src={Barrita} alt="mate" className="hero-barrita" />
+      {/* ---------- Productos nuevos ---------- */}
+      <section className="home-section">
+        <div className="home-section-head">
+          <h2>Recién llegados</h2>
+          <Link to="/shop" className="home-see-all">Ver todos <FaArrowRight /></Link>
         </div>
-        <div className="barrita-text">
-          <h1 className="barrita-title">
-            ¡Cuidamos tu bienestar de forma natural!
-          </h1>
-          <p className="barrita-description">
-            Seleccionamos cada producto con amor y compromiso para que vos y tu
-            familia puedan disfrutar de una vida más sana y consciente.
-          </p>
+        <div className="modern-product-grid">
+          {loadingFeatured
+            ? [...Array(4)].map((_, i) => <SkeletonCard key={i} />)
+            : featuredProducts.map((product, i) => (
+                <ProductCard key={product._id} product={product} index={i} onOpen={handleOpen} />
+              ))}
+        </div>
+        <div className="home-more">
+          <Link to="/shop" className="btn-brand">
+            Ver todos los productos <FaArrowRight />
+          </Link>
+        </div>
+      </section>
+
+      {/* ---------- Marcas ---------- */}
+      <section className="home-section home-brands">
+        <div className="home-section-head center">
+          <h2>Nuestras marcas</h2>
+          <p>Tocá una marca para ver todos sus productos</p>
+        </div>
+        <BrandsMarquee />
+      </section>
+
+      {/* ---------- Sobre nosotros ---------- */}
+      <section className="home-about">
+        <div className="home-about-photo">
+          <img src={HomePhoto} alt="Granola con frutillas y frutos secos" loading="lazy" width="1000" height="796" />
+        </div>
+        <div className="home-about-text">
+          <span className="home-eyebrow">Sobre nosotros</span>
+          <h2>Cuidamos tu bienestar de forma natural</h2>
           <p>
-            Desde{" "}
-            <strong>
-              granolas artesanales, barritas energéticas, té natural, yerbas
-              orgánicas
-            </strong>{" "}
-            hasta <strong> miel pura</strong> y mucho más… todo pensado para
-            acompañarte día a día con lo mejor de la naturaleza.
+            Seleccionamos cada producto con amor y compromiso para que vos y tu familia puedan disfrutar de una
+            vida más sana y consciente. Desde <strong>granolas artesanales, barritas energéticas, té natural y
+            yerbas orgánicas</strong> hasta <strong>miel pura</strong> y mucho más.
           </p>
-        </div>
-        <div>
-          {" "}
-          <Link to="/contact">
-            <button className="home-hero-button">Ver más información</button>
-          </Link>
-        </div>
-      </section>
-
-      <main className="main-content">
-        <div className="main-wrapper">
-          <section className="premium-search-container" data-aos="zoom-in">
-            <div className="search-box-meta text-center mb-4">
-              <h2 className="search-title">¿Qué estás buscando hoy?</h2>
-              <p className="search-subtitle">Explorá nuestro catálogo de productos 100% naturales</p>
-            </div>
-            
-            <div className="premium-input-group">
-              <input
-                type="text"
-                className="premium-search-input"
-                placeholder="Ej: Yerba Orgánica, Mix de Frutos..."
-                value={search}
-                onChange={handleInputChange}
-              />
-              <div className="search-glow"></div>
-            </div>
-          </section>
-
-          {search.trim() !== "" ? (
-            <section className="product-list-results fade-in">
-              <div className="results-info">
-                 <p>Resultados para: <strong>"{search}"</strong></p>
-              </div>
-              <Products products={products} />
-              {loading && (
-                <div className="admin-loading py-5">
-                   <div className="spinner-border text-success" role="status"></div>
-                   <p className="mt-2">Buscando...</p>
-                </div>
-              )}
-              
-              {hasMore && !loading && products.length > 0 && (
-                <div className="load-more-container mt-4 text-center">
-                  <Button variant="outline-success" className="premium-load-btn" onClick={loadMore}>
-                    Cargar más resultados
-                  </Button>
-                </div>
-              )}
-
-              {!loading && products.length === 0 && (
-                <div className="no-results-home text-center py-5">
-                   <p>No encontramos productos que coincidan con <strong>"{search}"</strong>.</p>
-                   <p className="hint">Probá con términos más generales.</p>
-                </div>
-              )}
-            </section>
-          ) : (
-            <section className="search-placeholder-home text-center py-5" data-aos="fade-up">
-              <div className="placeholder-icon">🔎</div>
-              <p>Escribí arriba para empezar a buscar tus productos favoritos</p>
-            </section>
-          )}
-        </div>
-      </main>
-
-      {/* carrusel de marcas */}
-      <section className="feature-showcase py-5 bg-light">
-        <Container>
-          <CategoriesCarousel />
-        </Container>
-      </section>
-
-      {/* Productos destacados */}
-      <section className="categories" style={{ perspective: "1500px" }}>
-        <h3 className="section-title">Algunos de nuestros productos</h3>
-        <div className="category-grid">
-          {featuredProducts.slice(0, 5).map((product, index) => (
-            <Link to={`/product/${product._id}`} key={product._id} className="premium-category-link">
-              <motion.div 
-                className="category-card"
-                whileHover={{ scale: 1.05, rotateX: 8, rotateY: -8, z: 20 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <div className="category-image-wrapper">
-                  <img
-                    src={getImageUrl(product.imageUrl, 500)}
-                    alt={product.title}
-                    className="category-image"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className="category-overlay">
-                    <span className="category-badge">Ver producto ➔</span>
-                  </div>
-                </div>
-                <div className="category-title">{product.title}</div>
-              </motion.div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="see-all-button-container">
-          <Link to="/shop" className="see-all-button">
-            Ver todos
-          </Link>
-        </div>
-      </section>
-
-      <footer className="footer">
-        <div className="footer-container">
-          <div className="footer-logo-container">
-            <div className="footer-logo-text">
-              <div className="logo-line-1">RubioHnos</div>
-              <div className="logo-line-2">-Tienda Natural-</div>
-            </div>
-          </div>
-          <div className="footer-info">
-            <h3 className="footer-title">RubioHnos © 2025</h3>
-            <p className="footer-text">
-              Somos una tienda dedicada a la venta de productos naturales y
-              saludables. Nuestro objetivo es ofrecer lo mejor para su
-              bienestar.
-            </p>
-          </div>
-          <div className="footer-socials">
+          <div className="home-cta">
+            <Link to="/contact" className="btn-ghost">Conocenos</Link>
             <a
-              href="https://www.instagram.com/rubio.hnos?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              href="https://www.instagram.com/rubio.hnos"
               target="_blank"
               rel="noopener noreferrer"
+              className="btn-brand"
             >
-              <FaInstagram />
+              <FaInstagram /> Seguinos
             </a>
           </div>
         </div>
-        <div className="footer-bottom">
-          <div className="footer-links">
-            <a href="#">Términos</a>
-            <a href="#">Privacidad</a>
-            <a href="#">Contacto</a>
+      </section>
+
+      {/* ---------- Pie ---------- */}
+      <footer className="home-footer">
+        <div className="home-footer-inner">
+          <div>
+            <div className="home-footer-brand">Rubio Hnos</div>
+            <p>Productos naturales y saludables, seleccionados para tu bienestar.</p>
+          </div>
+          <nav className="home-footer-links" aria-label="Pie de página">
+            <Link to="/shop">Tienda</Link>
+            <Link to="/myOrders">Mis pedidos</Link>
+            <Link to="/favorites">Favoritos</Link>
+            <Link to="/contact">Contacto</Link>
+          </nav>
+          <div className="home-footer-social">
+            <a href="https://www.instagram.com/rubio.hnos" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <FaInstagram />
+            </a>
+            <button onClick={() => setShowWhatsApp(true)} aria-label="WhatsApp">
+              <FaWhatsapp />
+            </button>
           </div>
         </div>
+        <p className="home-footer-copy">Rubio Hnos © {new Date().getFullYear()}</p>
       </footer>
 
-      {/* BOTÓN WHATSAPP */}
-<div className="whatsapp-button" onClick={() => setShowWhatsAppModal(true)}>
-  <img
-    src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-    alt="WhatsApp"
-  />
-</div>
-{/* MODAL CONTACTOS WHATSAPP */}
-<Modal
-  show={showWhatsAppModal}
-  onHide={() => setShowWhatsAppModal(false)}
-  centered
->
-  <Modal.Header closeButton>
-    <Modal.Title>Contactos para WhatsApp</Modal.Title>
-  </Modal.Header>
+      {/* Botón WhatsApp */}
+      <button className="whatsapp-button" onClick={() => setShowWhatsApp(true)} aria-label="Escribinos por WhatsApp">
+        <FaWhatsapp />
+      </button>
 
-  <Modal.Body>
-    {contacts.map((c) => (
-      <div key={c.phone} className="wa-contact">
-        <img src={c.image} alt={c.name} />
-        <span>{c.name}</span>
-        <Button variant="success" onClick={() => openWhatsApp(c.phone)}>
-          Contactar
-        </Button>
-      </div>
-    ))}
-  </Modal.Body>
+      <Modal show={showWhatsApp} onHide={() => setShowWhatsApp(false)} centered contentClassName="wa-modal">
+        <Modal.Body>
+          <h3 className="wa-title">¿Con quién querés hablar?</h3>
+          <p className="wa-sub">Te respondemos por WhatsApp 💬</p>
+          {CONTACTS.map((c) => (
+            <a
+              key={c.phone}
+              className="wa-contact"
+              href={`https://wa.me/${c.phone}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="wa-avatar">{c.name[0]}</span>
+              <span className="wa-name">{c.name}</span>
+              <span className="wa-go"><FaWhatsapp /> Escribir</span>
+            </a>
+          ))}
+          <button className="btn-ghost wa-close" onClick={() => setShowWhatsApp(false)}>Cerrar</button>
+        </Modal.Body>
+      </Modal>
 
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowWhatsAppModal(false)}>
-      Cerrar
-    </Button>
-  </Modal.Footer>
-</Modal>
-
+      <ProductModal product={selected} onHide={() => setSelected(null)} />
+      <CartBar />
     </div>
   );
 }

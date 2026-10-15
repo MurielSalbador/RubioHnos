@@ -11,6 +11,7 @@ import "./MarcaPage.css";
 // Reutilizamos los elegantes estilos de grid y modal del catálogo
 import "../../cart/Cart/ProductList.css";
 import "../../cart/Cart/SkeletonCard.css";
+import CartBar from "../../cart/Cart/CartBar.jsx";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
@@ -40,7 +41,13 @@ export default function MarcaPage() {
   } else if (error) {
     content = <p className="marca-status error">{error.message}</p>;
   } else if (products.length === 0) {
-    content = <p className="marca-status">No hay productos disponibles para esta marca.</p>;
+    content = (
+      <div className="marca-status">
+        <div style={{ fontSize: "3rem" }}>🫙</div>
+        <p>Por ahora no hay productos de esta marca.</p>
+        <button className="btn-leaf" onClick={() => navigate("/shop")}>Ver otros productos</button>
+      </div>
+    );
   } else {
     content = (
       <div className="modern-product-grid">
@@ -59,8 +66,12 @@ export default function MarcaPage() {
           ← Volver
         </button>
 
-        <div className="marca-product-title">
-          <h2>Explorá productos de: <span>{slug}</span></h2>
+        <div className="marca-hero">
+          <span className="marca-eyebrow">Marca</span>
+          <h1>{slug.toUpperCase()}</h1>
+          {!isLoading && !error && (
+            <p>{products.length === 1 ? "1 producto" : `${products.length} productos`}</p>
+          )}
         </div>
 
         {content}
@@ -69,26 +80,13 @@ export default function MarcaPage() {
           product={selectedProduct}
           onHide={() => setSelectedProduct(null)}
           footer={
-            <button
-              onClick={() => navigate("/shop")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#2a9d8f",
-                fontWeight: "800",
-                marginTop: "1.5rem",
-                display: "block",
-                width: "100%",
-                textAlign: "center",
-                cursor: "pointer",
-                fontSize: "1rem",
-              }}
-            >
-              Ir a la Tienda ➔
+            <button className="marca-go-shop" onClick={() => navigate("/shop")}>
+              Ver toda la tienda ➔
             </button>
           }
         />
       </div>
+      <CartBar />
     </>
   );
 }

@@ -1,9 +1,10 @@
-import { getImageUrl } from "../../../../utils/image.js";
+import { Link } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
-import { useCart } from "../../../../store.js";
 import { toast } from "react-toastify";
-import { useQueryClient } from "@tanstack/react-query";
-import { FaPlus, FaMinus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaMinus, FaTrashAlt, FaArrowRight, FaTruck } from "react-icons/fa";
+import { useCart } from "../../../../store.js";
+import { getImageUrl } from "../../../../utils/image.js";
+import { formatPrice } from "./useProductCartState.js";
 import "./Cart.css";
 
 export default function Cart() {
@@ -17,83 +18,91 @@ export default function Cart() {
   );
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  const queryClient = useQueryClient();
+  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   if (cart.length === 0) {
     return (
-      <div className="empty-cart-msg">
-        <p>Tu carrito está vacío. ¡Empezá a buscar algo rico!</p>
+      <div className="cart-empty">
+        <div className="cart-empty-icon">🧺</div>
+        <h2>Tu carrito está vacío</h2>
+        <p>¡Empezá a buscar algo rico! Tenemos granolas, snacks, infusiones y mucho más.</p>
+        <Link to="/shop" className="btn-leaf">
+          Ir a la tienda <FaArrowRight />
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="cart-container">
-      <ul className="cart-list-premium">
+    <div className="cart-layout">
+      <ul className="cart-items">
         {cart.map((item) => (
-          <li key={item._id} className="cart-item-modern">
-            <div className="cart-item-image">
-              <img src={getImageUrl(item.imageUrl, 160)} alt={item.title} loading="lazy" />
+          <li key={item._id} className="cart-row">
+            <img
+              className="cart-row-img"
+              src={getImageUrl(item.imageUrl, 200)}
+              alt={item.title}
+              loading="lazy"
+            />
+
+            <div className="cart-row-info">
+              {item.brand && <span className="cart-row-brand">{item.brand}</span>}
+              <span className="cart-row-title" title={item.title}>{item.title}</span>
+              <span className="cart-row-unit">{formatPrice(item.price)} c/u</span>
             </div>
 
-            <div className="cart-item-info">
-              <span className="cart-item-name" title={item.title}>
-                {item.title}
-              </span>
-              <span className="cart-item-price-unit">
-                ${item.price.toFixed(2)} x unidad
-              </span>
-            </div>
-
-            <div className="cart-actions-right">
-              <div className="cart-qty-controls">
+            <div className="cart-row-actions">
+              <span className="cart-row-total">{formatPrice(item.price * item.quantity)}</span>
+              <div className="cart-row-controls">
+                <div className="pc-qty">
+                  <button aria-label="Quitar uno" onClick={() => removeCart(item._id)}>
+                    <FaMinus size={10} />
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    aria-label="Agregar uno"
+                    onClick={() => {
+                      if (item.quantity < item.stock) addCart(item);
+                      else toast.info("¡Llegaste al límite de stock!");
+                    }}
+                  >
+                    <FaPlus size={10} />
+                  </button>
+                </div>
                 <button
-                  className="cart-qty-btn"
-                  onClick={() => removeCart(item._id)}
+                  className="cart-row-remove"
+                  aria-label={`Eliminar ${item.title}`}
+                  onClick={() => removeAllFromCart(item._id)}
                 >
-                  {item.quantity === 1 ? <FaTrash size={10} /> : <FaMinus size={10} />}
+                  <FaTrashAlt />
                 </button>
-
-                <span className="cart-qty-num">{item.quantity}</span>
-
-                <button
-                  className="cart-qty-btn"
-                  onClick={() => {
-                    if (item.quantity < item.stock) {
-                      addCart(item);
-                    } else {
-                      toast.info("¡Llegaste al límite de stock!");
-                    }
-                  }}
-                >
-                  <FaPlus size={10} />
-                </button>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span className="cart-item-total-price">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
               </div>
             </div>
           </li>
         ))}
       </ul>
 
-      <div className="cart-summary-premium">
-        <div className="summary-row">
-          <span className="summary-label">Total de productos:</span>
-          <span className="summary-value">{totalItems}</span>
+      <aside className="cart-summary">
+        <h2>Resumen</h2>
+        <div className="cart-summary-row">
+          <span>Productos ({totalItems})</span>
+          <span>{formatPrice(totalPrice)}</span>
         </div>
-        <div className="summary-row total-row">
-          <span className="total-label">Total a pagar:</span>
-          <span className="total-value-premium">${totalPrice.toFixed(2)}</span>
+        <div className="cart-summary-row muted">
+          <span><FaTruck /> Envío</span>
+          <span>Se calcula al elegir la localidad</span>
         </div>
-      </div>
+        <div className="cart-summary-total">
+          <span>Subtotal</span>
+          <span>{formatPrice(totalPrice)}</span>
+        </div>
+        <Link to="/finish" className="btn-leaf cart-summary-cta">
+          Finalizar compra <FaArrowRight />
+        </Link>
+        <Link to="/shop" className="cart-summary-link">
+          Seguir comprando
+        </Link>
+      </aside>
     </div>
   );
 }
