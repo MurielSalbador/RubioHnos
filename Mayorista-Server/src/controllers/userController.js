@@ -23,21 +23,13 @@ export const updateUserRole = async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
+    // Antes también se cambiaba el email (ej. juan@gmail.com -> juan@admin.com),
+    // con lo que la persona ya no podía iniciar sesión ni ver sus pedidos.
     user.role = role;
-
-    // Modificar el dominio del email según el rol
-    const usernameOnly = user.email.split("@")[0];
-    if (role === "user") {
-      user.email = `${usernameOnly}@gmail.com`;
-    } else if (role === "admin") {
-      user.email = `${usernameOnly}@admin.com`;
-    } else if (role === "superAdmin") {
-      user.email = `${usernameOnly}@superadmin.com`;
-    }
-
     await user.save();
 
-    res.json({ message: "Rol y email actualizados", user });
+    const { password, ...safeUser } = user.toObject();
+    res.json({ message: "Rol actualizado", user: safeUser });
   } catch (err) {
     res.status(500).json({ error: "Error al actualizar el rol" });
   }
@@ -63,6 +55,9 @@ export const toggleBlockUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
+    if (String(id) === String(req.user?.id)) {
+      return res.status(400).json({ error: "No podés eliminar tu propio usuario" });
+    }
     const user = await User.findByIdAndDelete(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 

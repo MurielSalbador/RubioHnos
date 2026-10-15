@@ -10,7 +10,6 @@ import { payDebt, deleteExpense } from "../controllers/expense.controller.js";
 
 
 const router = Router();
-console.log("🔥 expense.routes.js cargado");
 
 
 // GET /api/expenses

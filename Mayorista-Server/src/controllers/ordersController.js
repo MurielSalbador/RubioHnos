@@ -1,14 +1,23 @@
 import mongoose from "mongoose";
+
+// Mismos costos de envío que muestra la tienda (FinishCart.jsx)
+const SHIPPING_COSTS = {
+  Rosario: 2500,
+  Alvarez: 1000,
+  Piñero: 0,
+  Soldini: 2500,
+  "Pueblo Muñoz": 2500,
+};
 import Order from "../mongoModels/orders.mongo.js";
 import Product from "../mongoModels/products.mongo.js";
 
 // 📌 Crear pedido y descontar stock
 export const createOrder = async (req, res) => {
   try {
-    const { name, city, address, items, total } = req.body;
+    const { name, city, address, items } = req.body;
     const userEmail = req.user.email;
 
-    if (!name || !city || !address || !items || items.length === 0 || !total) {
+    if (!name || !city || !address || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: "Faltan datos del pedido o el carrito está vacío" });
     }
 
@@ -16,6 +25,7 @@ export const createOrder = async (req, res) => {
     // Si un producto no tiene stock suficiente, devolvemos lo que ya se
     // descontó de los demás (antes ese stock se perdía) y avisamos cuál falló.
     const applied = [];
+    const orderItems = [];
     const rollback = () =>
       Promise.all(
         applied.map(({ id, qty }) => Product.updateOne({ _id: id }, { $inc: { stock: qty } }))
@@ -44,7 +54,22 @@ export const createOrder = async (req, res) => {
         });
       }
       applied.push({ id: _id, qty });
+      // Guardamos nombre y precio reales del producto: antes solo se guardaba
+      // el id y en "Pedidos" aparecía "undefined × 2 — $NaN"
+      orderItems.push({
+        _id: updated._id,
+        title: updated.title,
+        brand: updated.brand,
+        price: updated.price,
+        imageUrl: updated.imageUrl,
+        quantity: qty,
+      });
     }
+
+    // El total se calcula con los precios de la base, no con lo que manda el navegador
+    const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shippingCost = SHIPPING_COSTS[city] ?? 0;
+    const finalTotal = subtotal + shippingCost;
 
     // Crear pedido
     let newOrder;
@@ -53,8 +78,9 @@ export const createOrder = async (req, res) => {
       name,
       city,
       address,
-      items,
-      total,
+      items: orderItems,
+      total: finalTotal.toFixed(2),
+      shippingCost: shippingCost.toFixed(2),
       email: userEmail,
       date: new Date().toISOString(),
       status: "Pendiente", // valor inicial

@@ -4,31 +4,36 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 
+import { getJwtSecret } from "../middlewares/authMiddleware.js";
+
 dotenv.config();
+
+const escapeRegex = (text = "") => String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// El token de recuperación incluye parte del hash actual de la contraseña:
+// así el enlace deja de servir apenas se usa (antes se podía reutilizar
+// durante 1 hora) y no puede confundirse con un token de sesión.
+const passwordFingerprint = (user) => String(user.password).slice(-12);
 
 // Enviar email de recuperación
 export const sendResetEmail = async (req, res) => {
-  const { email } = req.body;
+  const email = String(req.body?.email || "").trim();
 
   try {
-    console.log("[sendResetEmail] Recibido email:", email);
+    if (!email) return res.status(400).json({ error: "Ingresá tu email." });
 
-    const user = await User.findOne({ email }); // Mongoose no usa .where
+    const user = await User.findOne({ email: new RegExp(`^${escapeRegex(email)}$`, "i") });
     if (!user) {
-      console.log("[sendResetEmail] Usuario no encontrado.");
       return res.status(200).json({ message: "Si el correo está registrado, te enviamos un enlace." });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "rubio2025", { expiresIn: "1h" });
-    console.log("[sendResetEmail] Token generado:", token);
+    const token = jwt.sign(
+      { id: user._id, purpose: "reset", fp: passwordFingerprint(user) },
+      getJwtSecret(),
+      { expiresIn: "1h" }
+    );
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
-    console.log("[sendResetEmail] Enlace de reset:", resetLink);
-
-
-    console.log("MAIL_USER:", process.env.MAIL_USER);
-console.log("MAIL_PASS:", process.env.MAIL_PASS ? "OK" : "MISSING");
-console.log("CLIENT_URL:", process.env.CLIENT_URL);
 
 
     const transporter = nodemailer.createTransport({
@@ -41,7 +46,7 @@ console.log("CLIENT_URL:", process.env.CLIENT_URL);
 
     const mailOptions = {
       from: process.env.MAIL_USER,
-      to: email,
+      to: user.email,
       subject: "Restablecer contraseña",
       html: `
         <p>Hola ${user.username},</p>
@@ -72,12 +77,19 @@ console.log("CLIENT_URL:", process.env.CLIENT_URL);
 export const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "rubio2025");
+  if (!newPassword || String(newPassword).length < 6) {
+    return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres." });
+  }
 
-    const user = await User.findById(decoded.id); 
-    if (!user) {
-      return res.status(400).json({ error: "Usuario no encontrado." });
+  try {
+    const decoded = jwt.verify(token, getJwtSecret());
+    if (decoded.purpose !== "reset") {
+      return res.status(400).json({ error: "Token inválido o expirado." });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user || decoded.fp !== passwordFingerprint(user)) {
+      return res.status(400).json({ error: "Este enlace ya fue usado o venció. Pedí uno nuevo." });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

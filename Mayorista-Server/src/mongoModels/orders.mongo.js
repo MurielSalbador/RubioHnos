@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema({
   date: { type: String, required: true },
   items: { type: Array, required: true }, // puede ser más detallado si querés validar la estructura
   total: { type: String, required: true },
+  shippingCost: { type: String, default: "0.00" },
   email: { type: String, required: true },
   status: {
     type: String,
@@ -14,6 +15,8 @@ const orderSchema = new mongoose.Schema({
     default: "Pendiente",
   },
 });
+
+orderSchema.index({ email: 1, date: -1 });
 
 const Order = mongoose.model("Order", orderSchema);
 export default Order;
