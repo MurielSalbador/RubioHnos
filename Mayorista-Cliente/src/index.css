@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* =========================================================
    Sistema de diseño Rubio Hnos
-   Colores cálidos y naturales: cacao, miel, hoja y crema.
+   Colores cálidos y naturales: cacao, almendra, miel y crema.
+   (las variables --leaf* se llaman así por historia: hoy son color almendra,
+   el mismo tono del logo)
    ========================================================= */
 :root {
   /* Marca */
@@ -13,9 +15,9 @@
   --cacao-100: #f3e6d4;
   --honey: #f4b740;
   --honey-soft: #fff4d9;
-  --leaf: #2f7d4f;
-  --leaf-dark: #24653f;
-  --leaf-soft: #e5f3ea;
+  --leaf: #b5612a;
+  --leaf-dark: #8e4719;
+  --leaf-soft: #fbecdf;
   --berry: #e0496b;
   --danger: #d64545;
 
@@ -37,7 +39,7 @@
   --shadow-lg: 0 20px 50px rgba(74, 42, 18, 0.16);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 
   /* Alto de la barra inferior en celulares */
@@ -75,7 +77,8 @@ body {
 
 h1, h2, .display-font {
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   color: var(--cacao-800);
 }
 
@@ -110,7 +113,7 @@ h1, h2, .display-font {
 .btn-brand { background: var(--cacao-700); color: #fff; box-shadow: 0 6px 16px rgba(90, 52, 18, 0.25); }
 .btn-brand:hover { background: var(--cacao-800); color: #fff; transform: translateY(-2px); }
 
-.btn-leaf { background: var(--leaf); color: #fff; box-shadow: 0 6px 16px rgba(47, 125, 79, 0.28); }
+.btn-leaf { background: var(--leaf); color: #fff; box-shadow: 0 6px 16px rgba(181, 97, 42, 0.28); }
 .btn-leaf:hover { background: var(--leaf-dark); color: #fff; transform: translateY(-2px); }
 
 .btn-ghost { background: var(--surface); color: var(--cacao-700); border: 1.5px solid var(--line); }

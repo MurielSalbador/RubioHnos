@@ -309,7 +309,7 @@ function ProductForm({ productId, initialProduct, onSuccess, onCancel }) {
                         }))
                       }
                     >
-                      {t.emoji} {t.name}
+                      {t.name}
                     </button>
                   );
                 })}

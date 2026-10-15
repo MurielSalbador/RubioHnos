@@ -126,7 +126,7 @@
 .selected {
   border-color: var(--leaf) !important;
   background: var(--leaf-soft) !important;
-  box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.12);
+  box-shadow: 0 0 0 3px rgba(181, 97, 42, 0.12);
 }
 
 .contacts { display: flex; gap: 10px; flex-wrap: wrap; }

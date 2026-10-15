@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Modal } from "react-bootstrap";
@@ -15,9 +15,11 @@ import BrandsMarquee from "./categoriesCarousel/CategoriesCarousel.jsx";
 import { getAllProducts } from "../../../api/fakeStoreApi.js";
 import { getCategories } from "../../../api/categoriesApi.js";
 import { PRODUCT_TAGS } from "../../../utils/productTags.js";
+import { prettyName } from "../../../utils/text.js";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import Barrita from "../../../assets/img/barritaCereal.webp";
-import HomePhoto from "../../../assets/background/backgroundHome.webp";
+import GranolaCut from "../../../assets/background/granolaCut.webp";
 
 import "../cart/Cart/ProductList.css";
 import "../cart/Cart/SkeletonCard.css";
@@ -30,7 +32,6 @@ const CONTACTS = [
   { name: "Nacho", phone: "5493413916661" },
 ];
 
-const CATEGORY_EMOJIS = ["🥣", "🍯", "🌾", "🍵", "🥜", "🍫", "🧉", "🍪", "🥗", "🍎"];
 
 function getUserName() {
   try {
@@ -45,6 +46,7 @@ export default function Home() {
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [selected, setSelected] = useState(null);
   const handleOpen = useCallback((p) => setSelected(p), []);
+  const catsRef = useRef(null);
 
   const { data: featured, isLoading: loadingFeatured } = useQuery({
     queryKey: ["products", "featured"],
@@ -112,9 +114,9 @@ export default function Home() {
               height="520"
               fetchPriority="high"
             />
-            <span className="home-sticker s1">🌾 Sin TACC</span>
-            <span className="home-sticker s2">🍯 Miel pura</span>
-            <span className="home-sticker s3">🥜 Frutos secos</span>
+            <span className="home-sticker s1">Sin TACC</span>
+            <span className="home-sticker s2">Miel pura</span>
+            <span className="home-sticker s3">Frutos secos</span>
           </div>
         </div>
       </section>
@@ -152,7 +154,6 @@ export default function Home() {
         <div className="home-tags">
           {PRODUCT_TAGS.map((t) => (
             <Link key={t.name} to={`/shop?etiqueta=${encodeURIComponent(t.name)}`} className="home-tag">
-              <span className="home-tag-emoji">{t.emoji}</span>
               {t.name}
             </Link>
           ))}
@@ -166,18 +167,24 @@ export default function Home() {
             <h2>Explorá por categoría</h2>
             <Link to="/shop" className="home-see-all">Ver todo <FaArrowRight /></Link>
           </div>
-          <div className="home-cats">
-            {categories.slice(0, 10).map((cat, i) => (
+          <div className="home-cats-wrap">
+          <button className="home-cats-arrow left" aria-label="Anteriores" onClick={() => catsRef.current?.scrollBy({ left: -320, behavior: "smooth" })}>
+            <FaChevronLeft />
+          </button>
+          <div className="home-cats" ref={catsRef}>
+            {categories.map((cat) => (
               <Link
                 key={cat._id}
                 to={`/shop?categoria=${encodeURIComponent(cat.nombre)}`}
                 className="home-cat"
-                style={{ "--i": i }}
               >
-                <span className="home-cat-emoji">{CATEGORY_EMOJIS[i % CATEGORY_EMOJIS.length]}</span>
-                <span>{cat.nombre}</span>
+                {prettyName(cat.nombre)}
               </Link>
             ))}
+          </div>
+          <button className="home-cats-arrow right" aria-label="Siguientes" onClick={() => catsRef.current?.scrollBy({ left: 320, behavior: "smooth" })}>
+            <FaChevronRight />
+          </button>
           </div>
         </section>
       )}
@@ -214,8 +221,9 @@ export default function Home() {
 
       {/* ---------- Sobre nosotros ---------- */}
       <section className="home-about">
-        <div className="home-about-photo">
-          <img src={HomePhoto} alt="Granola con frutillas y frutos secos" loading="lazy" width="1000" height="796" />
+        <div className="home-about-art">
+          <div className="home-about-blob" />
+          <img src={GranolaCut} alt="Granola con frutillas y frutos secos" loading="lazy" width="900" height="667" />
         </div>
         <div className="home-about-text">
           <span className="home-eyebrow">Sobre nosotros</span>

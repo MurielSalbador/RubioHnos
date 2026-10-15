@@ -33,13 +33,13 @@ function ProductCard({ product, onOpen, index = 0 }) {
         {imageUrl ? (
           <img loading="lazy" decoding="async" src={imageUrl} alt={product.title} width="400" height="400" />
         ) : (
-          <div className="pc-placeholder">🌾</div>
+          <div className="pc-placeholder">Sin foto</div>
         )}
 
         {Array.isArray(product.tags) && product.tags.length > 0 && (
           <div className="pc-tags">
             {product.tags.slice(0, 2).map((t) => (
-              <span key={t} title={t}>{tagInfo(t).emoji} {tagInfo(t).short}</span>
+              <span key={t} title={t}>{tagInfo(t).short}</span>
             ))}
           </div>
         )}

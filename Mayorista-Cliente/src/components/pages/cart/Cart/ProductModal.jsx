@@ -4,7 +4,7 @@ import { FaHeart, FaRegHeart, FaPlus, FaMinus, FaTimes, FaShoppingBasket } from 
 import { toast } from "react-toastify";
 import { getImageUrl } from "../../../../utils/image.js";
 import { useProductCartState, formatPrice } from "./useProductCartState.js";
-import { tagInfo } from "../../../../utils/productTags.js";
+import { prettyName } from "../../../../utils/text.js";
 import "./ProductCard.css";
 
 function ProductModalBody({ product, footer, onHide }) {
@@ -39,7 +39,7 @@ function ProductModalBody({ product, footer, onHide }) {
         {Array.isArray(product.tags) && product.tags.length > 0 && (
           <div className="pm-tags">
             {product.tags.map((t) => (
-              <span key={t}>{tagInfo(t).emoji} {t}</span>
+              <span key={t}>{t}</span>
             ))}
           </div>
         )}
@@ -47,7 +47,7 @@ function ProductModalBody({ product, footer, onHide }) {
         {categories.length > 0 && (
           <div className="pm-cats">
             {categories.map((c) => (
-              <span key={c._id}>{c.nombre}</span>
+              <span key={c._id}>{prettyName(c.nombre)}</span>
             ))}
           </div>
         )}

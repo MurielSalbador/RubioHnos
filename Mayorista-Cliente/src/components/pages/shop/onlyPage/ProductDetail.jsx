@@ -6,9 +6,9 @@ import { getProductById } from "../../../../api/fakeStoreApi.js";
 import Header from "../../../header/Header.jsx";
 import { getImageUrl } from "../../../../utils/image.js";
 import { useProductCartState, formatPrice } from "../../cart/Cart/useProductCartState.js";
-import { tagInfo } from "../../../../utils/productTags.js";
 import "../../cart/Cart/ProductCard.css";
 import "./ProductDetail.css";
+import { prettyName } from "../../../../utils/text.js";
 
 function DetailBody({ product }) {
   // Antes se restaba el stock "a mano" en la página y quedaba mal
@@ -44,14 +44,14 @@ function DetailBody({ product }) {
         {Array.isArray(product.tags) && product.tags.length > 0 && (
           <div className="pm-tags">
             {product.tags.map((t) => (
-              <Link key={t} to={`/shop?etiqueta=${encodeURIComponent(t)}`}>{tagInfo(t).emoji} {t}</Link>
+              <Link key={t} to={`/shop?etiqueta=${encodeURIComponent(t)}`}>{t}</Link>
             ))}
           </div>
         )}
 
         {categories.length > 0 && (
           <div className="pm-cats">
-            {categories.map((c) => <span key={c._id}>{c.nombre}</span>)}
+            {categories.map((c) => <span key={c._id}>{prettyName(c.nombre)}</span>)}
           </div>
         )}
 

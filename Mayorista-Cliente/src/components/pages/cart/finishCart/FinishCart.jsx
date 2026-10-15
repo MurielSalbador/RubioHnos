@@ -114,7 +114,7 @@ const FinishCart = () => {
         showCancelButton: true,
         confirmButtonText: "Iniciar sesión",
         cancelButtonText: "Cancelar",
-        confirmButtonColor: "#2f7d4f",
+        confirmButtonColor: "#b5612a",
       });
       if (result.isConfirmed) {
         localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));

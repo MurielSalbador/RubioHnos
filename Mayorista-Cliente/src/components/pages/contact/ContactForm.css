@@ -16,12 +16,31 @@
 .contact-hero p { color: var(--muted); font-size: 1.05rem; margin-bottom: 22px; }
 .contact-hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
 
+.contact-hero-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+.contact-hero-blob {
+  position: absolute;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 46% 54% 58% 42% / 45% 40% 60% 55%;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.5) 0, transparent 45%),
+    linear-gradient(145deg, var(--honey), #e9a35d);
+  animation: blobMorph 12s ease-in-out infinite;
+}
+
 .contact-hero-img {
+  position: relative;
   width: 100%;
-  border-radius: 28px;
-  box-shadow: var(--shadow);
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
+  max-width: 520px;
+  height: auto;
+  filter: drop-shadow(0 24px 28px rgba(74, 42, 18, 0.28));
+  animation: floaty 6s ease-in-out infinite;
 }
 
 .contact-cards {
@@ -172,7 +191,7 @@
 
 @media (max-width: 860px) {
   .contact-hero, .contact-main { grid-template-columns: 1fr; }
-  .contact-hero-img { order: -1; }
+  .contact-hero-art { order: -1; min-height: 240px; }
   .contact-cards { grid-template-columns: 1fr; }
 }
 

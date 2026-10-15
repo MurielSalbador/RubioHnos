@@ -4,7 +4,7 @@ import emailjs from "@emailjs/browser";
 import { toast } from "react-toastify";
 import { FaInstagram, FaWhatsapp, FaPaperPlane, FaTruck, FaShoppingBasket, FaMoneyBillWave, FaUsers, FaHandshake, FaAward } from "react-icons/fa";
 import Header from "../../header/Header.jsx";
-import backgroundContact from "../../../assets/background/backgroundContact.webp";
+import MateCut from "../../../assets/background/mateCut.webp";
 import "./ContactForm.css";
 
 const CONTACTS = [
@@ -60,7 +60,10 @@ const ContactForm = () => {
               <Link to="/shop" className="btn-ghost">Ver la tienda</Link>
             </div>
           </div>
-          <img src={backgroundContact} alt="Mate y productos naturales" className="contact-hero-img" />
+          <div className="contact-hero-art">
+            <div className="contact-hero-blob" />
+            <img src={MateCut} alt="Mate y té" className="contact-hero-img" width="900" height="707" />
+          </div>
         </section>
 
         <section className="contact-cards">

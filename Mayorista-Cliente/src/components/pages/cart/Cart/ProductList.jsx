@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useFilters } from "../../../../hooks/useFilters.js";
-import { useInView } from "../../../../hooks/useInView.js";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue.js";
 import { getAllProducts } from "../../../../api/fakeStoreApi.js";
 import SkeletonCard from "./SkeletonCard.jsx";
@@ -16,7 +15,6 @@ const PAGE_SIZE = 24;
 export default function ProductList({ search = "" }) {
   const { filters } = useFilters();
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [sentinelRef, sentinelInView] = useInView();
   // El deslizador de precio cambia muy seguido: esperamos a que se suelte
   const maxPrice = useDebouncedValue(filters.maxPrice, 400);
 
@@ -71,13 +69,6 @@ export default function ProductList({ search = "" }) {
     return result;
   }, [data]);
 
-  // Scroll infinito: cuando el final de la lista se acerca, pedimos la siguiente página
-  useEffect(() => {
-    if (sentinelInView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [sentinelInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
   const handleOpen = useCallback((product) => setSelectedProduct(product), []);
 
   if (isLoading) {
@@ -108,7 +99,7 @@ export default function ProductList({ search = "" }) {
     <div className="product-list-container">
       {typeof totalDocs === "number" && totalDocs > 0 && (
         <p className="products-count-label">
-          Mostrando {products.length} de {totalDocs} productos
+          {totalDocs === 1 ? "1 producto" : `${totalDocs} productos`}
         </p>
       )}
 
@@ -133,13 +124,24 @@ export default function ProductList({ search = "" }) {
           [...Array(4)].map((_, i) => <SkeletonCard key={`next-${i}`} />)}
       </div>
 
-      <div ref={sentinelRef} className="load-more-sentinel" />
-
-      {hasNextPage && !isFetchingNextPage && (
-        <div className="load-more-wrapper">
-          <button className="load-more-btn" onClick={() => fetchNextPage()}>
-            Cargar más productos
-          </button>
+      {/* "Ver más": el cliente decide cuándo cargar más y siempre sabe cuánto falta */}
+      {typeof totalDocs === "number" && products.length > 0 && (
+        <div className="see-more">
+          <p className="see-more-text">
+            Viste {products.length} de {totalDocs} productos
+          </p>
+          <div className="see-more-bar" aria-hidden="true">
+            <span style={{ width: `${Math.min(100, (products.length / totalDocs) * 100)}%` }} />
+          </div>
+          {hasNextPage && (
+            <button
+              className="btn-ghost see-more-btn"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? "Cargando…" : "Ver más productos"}
+            </button>
+          )}
         </div>
       )}
 

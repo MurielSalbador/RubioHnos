@@ -23,7 +23,7 @@ export default function Header() {
     <header className="main-header">
       <div className="header-actions">
         <Link to="/" className="logo-text" aria-label="Rubio Hnos - Inicio">
-          <img src="/icon-192.png" alt="" className="logo-img" width="40" height="40" />
+          <img src="/logo-almendras.png" alt="" className="logo-img" width="40" height="40" />
           <span>
             <span className="logo-line-1">Rubio Hnos</span>
             <span className="logo-line-2">Tienda natural</span>

@@ -14,7 +14,8 @@ import BackToTop from "../../BackToTop/BackToTop.jsx";
 import { useDebouncedValue } from "../../../hooks/useDebouncedValue.js";
 import { getCategories } from "../../../api/categoriesApi.js";
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
-import { PRODUCT_TAGS, tagInfo } from "../../../utils/productTags.js";
+import { PRODUCT_TAGS } from "../../../utils/productTags.js";
+import { prettyName } from "../../../utils/text.js";
 
 import "./Shop.css";
 
@@ -132,7 +133,7 @@ const ShopContent = () => {
               onClick={() => toggleTag(t.name)}
               aria-pressed={selectedTags.includes(t.name)}
             >
-              <span>{t.emoji}</span> {t.name}
+              {t.name}
             </button>
           ))}
         </div>
@@ -144,7 +145,7 @@ const ShopContent = () => {
               className={`shop-cat ${selectedCategories.length === 0 ? "active" : ""}`}
               onClick={() => setFilters((prev) => ({ ...prev, category: [] }))}
             >
-              ✨ Todo
+              Todo
             </button>
             {categories.map((cat) => (
               <button
@@ -152,7 +153,7 @@ const ShopContent = () => {
                 className={`shop-cat ${selectedCategories.includes(cat.nombre) ? "active" : ""}`}
                 onClick={() => toggleCategory(cat.nombre)}
               >
-                {cat.nombre}
+                {prettyName(cat.nombre)}
               </button>
             ))}
           </div>
@@ -199,10 +200,10 @@ const ShopContent = () => {
                   <button onClick={() => setSearch("")}>“{debouncedSearch}” <FaTimes /></button>
                 )}
                 {selectedTags.map((t) => (
-                  <button key={`t-${t}`} onClick={() => removeFrom("tags", t)}>{tagInfo(t).emoji} {t} <FaTimes /></button>
+                  <button key={`t-${t}`} onClick={() => removeFrom("tags", t)}>{t} <FaTimes /></button>
                 ))}
                 {selectedCategories.map((c) => (
-                  <button key={`c-${c}`} onClick={() => removeFrom("category", c)}>{c} <FaTimes /></button>
+                  <button key={`c-${c}`} onClick={() => removeFrom("category", c)}>{prettyName(c)} <FaTimes /></button>
                 ))}
                 {selectedBrands.map((b) => (
                   <button key={`b-${b}`} onClick={() => removeFrom("brand", b)}>{b} <FaTimes /></button>

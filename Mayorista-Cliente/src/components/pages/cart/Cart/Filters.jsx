@@ -5,6 +5,7 @@ import { getCategories } from "../../../../api/categoriesApi.js";
 import { getBrands } from "../../../../api/brandsApi.js";
 import { FaTimes, FaChevronDown } from "react-icons/fa";
 import { PRODUCT_TAGS } from "../../../../utils/productTags.js";
+import { prettyName } from "../../../../utils/text.js";
 import "./Filters.css";
 
 const MAX_PRICE = 400000;
@@ -79,7 +80,7 @@ export default function Filters({ onClose, isMobile = false }) {
                   onChange={() => toggle("tags", t.name)}
                 />
                 <span className="checkbox-custom"></span>
-                {t.emoji} {t.name}
+                {t.name}
               </label>
             ))}
           </div>
@@ -95,7 +96,7 @@ export default function Filters({ onClose, isMobile = false }) {
                   onChange={() => toggle("category", category.nombre)}
                 />
                 <span className="checkbox-custom"></span>
-                {category.nombre}
+                {prettyName(category.nombre)}
               </label>
             ))}
           </div>
