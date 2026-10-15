@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { FaArrowLeft, FaLeaf, FaTruck, FaHeart } from "react-icons/fa";
-import Barrita from "../../../assets/img/barritaCereal.webp";
-import GranolaCut from "../../../assets/background/granolaCut.webp";
-import MateCut from "../../../assets/background/mateCut.webp";
 import "./auth.css";
 
 const PHRASES = [
@@ -31,9 +28,6 @@ function RotatingPhrase() {
 export default function AuthLayout({ children, showTabs = true }) {
   return (
     <div className="auth-page">
-      <div className="auth-bg-blob b1" />
-      <div className="auth-bg-blob b2" />
-
       <div className="auth-shell">
         {/* Panel de marca */}
         <aside className="auth-brand">
@@ -45,12 +39,10 @@ export default function AuthLayout({ children, showTabs = true }) {
             </span>
           </Link>
 
-          <div className="auth-brand-art" aria-hidden="true">
-            <div className="auth-art-blob" />
-            <img src={Barrita} className="auth-float f1" alt="" />
-            <img src={GranolaCut} className="auth-float f2" alt="" />
-            <img src={MateCut} className="auth-float f3" alt="" />
-          </div>
+          {/* Fondo animado: manchas de luz y el logo grande de marca de agua */}
+          <div className="auth-brand-glow g1" aria-hidden="true" />
+          <div className="auth-brand-glow g2" aria-hidden="true" />
+          <img src="/logo-almendras.png" className="auth-watermark" alt="" aria-hidden="true" />
 
           <div className="auth-brand-text">
             <h2>
@@ -86,6 +78,7 @@ export default function AuthLayout({ children, showTabs = true }) {
           )}
 
           <div className="auth-content">{children}</div>
+          <p className="auth-foot">Rubio Hnos © {new Date().getFullYear()} · Rosario y alrededores</p>
         </main>
       </div>
     </div>
