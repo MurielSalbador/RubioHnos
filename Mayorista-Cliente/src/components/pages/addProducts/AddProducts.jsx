@@ -1,90 +1,118 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import CloseButton from "react-bootstrap/CloseButton";
-import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { FaTrash } from "react-icons/fa";
+import { getCategories } from "../../../api/categoriesApi.js";
+import { getBrands } from "../../../api/brandsApi.js";
+import { compressImage, getImageUrl } from "../../../utils/image.js";
 import "./addProducts.css";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
-function ProductForm({ productId, onSuccess, onCancel }) {
-  const [formData, setFormData] = useState({
-    title: "",
-    brand: "",
-    price: "",
-    stock: "",
-    image: null,
-    available: false,
-    categoryIds: [],
-  });
+const EMPTY_FORM = {
+  title: "",
+  brand: "",
+  price: "",
+  stock: "",
+  image: null,
+  available: false,
+  categoryIds: [],
+};
 
-  const [categorias, setCategorias] = useState([]);
-  const [brands, setBrands] = useState([]);
+function productToForm(productData) {
+  let categoryIds = [];
+  if (Array.isArray(productData.categoryIds)) {
+    categoryIds = productData.categoryIds
+      .filter(Boolean)
+      .map((c) => (typeof c === "object" ? c._id : c));
+  } else if (productData.categoryId) {
+    categoryIds = [typeof productData.categoryId === "object" ? productData.categoryId._id : productData.categoryId];
+  }
+
+  return {
+    title: productData.title ?? "",
+    brand: productData.brand ?? "",
+    price: productData.price != null ? String(productData.price) : "",
+    stock: productData.stock != null ? String(productData.stock) : "",
+    available: Boolean(productData.available),
+    categoryIds,
+    image: null,
+  };
+}
+
+function ProductForm({ productId, initialProduct, onSuccess, onCancel }) {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState(EMPTY_FORM);
   const [newCategory, setNewCategory] = useState("");
   const [newBrand, setNewBrand] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loadingProduct, setLoadingProduct] = useState(false);
+  const [processingImage, setProcessingImage] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Categorías y marcas quedan en cache (compartido con la tienda)
+  const { data: categorias = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+    staleTime: 1000 * 60 * 10,
+  });
+  const { data: brands = [] } = useQuery({
+    queryKey: ["brands"],
+    queryFn: getBrands,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  // Liberamos la memoria de las vistas previas locales
+  useEffect(() => {
+    return () => {
+      if (previewImage?.startsWith("blob:")) URL.revokeObjectURL(previewImage);
+    };
+  }, [previewImage]);
 
   useEffect(() => {
-    // Obtener categorías
-    axios
-      .get(`${API_URL}/api/categories`)
-      .then((res) => setCategorias(res.data))
-      .catch((error) => console.error("Error al obtener categorías:", error));
+    setNewBrand("");
+    setNewCategory("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
 
-    // Obtener marcas existentes
-    axios
-      .get(`${API_URL}/api/products/brands`)
-      .then((res) => setBrands(res.data))
-      .catch((error) => console.error("Error al obtener marcas:", error));
-  }, []);
-
-  useEffect(() => {
-    if (productId) {
-      axios.get(`${API_URL}/api/products/${productId}`).then((res) => {
-        const productData = res.data;
-        let initialCategoryIds = [];
-        
-        if (Array.isArray(productData.categoryIds)) {
-          initialCategoryIds = productData.categoryIds.map(c => typeof c === 'object' ? c._id : c);
-        } else if (productData.categoryId) {
-          initialCategoryIds = [typeof productData.categoryId === 'object' ? productData.categoryId._id : productData.categoryId];
-        }
-
-        setFormData({
-          ...productData,
-          categoryIds: initialCategoryIds,
-          price: productData.price.toString(),
-          stock: productData.stock.toString(),
-          image: null,
-        });
-
-        if (productData.imageUrl) {
-          setPreviewImage(productData.imageUrl.startsWith('http') ? productData.imageUrl : `${API_URL}/${productData.imageUrl}`);
-        }
-      });
-    } else {
+    if (!productId) {
       setPreviewImage(null);
-      setFormData({
-        title: "",
-        brand: "",
-        price: "",
-        stock: "",
-        image: null,
-        available: false,
-        categoryIds: [],
-      });
+      setFormData(EMPTY_FORM);
+      return;
     }
+
+    // Si ya tenemos el producto (desde la lista) lo mostramos al instante
+    if (initialProduct && initialProduct._id === productId) {
+      setFormData(productToForm(initialProduct));
+      setPreviewImage(getImageUrl(initialProduct.imageUrl, 600) || null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingProduct(true);
+    axios
+      .get(`${API_URL}/api/products/${productId}`)
+      .then((res) => {
+        if (cancelled) return;
+        setFormData(productToForm(res.data));
+        setPreviewImage(getImageUrl(res.data.imageUrl, 600) || null);
+      })
+      .catch(() => !cancelled && toast.error("No se pudo cargar el producto"))
+      .finally(() => !cancelled && setLoadingProduct(false));
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
   const handleCategoryToggle = (catId) => {
@@ -114,14 +142,14 @@ function ProductForm({ productId, onSuccess, onCancel }) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      setCategorias(prev => [...prev, res.data]);
+      queryClient.setQueryData(["categories"], (old = []) => [...old, res.data]);
       setFormData(prev => ({
         ...prev,
         categoryIds: [...prev.categoryIds, res.data._id]
       }));
       setNewCategory("");
       toast.success("Categoría creada y seleccionada");
-    } catch (error) {
+    } catch {
       toast.error("Error al crear la categoría");
     } finally {
       setLoading(false);
@@ -138,13 +166,13 @@ function ProductForm({ productId, onSuccess, onCancel }) {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      setCategorias(prev => prev.filter(c => c._id !== catId));
+      queryClient.setQueryData(["categories"], (old = []) => old.filter((c) => c._id !== catId));
       setFormData(prev => ({
         ...prev,
         categoryIds: prev.categoryIds.filter(id => id !== catId)
       }));
       toast.success("Categoría eliminada");
-    } catch (error) {
+    } catch {
       toast.error("Error al eliminar la categoría");
     } finally {
       setLoading(false);
@@ -153,6 +181,7 @@ function ProductForm({ productId, onSuccess, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading || processingImage) return;
     setLoading(true);
 
     const priceParsed = parseFloat(formData.price);
@@ -178,7 +207,7 @@ function ProductForm({ productId, onSuccess, onCancel }) {
     }
 
     const formToSend = new FormData();
-    formToSend.append("title", formData.title);
+    formToSend.append("title", formData.title.trim());
     formToSend.append("brand", brandToUse);
     formToSend.append("price", priceParsed);
     formToSend.append("stock", stockParsed);
@@ -203,28 +232,24 @@ function ProductForm({ productId, onSuccess, onCancel }) {
         },
       };
 
+      let res;
       if (productId) {
-        await axios.put(`${API_URL}/api/products/${productId}`, formToSend, config);
+        res = await axios.put(`${API_URL}/api/products/${productId}`, formToSend, config);
         toast.success("✅ Producto actualizado");
       } else {
-        await axios.post(`${API_URL}/api/products`, formToSend, config);
+        res = await axios.post(`${API_URL}/api/products`, formToSend, config);
         toast.success("✅ Producto agregado");
       }
 
       if (!productId) {
-        setFormData({
-          title: "",
-          brand: "",
-          price: "",
-          stock: "",
-          image: null,
-          available: false,
-          categoryIds: [],
-        });
+        setFormData(EMPTY_FORM);
         setPreviewImage(null);
         setNewBrand("");
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
-      onSuccess?.();
+      // Algunos endpoints devuelven { product } y otros el producto directo
+      const saved = res?.data?.product || res?.data;
+      onSuccess?.(saved && saved._id ? saved : null);
     } catch (error) {
       console.error(error);
       toast.error("❌ Error al guardar el producto");
@@ -236,7 +261,10 @@ function ProductForm({ productId, onSuccess, onCancel }) {
   return (
     <div className="product-admin-form-wrapper">
       <div className="admin-form-header">
-        <h2>{productId ? "Editar Producto" : "Nuevo Producto"}</h2>
+        <h2>
+          {productId ? "Editar Producto" : "Nuevo Producto"}
+          {loadingProduct && <small style={{ fontSize: "0.6em", marginLeft: 10, color: "#888" }}>cargando…</small>}
+        </h2>
       </div>
 
       <form className="premium-admin-form" onSubmit={handleSubmit}>
@@ -358,7 +386,7 @@ function ProductForm({ productId, onSuccess, onCancel }) {
                   placeholder="Otra categoría..."
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNewCategory())}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNewCategory())}
                 />
                 <button type="button" onClick={handleAddNewCategory} className="add-cat-btn">
                   +
@@ -370,19 +398,23 @@ function ProductForm({ productId, onSuccess, onCancel }) {
               <label>Imagen del Producto</label>
               <div className="image-upload-premium">
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                      setFormData({ ...formData, image: file });
-                      setPreviewImage(URL.createObjectURL(file));
-                    }
+                    if (!file) return;
+                    setProcessingImage(true);
+                    // Achicamos la foto antes de subirla: se guarda mucho más rápido
+                    const optimized = await compressImage(file);
+                    setFormData((prev) => ({ ...prev, image: optimized }));
+                    setPreviewImage(URL.createObjectURL(optimized));
+                    setProcessingImage(false);
                   }}
                   id="file-upload"
                 />
                 <label htmlFor="file-upload" className="file-upload-label">
-                  {previewImage ? "Cambiar Imagen" : "Subir Imagen"}
+                  {processingImage ? "Optimizando imagen..." : previewImage ? "Cambiar Imagen" : "Subir Imagen"}
                 </label>
                 {previewImage && (
                   <div className="admin-preview-wrapper">
@@ -406,8 +438,8 @@ function ProductForm({ productId, onSuccess, onCancel }) {
               Volver Atrás / Cancelar
             </button>
           )}
-          <button type="submit" className="admin-submit-btn" style={{ flex: 2 }} disabled={loading}>
-            {loading ? "Procesando..." : productId ? "Actualizar Producto" : "Finalizar y Guardar"}
+          <button type="submit" className="admin-submit-btn" style={{ flex: 2 }} disabled={loading || processingImage || loadingProduct}>
+            {loading ? "Guardando..." : productId ? "Actualizar Producto" : "Finalizar y Guardar"}
           </button>
         </div>
       </form>

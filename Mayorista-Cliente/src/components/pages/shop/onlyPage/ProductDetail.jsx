@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../../../utils/image.js";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProductById } from "../../../../api/fakeStoreApi.js";
@@ -6,7 +7,7 @@ import Header from "../../../header/Header.jsx";
 import "./ProductDetail.css";
 
 import { useCart } from "../../../../store.js";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function ProductDetail() {
@@ -68,7 +69,7 @@ export default function ProductDetail() {
           data-aos-duration="600"
         >
           <div className="centered-product-image-container">
-            <img src={product.imageUrl} alt={product.title} className="centered-product-image"/>
+            <img src={getImageUrl(product.imageUrl, 900)} alt={product.title} className="centered-product-image"/>
           </div>
           
           <div className="centered-product-info-wrapper">
@@ -110,8 +111,6 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Notificaciones de toast */}
-      <ToastContainer />
     </>
   );
 }

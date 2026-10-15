@@ -1,66 +1,81 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import React, { useEffect } from "react";
+import React, { useEffect, lazy as reactLazy, Suspense } from "react";
+
+// Si se publica una versión nueva mientras alguien tiene la página abierta,
+// los archivos viejos ya no existen: recargamos una vez en vez de quedar en blanco.
+const lazy = (factory) =>
+  reactLazy(() =>
+    factory().catch((error) => {
+      const key = "chunk-reload";
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        window.location.reload();
+        return new Promise(() => {});
+      }
+      throw error;
+    })
+  );
 import { checkTokenExpiration } from "./utils/auth";
 
 //pagina principal
 import Home from "./components/pages/Home/Home.jsx";
 
 //login
-import Login from "./components/pages/income/login/Login.jsx";
+const Login = lazy(() => import("./components/pages/income/login/Login.jsx"));
 
 //register
-import Register from "./components/pages/income/register/Register.jsx";
+const Register = lazy(() => import("./components/pages/income/register/Register.jsx"));
 
 //tienda de productos
-import Shop from "./components/pages/shop/Shop.jsx";
+const Shop = lazy(() => import("./components/pages/shop/Shop.jsx"));
 
 //carrito con localstorage para que se guarde lo elegido
-import CartHeader from "./components/pages/cart/cartHeader/CartHeader.jsx";
+const CartHeader = lazy(() => import("./components/pages/cart/cartHeader/CartHeader.jsx"));
 
 //para mandar un email
-import ContactForm from "./components/pages/contact/ContactForm.jsx";
+const ContactForm = lazy(() => import("./components/pages/contact/ContactForm.jsx"));
 
 //esto es para mandar el mensaje
-import FinishCart from "./components/pages/cart/finishCart/FinishCart.jsx";
+const FinishCart = lazy(() => import("./components/pages/cart/finishCart/FinishCart.jsx"));
 
 //crud
-import ProductList from "./components/pages/addProducts/addProductsList.jsx";
+const ProductList = lazy(() => import("./components/pages/addProducts/addProductsList.jsx"));
 
 //protected ProductList
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute.jsx";
 
 //ordenes guardadas
-import MyOrders from "./components/pages/orders/myOrders/MyOrders.jsx";
+const MyOrders = lazy(() => import("./components/pages/orders/myOrders/MyOrders.jsx"));
 
 //mostras pedidos
-import Orders from "./components/pages/orders/OrdersClients/Orders.jsx";
+const Orders = lazy(() => import("./components/pages/orders/OrdersClients/Orders.jsx"));
 
 // nueva página de detalle de producto
-import ProductDetail from "./components/pages/shop/onlyPage/ProductDetail.jsx";
+const ProductDetail = lazy(() => import("./components/pages/shop/onlyPage/ProductDetail.jsx"));
 
 //user management
-import UserManagement from "./components/pages/userManagement/UserManagement.jsx";
+const UserManagement = lazy(() => import("./components/pages/userManagement/UserManagement.jsx"));
 
 //not found
-import NotFound from "./components/pages/notFound/NotFound.jsx";
+const NotFound = lazy(() => import("./components/pages/notFound/NotFound.jsx"));
 
 //passwordReset
-import PwReset from "./components/pages/income/login/resetPassword/PasswordReset.jsx";
+const PwReset = lazy(() => import("./components/pages/income/login/resetPassword/PasswordReset.jsx"));
 
 //forgotPassword
-import ForgotPassword from "./components/pages/income/login/forgotPassword/ForgotPassword.jsx";
+const ForgotPassword = lazy(() => import("./components/pages/income/login/forgotPassword/ForgotPassword.jsx"));
 
 //marca page
-import MarcaPage from "./components/pages/Home/MarcaPage/MarcaPage.jsx";
+const MarcaPage = lazy(() => import("./components/pages/Home/MarcaPage/MarcaPage.jsx"));
 
 //categories carousel
-import CategoriesCarousel from "./components/pages/Home/categoriesCarousel/CategoriesCarousel.jsx";
+const CategoriesCarousel = lazy(() => import("./components/pages/Home/categoriesCarousel/CategoriesCarousel.jsx"));
 
 //gastos
-import ExpenseManagement from "./components/pages/ExpenseManagement/ExpenseManagement.jsx";
+const ExpenseManagement = lazy(() => import("./components/pages/ExpenseManagement/ExpenseManagement.jsx"));
 
 //favorites
-import FavoritesPage from "./components/pages/favorites/FavoritesPage.jsx";
+const FavoritesPage = lazy(() => import("./components/pages/favorites/FavoritesPage.jsx"));
 
 //css
 import "./App.css";
@@ -111,12 +126,14 @@ function App() {
   }, []);
 
   useEffect(() => {
+    sessionStorage.removeItem("chunk-reload");
     checkTokenExpiration();
   }, []);
 
   return (
     <Router>
       <div className="App">
+        <Suspense fallback={<div className="route-loader"><span /></div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -153,6 +170,7 @@ function App() {
           {/* Ruta 404: si no se encuentra ninguna coincidencia */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
 
         <ToastContainer />
       </div>

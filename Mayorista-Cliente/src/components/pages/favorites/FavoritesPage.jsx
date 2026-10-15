@@ -1,8 +1,9 @@
+import { getImageUrl } from "../../../utils/image.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../store.js";
 import { getAdjustedStock } from "../../../utils/calculateStock.js";
 import CloseButton from "react-bootstrap/CloseButton";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./FavoritesPage.css";
 import { FaHeart, FaTrash, FaPlus, FaMinus } from "react-icons/fa";
@@ -44,7 +45,8 @@ export default function FavoritesPage() {
                 return (
                   <div key={product._id} className="favorite-item">
                     <img
-                      src={product.imageUrl}
+                      src={getImageUrl(product.imageUrl, 200)}
+                      loading="lazy"
                       alt={product.title}
                       className="favorite-item-img"
                     />
@@ -102,7 +104,6 @@ export default function FavoritesPage() {
           </>
         )}
       </div>
-      <ToastContainer />
     </main>
   );
 }

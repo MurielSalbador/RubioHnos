@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../../../utils/image.js";
 import { useShallow } from "zustand/shallow";
 import { useCart } from "../../../../store.js";
 import { toast } from "react-toastify";
@@ -37,7 +38,7 @@ export default function Cart() {
         {cart.map((item) => (
           <li key={item._id} className="cart-item-modern">
             <div className="cart-item-image">
-              <img src={item.imageUrl} alt={item.title} />
+              <img src={getImageUrl(item.imageUrl, 160)} alt={item.title} loading="lazy" />
             </div>
 
             <div className="cart-item-info">

@@ -1,8 +1,7 @@
 import { FaInstagram, FaSearch, FaCogs } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
 
 //cart
@@ -13,6 +12,8 @@ import Filters from "../cart/Cart/Filters.jsx";
 import Header from "../../header/Header.jsx";
 import { useFilters } from "../../../hooks/useFilters.js";
 import BackToTop from "../../BackToTop/BackToTop.jsx";
+import { useDebouncedValue } from "../../../hooks/useDebouncedValue.js";
+import { getBrands } from "../../../api/brandsApi.js";
 
 //protected
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
@@ -22,26 +23,17 @@ import "./Shop.css";
 
 const ShopContent = () => {
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  // 🔥 Debounce para la búsqueda para no saturar el servidor al escribir
+  const debouncedSearch = useDebouncedValue(search.trim(), 400);
   const { filters, setFilters } = useFilters();
-  const [brands, setBrands] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 🔥 Debounce para la búsqueda para no saturar el servidor al escribir
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/api/products/brands`)
-      .then(res => res.json())
-      .then(data => setBrands(data))
-      .catch(err => console.error(err));
-  }, []);
+  // Las marcas quedan en cache: no se vuelven a pedir cada vez que entrás a la tienda
+  const { data: brands = [] } = useQuery({
+    queryKey: ["brands"],
+    queryFn: getBrands,
+    staleTime: 1000 * 60 * 30,
+  });
 
   const handleChipClick = (brandName) => {
     setFilters(prev => {

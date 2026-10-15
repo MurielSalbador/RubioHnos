@@ -474,3 +474,38 @@
   font-size: 1.3rem;
   font-weight: 700;
 }
+
+/* ---- Rendimiento: animación liviana por CSS en lugar de JS por tarjeta ---- */
+.card-appear {
+  animation: cardAppear 0.35s ease-out both;
+}
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-appear { animation: none; }
+}
+
+.card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.load-more-sentinel {
+  height: 1px;
+}
+
+.products-count-label {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0 0 12px;
+}

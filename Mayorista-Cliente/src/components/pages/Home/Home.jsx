@@ -12,6 +12,7 @@ import CategoriesCarousel from "../Home/categoriesCarousel/CategoriesCarousel.js
 
 import Barrita from "../../../assets/img/barritaCereal.png"; // o la ruta correcta
 import Header from "../../header/Header.jsx";
+import { getImageUrl } from "../../../utils/image.js";
 
 const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
@@ -298,9 +299,11 @@ const openWhatsApp = (phone) => {
               >
                 <div className="category-image-wrapper">
                   <img
-                    src={product.imageUrl}
+                    src={getImageUrl(product.imageUrl, 500)}
                     alt={product.title}
                     className="category-image"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="category-overlay">
                     <span className="category-badge">Ver producto ➔</span>
@@ -313,9 +316,9 @@ const openWhatsApp = (phone) => {
         </div>
 
         <div className="see-all-button-container">
-          <a href="/shop" className="see-all-button">
+          <Link to="/shop" className="see-all-button">
             Ver todos
-          </a>
+          </Link>
         </div>
       </section>
 

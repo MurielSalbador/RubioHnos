@@ -1,3 +1,4 @@
+import { getImageUrl } from "../../../utils/image.js";
 import "./productsList.css"
 
 function ListOfProducts({ products }) {
@@ -8,7 +9,7 @@ function ListOfProducts({ products }) {
       {products.map(product => (
         <li className='product-card' key={product._id}>
           {product.imageUrl && (
-            <img loading="lazy" decoding="async" src={product.imageUrl} alt={product.title} />
+            <img loading="lazy" decoding="async" src={getImageUrl(product.imageUrl, 400)} alt={product.title} />
           )}
           <h3>{product.title}</h3>
           <p><strong>Marca:</strong> {product.brand}</p>

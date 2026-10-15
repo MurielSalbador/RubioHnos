@@ -20,6 +20,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutos de frescura en la RAM del cliente
       refetchOnWindowFocus: false, // Evita refetch si el usuario cambia de pestaña y vuelve
+      retry: 1, // Si falla, reintenta una sola vez (antes eran 3 y la pantalla quedaba cargando)
+      gcTime: 1000 * 60 * 15,
     },
   },
 });
