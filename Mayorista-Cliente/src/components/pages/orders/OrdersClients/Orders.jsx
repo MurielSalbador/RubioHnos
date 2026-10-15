@@ -140,6 +140,11 @@ const Orders = () => {
     <div key={order._id} className={styles.orderCard}>
       
       <h3>🧾 Pedido #{order._id.slice(-5)}</h3>
+      <p>
+        <strong>👤 Cliente:</strong> {order.name}
+        <br />
+        <small>{new Date(order.date).toString() !== "Invalid Date" ? new Date(order.date).toLocaleString("es-AR") : order.date}</small>
+      </p>
 
       <p>
         <strong>📧 Email:</strong> {order.email}
@@ -151,7 +156,8 @@ const Orders = () => {
       </p>
 
       <p>
-        <strong>💰 Total:</strong> ${order.total}
+        <strong>💰 Total:</strong> ${Number(order.total).toLocaleString("es-AR")}
+        {order.shippingCost && Number(order.shippingCost) > 0 && <small> (incluye envío ${Number(order.shippingCost).toLocaleString("es-AR")})</small>}
       </p>
 
       <details>
@@ -159,8 +165,8 @@ const Orders = () => {
         <ul>
           {order.items.map((item, i) => (
             <li key={i}>
-              {item.title} × {item.quantity} — $
-              {item.price * item.quantity}
+              {item.title || "Producto (pedido antiguo)"} × {item.quantity}
+              {item.price != null && ` — $${(item.price * item.quantity).toLocaleString("es-AR")}`}
             </li>
           ))}
         </ul>

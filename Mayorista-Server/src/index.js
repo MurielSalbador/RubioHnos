@@ -8,6 +8,7 @@ import path from "path";
 import mongoose from "mongoose";
 import multer from "multer";
 import compression from "compression";
+import rateLimit from "express-rate-limit";
 
 // rutas
 import authRoutes from "./routes/auth.js";
@@ -31,6 +32,19 @@ console.log("Rutas cargadas correctamente");
 
 const app = express();
 
+// Render pone un proxy adelante: lo necesitamos para saber la IP real
+app.set("trust proxy", 1);
+
+// Límite de intentos para evitar que prueben contraseñas sin parar
+// o que llenen de mails a un cliente con "olvidé mi contraseña"
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Demasiados intentos. Esperá unos minutos y probá de nuevo." },
+});
+
 // Middleware
 app.use(compression());
 app.use(express.json({ limit: "1mb" }));
@@ -45,6 +59,9 @@ app.get('/', (req, res) => {
 });
 
 // Rutas de la API
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/password", authLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);

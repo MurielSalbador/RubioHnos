@@ -5,6 +5,7 @@ import { useInView } from "../../../../hooks/useInView.js";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue.js";
 import { getAllProducts } from "../../../../api/fakeStoreApi.js";
 import SkeletonCard from "./SkeletonCard.jsx";
+import ServerWaking from "../../../ServerWaking/ServerWaking.jsx";
 import ProductCard from "./ProductCard.jsx";
 import ProductModal from "./ProductModal.jsx";
 import "./ProductList.css";
@@ -81,6 +82,7 @@ export default function ProductList({ search = "" }) {
   if (isLoading) {
     return (
       <div className="skeleton-product-grid">
+        <ServerWaking />
         {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
       </div>
     );

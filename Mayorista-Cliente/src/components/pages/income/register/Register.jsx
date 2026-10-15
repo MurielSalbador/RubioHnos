@@ -58,7 +58,7 @@ console.log("Datos recibidos para registro:", formData);
           navigate("/login");
         }, 1500);
       } else {
-        setError(data.message || "Error al registrarse");
+        setError(data.message || data.error || "Error al registrarse");
       }
     } catch {
       setError("No pudimos conectar con el servidor. Probá de nuevo en unos segundos.");

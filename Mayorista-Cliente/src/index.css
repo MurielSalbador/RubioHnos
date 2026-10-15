@@ -179,3 +179,26 @@ html.lenis {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* Aviso de "servidor despertando" */
+.server-waking {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--honey-soft);
+  border: 1px solid #f3dc9f;
+  color: var(--cacao-800);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  animation: cardAppear 0.4s ease-out both;
+}
+
+.server-waking p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.server-waking-icon { font-size: 1.8rem; animation: floaty 2.5s ease-in-out infinite; }
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}

@@ -1,7 +1,11 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { FaArrowLeft, FaChevronDown, FaMapMarkerAlt, FaRedo } from "react-icons/fa";
+import { FaArrowLeft, FaChevronDown, FaMapMarkerAlt, FaRedo, FaShoppingBasket } from "react-icons/fa";
+import { getProductById } from "../../../../api/fakeStoreApi.js";
+import { useCart } from "../../../../store.js";
 import { formatPrice } from "../../cart/Cart/useProductCartState.js";
 import styles from "./MyOrders.module.css";
 
@@ -37,8 +41,52 @@ async function fetchMyOrders(email) {
   return Array.isArray(data) ? data : [];
 }
 
+// Vuelve a cargar al carrito los productos de un pedido anterior,
+// con el precio y el stock de hoy.
+function useRepeatOrder() {
+  const addCartQty = useCart((s) => s.addCartQty);
+  const navigate = useNavigate();
+  const [repeating, setRepeating] = useState(null);
+
+  const repeat = async (order) => {
+    const items = (order.items || []).filter((i) => i && i._id);
+    if (items.length === 0) {
+      toast.info("Este pedido es viejo y no tiene el detalle de productos.");
+      return;
+    }
+    setRepeating(order._id);
+    let added = 0;
+    const missing = [];
+    const results = await Promise.allSettled(items.map((i) => getProductById(i._id)));
+    results.forEach((r, idx) => {
+      const wanted = Number(items[idx].quantity) || 1;
+      if (r.status !== "fulfilled" || !r.value || Number(r.value.stock) <= 0) {
+        missing.push(items[idx].title || "un producto");
+        return;
+      }
+      const n = addCartQty(r.value, wanted);
+      if (n > 0) added += n;
+      if (n < wanted) missing.push(items[idx].title || "un producto");
+    });
+    setRepeating(null);
+
+    if (added === 0) {
+      toast.error("Ninguno de esos productos tiene stock ahora 😔");
+      return;
+    }
+    toast.success(`¡Listo! Sumamos ${added} ${added === 1 ? "unidad" : "unidades"} al carrito 🧺`);
+    if (missing.length > 0) {
+      toast.info(`Sin stock suficiente: ${missing.slice(0, 3).join(", ")}${missing.length > 3 ? "…" : ""}`, { autoClose: 5000 });
+    }
+    navigate("/cart");
+  };
+
+  return { repeat, repeating };
+}
+
 const MyOrders = () => {
   const user = getUser();
+  const { repeat, repeating } = useRepeatOrder();
   const email = user?.email;
 
   const { data: orders = [], isLoading, isError, refetch } = useQuery({
@@ -111,6 +159,7 @@ const MyOrders = () => {
                     <FaMapMarkerAlt /> {order.address}, {order.city}
                   </p>
 
+                  <div className={styles.footerRow}>
                   <details className={styles.details}>
                     <summary>
                       {count === 1 ? "1 producto" : `${count} productos`} <FaChevronDown />
@@ -124,6 +173,14 @@ const MyOrders = () => {
                       ))}
                     </ul>
                   </details>
+                  <button
+                    className={styles.repeat}
+                    onClick={() => repeat(order)}
+                    disabled={repeating === order._id}
+                  >
+                    <FaShoppingBasket /> {repeating === order._id ? "Cargando…" : "Repetir pedido"}
+                  </button>
+                  </div>
                 </li>
               );
             })}

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import React, { useEffect, lazy as reactLazy, Suspense } from "react";
 
 // Si se publica una versión nueva mientras alguien tiene la página abierta,
@@ -95,6 +95,39 @@ import "react-toastify/dist/ReactToastify.css";
 import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
 
+// Título de la pestaña según la página (también ayuda en Google y al compartir)
+const TITLES = [
+  ["/shop", "Tienda"],
+  ["/product/", "Producto"],
+  ["/cart", "Mi carrito"],
+  ["/finish", "Finalizar compra"],
+  ["/favorites", "Mis favoritos"],
+  ["/myOrders", "Mis pedidos"],
+  ["/contact", "Contacto"],
+  ["/login", "Iniciar sesión"],
+  ["/register", "Crear cuenta"],
+  ["/marca/", "Marca"],
+  ["/addProducts", "Productos (admin)"],
+  ["/allOrders", "Pedidos (admin)"],
+  ["/expenses", "Gastos (admin)"],
+  ["/httpClients", "Clientes (admin)"],
+];
+
+// Instancia del scroll suave (Lenis): window.scrollTo solo no alcanza
+let lenisInstance = null;
+
+function PageTitle() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const match = TITLES.find(([prefix]) => pathname.startsWith(prefix));
+    document.title = match ? `${match[1]} · Rubio Hnos` : "Rubio Hnos · Tienda natural";
+    // Al cambiar de página, volver arriba (antes quedaba scrolleado)
+    if (lenisInstance) lenisInstance.scrollTo(0, { immediate: true, force: true });
+    else window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   useEffect(() => {
     const lenis = new Lenis({
@@ -108,15 +141,19 @@ function App() {
       touchMultiplier: 2,
       infinite: false,
     })
+    lenisInstance = lenis;
 
+    let rafId;
     function raf(time) {
       lenis.raf(time)
-      requestAnimationFrame(raf)
+      rafId = requestAnimationFrame(raf)
     }
 
-    requestAnimationFrame(raf)
+    rafId = requestAnimationFrame(raf)
 
     return () => {
+      lenisInstance = null;
+      cancelAnimationFrame(rafId)
       lenis.destroy()
     }
   }, []);
@@ -135,6 +172,7 @@ function App() {
 
   return (
     <Router>
+      <PageTitle />
       <div className="App">
         <Suspense fallback={<div className="route-loader"><span /></div>}>
         <Routes>
@@ -144,7 +182,14 @@ function App() {
           <Route path="/contact" element={<ContactForm />} />
           <Route path="/cart" element={<CartHeader />} />
           <Route path="/finish" element={<FinishCart />} />
-          <Route path="/allOrders" element={<Orders />} />
+          <Route
+            path="/allOrders"
+            element={
+              <ProtectedRoute requiredAdmin={true}>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<PwReset />} />
           <Route
@@ -166,7 +211,14 @@ function App() {
           <Route path="/myOrders" element={<MyOrders />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/httpClients" element={<UserManagement />} />
+          <Route
+            path="/httpClients"
+            element={
+              <ProtectedRoute requiredAdmin={true}>
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/categoriesCarousel" element={<CategoriesCarousel />} />
           <Route path="/marca/:slug" element={<MarcaPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />

@@ -24,4 +24,5 @@ const ExpenseDebtSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+ExpenseDebtSchema.index({ expenseId: 1 });
 export default mongoose.model("ExpenseDebt", ExpenseDebtSchema);

@@ -12,6 +12,7 @@ const API_URL = import.meta.env.VITE_BASE_SERVER_URL;
 
 const EMPTY_FORM = {
   title: "",
+  description: "",
   brand: "",
   price: "",
   stock: "",
@@ -32,6 +33,7 @@ function productToForm(productData) {
 
   return {
     title: productData.title ?? "",
+    description: productData.description ?? "",
     brand: productData.brand ?? "",
     price: productData.price != null ? String(productData.price) : "",
     stock: productData.stock != null ? String(productData.stock) : "",
@@ -208,6 +210,7 @@ function ProductForm({ productId, initialProduct, onSuccess, onCancel }) {
 
     const formToSend = new FormData();
     formToSend.append("title", formData.title.trim());
+    formToSend.append("description", (formData.description || "").trim());
     formToSend.append("brand", brandToUse);
     formToSend.append("price", priceParsed);
     formToSend.append("stock", stockParsed);
@@ -280,6 +283,19 @@ function ProductForm({ productId, initialProduct, onSuccess, onCancel }) {
                 onChange={handleChange}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label>Descripción (opcional)</label>
+              <textarea
+                name="description"
+                placeholder="Ej: Granola artesanal con avena, miel y almendras. Sin TACC. 500 g."
+                value={formData.description}
+                onChange={handleChange}
+                maxLength={1000}
+                rows={3}
+              />
+              <small style={{ color: "#888" }}>{(formData.description || "").length} / 1000 · Se muestra cuando el cliente abre el producto.</small>
             </div>
 
             <div className="form-group">

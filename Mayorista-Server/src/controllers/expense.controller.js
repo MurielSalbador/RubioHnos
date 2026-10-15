@@ -68,18 +68,31 @@ export const createExpense = async (req, res) => {
    GET ALL
 ========================= */
 export const getExpenses = async (req, res) => {
-  const expenses = await Expense.find().sort({ createdAt: -1 });
+  const expenses = await Expense.find().sort({ createdAt: -1 }).lean();
+  const ids = expenses.map((e) => e._id);
 
-  const result = await Promise.all(
-    expenses.map(async exp => {
-      const debts = await ExpenseDebt.find({ expenseId: exp._id });
-      const items = await ExpenseItem.find({ expenseId: exp._id });
+  // 2 consultas en total (antes eran 2 por cada gasto y se volvía lento)
+  const [debts, items] = await Promise.all([
+    ExpenseDebt.find({ expenseId: { $in: ids } }).lean(),
+    ExpenseItem.find({ expenseId: { $in: ids } }).lean(),
+  ]);
 
-      return { ...exp.toObject(), debts, items };
-    })
+  const group = (list) =>
+    list.reduce((acc, doc) => {
+      const key = String(doc.expenseId);
+      (acc[key] ||= []).push(doc);
+      return acc;
+    }, {});
+  const debtsBy = group(debts);
+  const itemsBy = group(items);
+
+  res.json(
+    expenses.map((exp) => ({
+      ...exp,
+      debts: debtsBy[String(exp._id)] || [],
+      items: itemsBy[String(exp._id)] || [],
+    }))
   );
-
-  res.json(result);
 };
 
 /* =========================
@@ -87,6 +100,10 @@ export const getExpenses = async (req, res) => {
 ========================= */
 export const updateExpenseStatus = async (req, res) => {
   const { status } = req.body;
+
+  if (!["pending", "partial", "paid"].includes(status)) {
+    return res.status(400).json({ error: "Estado inválido" });
+  }
 
   const expense = await Expense.findByIdAndUpdate(
     req.params.id,
@@ -113,15 +130,17 @@ export const payDebt = async (req, res) => {
     return res.status(404).json({ error: "Deuda no encontrada" });
   }
 
-  if (Number(amount) > debt.remainingAmount) {
+  if (Math.round(Number(amount) * 100) > Math.round(debt.remainingAmount * 100)) {
     return res.status(400).json({
       error: "No podés pagar más de lo que falta",
     });
   }
 
-  debt.remainingAmount -= Number(amount);
+  // Redondeamos a centavos: con decimales podía quedar 0.0000001 "pendiente"
+  debt.remainingAmount = Math.round((debt.remainingAmount - Number(amount)) * 100) / 100;
 
-  if (debt.remainingAmount === 0) {
+  if (debt.remainingAmount <= 0) {
+    debt.remainingAmount = 0;
     debt.status = "paid";
     await Expense.findByIdAndUpdate(debt.expenseId, { status: "paid" });
   } else {

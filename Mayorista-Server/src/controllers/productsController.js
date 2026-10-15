@@ -31,7 +31,7 @@ export const createProduct = async (req, res) => {
 console.log("🛬 LLEGÓ LA REQUEST A createProduct");
 
   try {
-    let { title, price, brand, stock, categoryId, categoryIds, available } = req.body;
+    let { title, price, brand, stock, categoryId, categoryIds, available, description } = req.body;
 
     if (!title || !brand) {
       return res.status(400).json({ error: "Faltan campos obligatorios: título o marca" });
@@ -59,6 +59,7 @@ console.log("🛬 LLEGÓ LA REQUEST A createProduct");
       price: parseFloat(price),
       stock: parseInt(stock) || 0,
       brand: String(brand).trim(),
+      description: description ? String(description).trim().slice(0, 1000) : "",
       categoryIds: finalCategoryIds,
       available: available === "true" || available === true,
       imageUrl,
@@ -138,7 +139,7 @@ export const getAllProducts = async (req, res) => {
         .sort(sort)
         .skip(skip)
         .limit(limitNumber)
-        .select("title price brand imageUrl categoryIds available stock slug categoryId createdAt")
+        .select("title price brand imageUrl categoryIds available stock slug categoryId createdAt description")
         .populate("categoryIds", "nombre")
         .lean(),
     ]);
@@ -271,7 +272,7 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    let { title, price, brand, stock, categoryId, categoryIds, available } = req.body;
+    let { title, price, brand, stock, categoryId, categoryIds, available, description } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "ID de producto inválido" });
@@ -302,6 +303,7 @@ export const updateProduct = async (req, res) => {
         ...(price !== undefined && price !== "" && !isNaN(parseFloat(price)) && { price: parseFloat(price) }),
         ...(stock !== undefined && stock !== "" && !isNaN(parseInt(stock)) && { stock: parseInt(stock) }),
         ...(brand && { brand: String(brand).trim() }),
+        ...(description !== undefined && { description: String(description).trim().slice(0, 1000) }),
         ...(finalCategoryIds && { categoryIds: finalCategoryIds }),
         ...(available !== undefined && { available: available === "true" || available === true }),
         ...(imageUrl && { imageUrl }),

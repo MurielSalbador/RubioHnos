@@ -19,4 +19,5 @@ const expenseItemSchema = new mongoose.Schema({
   },
 });
 
+expenseItemSchema.index({ expenseId: 1 });
 export default mongoose.model("ExpenseItem", expenseItemSchema);

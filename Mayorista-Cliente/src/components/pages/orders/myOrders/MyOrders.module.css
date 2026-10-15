@@ -125,3 +125,31 @@
 
 .emptyIcon { font-size: 3.5rem; }
 .empty p { color: var(--muted); margin: 6px 0 20px; }
+
+.footerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footerRow .details { flex: 1; min-width: 200px; }
+
+.repeat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: var(--leaf-soft);
+  color: var(--leaf-dark);
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.repeat:hover:not(:disabled) { background: var(--leaf); color: #fff; }
+.repeat:disabled { opacity: 0.6; cursor: wait; }

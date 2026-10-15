@@ -10,6 +10,7 @@ import ProductCard from "../cart/Cart/ProductCard.jsx";
 import ProductModal from "../cart/Cart/ProductModal.jsx";
 import SkeletonCard from "../cart/Cart/SkeletonCard.jsx";
 import CartBar from "../cart/Cart/CartBar.jsx";
+import ServerWaking from "../../ServerWaking/ServerWaking.jsx";
 import BrandsMarquee from "./categoriesCarousel/CategoriesCarousel.jsx";
 import { getAllProducts } from "../../../api/fakeStoreApi.js";
 import { getCategories } from "../../../api/categoriesApi.js";
@@ -172,6 +173,7 @@ export default function Home() {
           <Link to="/shop" className="home-see-all">Ver todos <FaArrowRight /></Link>
         </div>
         <div className="modern-product-grid">
+          {loadingFeatured && <ServerWaking />}
           {loadingFeatured
             ? [...Array(4)].map((_, i) => <SkeletonCard key={i} />)
             : featuredProducts.map((product, i) => (

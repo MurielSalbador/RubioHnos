@@ -42,10 +42,7 @@ export const useCart = create(
                 ),
               };
             } else {
-              // Podés mostrar un alert acá o manejarlo fuera de la store
-              alert(
-                "¡Has alcanzado el stock máximo disponible para este producto!"
-              );
+              // Límite de stock: la interfaz ya deshabilita el botón "+"
               return state; // No cambia el estado
             }
           }
@@ -56,6 +53,28 @@ export const useCart = create(
             cart: [...state.cart, { ...item, quantity: 1 }],
           };
         }),
+
+      // Agrega varias unidades de una vez (sin pasar el stock disponible).
+      // Se usa en "Repetir pedido". Devuelve cuántas se agregaron.
+      addCartQty: (item, qty) => {
+        let added = 0;
+        set((state) => {
+          const stock = Number(item.stock) || 0;
+          const existing = state.cart.find((c) => c._id === item._id);
+          const current = existing ? existing.quantity : 0;
+          added = Math.max(0, Math.min(qty, stock - current));
+          if (added === 0) return state;
+          return {
+            count: state.count + added,
+            cart: existing
+              ? state.cart.map((c) =>
+                  c._id === item._id ? { ...item, quantity: c.quantity + added } : c
+                )
+              : [...state.cart, { ...item, quantity: added }],
+          };
+        });
+        return added;
+      },
 
       removeCart: (id) =>
         set((state) => {

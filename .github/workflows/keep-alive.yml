@@ -1,0 +1,24 @@
+# Mantiene despierto el servidor de Render (plan gratis).
+# Render apaga el servidor tras 15 minutos sin visitas y el primer cliente
+# espera 30-60 segundos. Esta tarea lo visita cada 10 minutos.
+name: Mantener servidor despierto
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Visitar el servidor
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 https://rubiohnos.onrender.com/ || true)
+            echo "Intento $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "El servidor no respondió"

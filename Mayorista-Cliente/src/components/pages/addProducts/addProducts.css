@@ -49,7 +49,8 @@
   color: #555;
 }
 
-.form-group input {
+.form-group input,
+.form-group textarea {
   padding: 0.8rem 1.2rem;
   border: 2px solid #f0f0f0;
   border-radius: 12px;
@@ -58,7 +59,8 @@
   background: #fafafa;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group textarea:focus {
   border-color: #533909;
   background: white;
   outline: none;
@@ -226,4 +228,10 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+}
+
+.form-group textarea {
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
 }

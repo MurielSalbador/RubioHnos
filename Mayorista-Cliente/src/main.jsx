@@ -54,6 +54,12 @@ axios.interceptors.response.use(
 );
 
 
+// Despertamos el servidor apenas se abre la página (en Render gratis se
+// duerme): así, cuando el cliente llega a la tienda, ya está listo.
+if (import.meta.env.VITE_BASE_SERVER_URL) {
+  fetch(`${import.meta.env.VITE_BASE_SERVER_URL}/`, { mode: "no-cors" }).catch(() => {});
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
