@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Modal } from "react-bootstrap";
@@ -16,7 +16,7 @@ import { getAllProducts } from "../../../api/fakeStoreApi.js";
 import { getCategories } from "../../../api/categoriesApi.js";
 import { PRODUCT_TAGS } from "../../../utils/productTags.js";
 import { prettyName } from "../../../utils/text.js";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import HScroll from "../../HScroll/HScroll.jsx";
 
 import Barrita from "../../../assets/img/barritaCereal.webp";
 import GranolaCut from "../../../assets/background/granolaCut.webp";
@@ -46,7 +46,6 @@ export default function Home() {
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [selected, setSelected] = useState(null);
   const handleOpen = useCallback((p) => setSelected(p), []);
-  const catsRef = useRef(null);
 
   const { data: featured, isLoading: loadingFeatured } = useQuery({
     queryKey: ["products", "featured"],
@@ -167,25 +166,18 @@ export default function Home() {
             <h2>Explorá por categoría</h2>
             <Link to="/shop" className="home-see-all">Ver todo <FaArrowRight /></Link>
           </div>
-          <div className="home-cats-wrap">
-          <button className="home-cats-arrow left" aria-label="Anteriores" onClick={() => catsRef.current?.scrollBy({ left: -320, behavior: "smooth" })}>
-            <FaChevronLeft />
-          </button>
-          <div className="home-cats" ref={catsRef}>
+          <HScroll className="home-cats">
             {categories.map((cat) => (
               <Link
                 key={cat._id}
                 to={`/shop?categoria=${encodeURIComponent(cat.nombre)}`}
                 className="home-cat"
+                draggable="false"
               >
                 {prettyName(cat.nombre)}
               </Link>
             ))}
-          </div>
-          <button className="home-cats-arrow right" aria-label="Siguientes" onClick={() => catsRef.current?.scrollBy({ left: 320, behavior: "smooth" })}>
-            <FaChevronRight />
-          </button>
-          </div>
+          </HScroll>
         </section>
       )}
 

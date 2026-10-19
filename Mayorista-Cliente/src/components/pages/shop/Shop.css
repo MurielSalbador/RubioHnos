@@ -6,7 +6,8 @@
 /* ---------- Bienvenida ---------- */
 .shop-hero {
   position: relative;
-  overflow: hidden;
+  z-index: 5;
+  overflow: visible;
   padding: 36px 20px 30px;
   background:
     radial-gradient(circle at 85% 20%, rgba(244, 183, 64, 0.45) 0, transparent 38%),
@@ -19,7 +20,7 @@
   content: "🌾";
   position: absolute;
   right: 6%;
-  bottom: -18px;
+  bottom: 0;
   font-size: 8rem;
   opacity: 0.12;
   transform: rotate(-12deg);
@@ -114,16 +115,7 @@
 }
 
 /* Categorías rápidas (desliza horizontal en celular) */
-.shop-cats {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 18px 2px 14px;
-  margin: 0 -20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  scrollbar-width: none;
-}
+.shop-cats { padding: 10px 2px 14px; }
 
 .shop-cats::-webkit-scrollbar { display: none; }
 
@@ -411,24 +403,16 @@
   .shop-hero { padding: 24px 16px 22px; }
   .shop-hero::after { font-size: 5rem; }
   .shop-container { padding: 0 12px 32px; }
-  .shop-cats { margin: 0 -12px; padding-left: 12px; padding-right: 12px; }
+
   .shop-sort span { display: none; }
   .cart-bar-cta { padding: 10px 14px; font-size: 0.85rem; }
 }
 
 /* ---------- Etiquetas rápidas ---------- */
-.shop-tags {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 18px 20px 0;
-  margin: 0 -20px;
-  scrollbar-width: none;
-}
+.shop-tags { padding: 18px 2px 0; }
 
 .shop-tags::-webkit-scrollbar { display: none; }
 
-.shop-tags + .shop-cats { padding-top: 10px; }
 
 .shop-tag {
   flex: 0 0 auto;
@@ -457,5 +441,5 @@
 }
 
 @media (max-width: 600px) {
-  .shop-tags { margin: 0 -12px; padding: 14px 12px 0; }
+  .shop-tags { padding-top: 14px; }
 }

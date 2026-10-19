@@ -1,0 +1,49 @@
+.hscroll { position: relative; }
+
+.hscroll-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.hscroll-track:active { cursor: grabbing; }
+.hscroll-track::-webkit-scrollbar { display: none; }
+
+/* Difuminado en los bordes cuando hay más contenido */
+.hscroll.can-left .hscroll-track { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 48px); mask-image: linear-gradient(90deg, transparent 0, #000 48px); }
+.hscroll.can-right .hscroll-track { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent 100%); mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent 100%); }
+.hscroll.can-left.can-right .hscroll-track { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%); }
+
+.hscroll-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  margin-top: -19px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--cacao-700);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, background 0.2s, color 0.2s;
+}
+
+.hscroll-arrow.left { left: -6px; }
+.hscroll-arrow.right { right: -6px; }
+.hscroll.can-left .hscroll-arrow.left,
+.hscroll.can-right .hscroll-arrow.right { opacity: 1; pointer-events: auto; }
+.hscroll-arrow:hover { background: var(--cacao-800); color: #fff; }
+
+@media (hover: none) {
+  .hscroll-arrow { display: none; }
+}

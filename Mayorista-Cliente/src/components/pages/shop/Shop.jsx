@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { FaInstagram, FaSearch, FaSlidersH, FaTimes, FaCogs, FaLeaf, FaTruck, FaHeart } from "react-icons/fa";
+import { FaInstagram, FaSlidersH, FaTimes, FaCogs, FaLeaf, FaTruck, FaHeart } from "react-icons/fa";
 import "animate.css";
 
 import { FiltersProvider } from "../../../context/filters.jsx";
@@ -13,9 +13,14 @@ import { useFilters } from "../../../hooks/useFilters.js";
 import BackToTop from "../../BackToTop/BackToTop.jsx";
 import { useDebouncedValue } from "../../../hooks/useDebouncedValue.js";
 import { getCategories } from "../../../api/categoriesApi.js";
+import { getBrands } from "../../../api/brandsApi.js";
+import SearchSuggest from "./SearchSuggest.jsx";
+import { scrollToElement } from "../../../utils/scroll.js";
+import ProductModal from "../cart/Cart/ProductModal.jsx";
 import { isAdminOrSuperAdmin } from "../../../utils/auth.js";
 import { PRODUCT_TAGS } from "../../../utils/productTags.js";
 import { prettyName } from "../../../utils/text.js";
+import HScroll from "../../HScroll/HScroll.jsx";
 
 import "./Shop.css";
 
@@ -52,6 +57,17 @@ const ShopContent = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const [picked, setPicked] = useState(null);
+  const resultsRef = useRef(null);
+  const goToResults = () =>
+    setTimeout(() => scrollToElement(resultsRef.current), 50);
+
+  const { data: brands = [] } = useQuery({
+    queryKey: ["brands"],
+    queryFn: getBrands,
+    staleTime: 1000 * 60 * 30,
+  });
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
@@ -99,21 +115,24 @@ const ShopContent = () => {
           <p className="shop-hero-hello">{userName ? `¡Hola, ${userName}! 👋` : "¡Hola! 👋"}</p>
           <h1>¿Qué se te antoja hoy?</h1>
 
-          <div className="shop-search">
-            <FaSearch className="shop-search-icon" />
-            <input
-              type="search"
-              placeholder="Buscá granola, miel, yerba, galletitas…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              aria-label="Buscar productos"
-            />
-            {search && (
-              <button className="shop-search-clear" onClick={() => setSearch("")} aria-label="Borrar búsqueda">
-                <FaTimes />
-              </button>
-            )}
-          </div>
+          <SearchSuggest
+            value={search}
+            onChange={setSearch}
+            categories={categories}
+            brands={brands}
+            onPickProduct={(p) => setPicked(p)}
+            onPickCategory={(nombre) => {
+              setSearch("");
+              setFilters((prev) => ({ ...prev, category: [nombre] }));
+              goToResults();
+            }}
+            onPickBrand={(brand) => {
+              setSearch("");
+              setFilters((prev) => ({ ...prev, brand: [brand] }));
+              goToResults();
+            }}
+            onSubmit={goToResults}
+          />
 
           <ul className="shop-perks">
             <li><FaLeaf /> 100% natural</li>
@@ -125,7 +144,7 @@ const ShopContent = () => {
 
       <div className="shop-container">
         {/* Etiquetas rápidas: Sin TACC, Vegano, ... */}
-        <div className="shop-tags" role="group" aria-label="Filtrar por etiqueta">
+        <HScroll className="shop-tags">
           {PRODUCT_TAGS.map((t) => (
             <button
               key={t.name}
@@ -136,11 +155,11 @@ const ShopContent = () => {
               {t.name}
             </button>
           ))}
-        </div>
+        </HScroll>
 
         {/* Categorías rápidas */}
         {categories.length > 0 && (
-          <div className="shop-cats" role="list">
+          <HScroll className="shop-cats">
             <button
               className={`shop-cat ${selectedCategories.length === 0 ? "active" : ""}`}
               onClick={() => setFilters((prev) => ({ ...prev, category: [] }))}
@@ -156,7 +175,7 @@ const ShopContent = () => {
                 {prettyName(cat.nombre)}
               </button>
             ))}
-          </div>
+          </HScroll>
         )}
 
         <div className="shop-grid-layout">
@@ -173,7 +192,7 @@ const ShopContent = () => {
             </div>
           </div>
 
-          <section className="shop-content-area">
+          <section className="shop-content-area" ref={resultsRef}>
             <div className="shop-toolbar">
               <button className="shop-filter-btn" onClick={() => setIsDrawerOpen(true)}>
                 <FaSlidersH /> Filtros
@@ -222,6 +241,7 @@ const ShopContent = () => {
         </div>
       </div>
 
+      <ProductModal product={picked} onHide={() => setPicked(null)} />
       <CartBar />
 
       {isAdminOrSuperAdmin() && (

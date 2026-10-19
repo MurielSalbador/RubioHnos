@@ -9,6 +9,15 @@ const escapeRegex = (text = "") => String(text).replace(/[.*+?^${}()|[\]\\]/g, "
 
 const MAX_LIMIT = 200;
 
+// Búsqueda sin importar tildes: "azucar" encuentra "Azúcar", "mani" encuentra "Maní"
+const ACCENTS = { a: "aáàäâ", e: "eéèëê", i: "iíìïî", o: "oóòöô", u: "uúùüû", n: "nñ" };
+const accentInsensitive = (text = "") =>
+  escapeRegex(
+    String(text)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+  ).replace(/[aeioun]/gi, (ch) => `[${ACCENTS[ch.toLowerCase()]}${ACCENTS[ch.toLowerCase()].toUpperCase()}]`);
+
 const getImageUrl = (req) => {
   if (!req.file) return null;
 
@@ -121,7 +130,7 @@ export const getAllProducts = async (req, res) => {
 
     // 🔥 Búsqueda por nombre o marca
     if (search && search.trim() !== "") {
-      const term = new RegExp(escapeRegex(search.trim()), "i");
+      const term = new RegExp(accentInsensitive(search.trim()), "i");
       conditions.push({ $or: [{ title: term }, { brand: term }] });
     }
 

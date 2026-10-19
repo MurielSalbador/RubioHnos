@@ -16,6 +16,7 @@ const lazy = (factory) =>
     })
   );
 import { checkTokenExpiration } from "./utils/auth";
+import { registerLenis, scrollToTop } from "./utils/scroll.js";
 
 //pagina principal
 import Home from "./components/pages/Home/Home.jsx";
@@ -113,17 +114,13 @@ const TITLES = [
   ["/httpClients", "Clientes (admin)"],
 ];
 
-// Instancia del scroll suave (Lenis): window.scrollTo solo no alcanza
-let lenisInstance = null;
-
 function PageTitle() {
   const { pathname } = useLocation();
   useEffect(() => {
     const match = TITLES.find(([prefix]) => pathname.startsWith(prefix));
     document.title = match ? `${match[1]} · Rubio Hnos` : "Rubio Hnos · Tienda natural";
     // Al cambiar de página, volver arriba (antes quedaba scrolleado)
-    if (lenisInstance) lenisInstance.scrollTo(0, { immediate: true, force: true });
-    else window.scrollTo(0, 0);
+    scrollToTop();
   }, [pathname]);
   return null;
 }
@@ -141,7 +138,7 @@ function App() {
       touchMultiplier: 2,
       infinite: false,
     })
-    lenisInstance = lenis;
+    registerLenis(lenis);
 
     let rafId;
     function raf(time) {
@@ -152,7 +149,7 @@ function App() {
     rafId = requestAnimationFrame(raf)
 
     return () => {
-      lenisInstance = null;
+      registerLenis(null);
       cancelAnimationFrame(rafId)
       lenis.destroy()
     }

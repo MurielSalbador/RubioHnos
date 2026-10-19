@@ -69,7 +69,7 @@ export default function Filters({ onClose, isMobile = false }) {
         )}
       </div>
 
-      <div className="filters-scroll">
+      <div className="filters-scroll" data-lenis-prevent>
         <FilterGroup title="Etiquetas" count={selectedTags.length}>
           <div className="filter-list">
             {PRODUCT_TAGS.map((t) => (

@@ -3,7 +3,7 @@
   background: var(--surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--line);
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 110px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -20,9 +20,16 @@
 
 .filters-scroll {
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 6px 20px;
   flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #d8c4ab transparent;
 }
+
+.filters-scroll::-webkit-scrollbar { width: 6px; }
+.filters-scroll::-webkit-scrollbar-thumb { background: #d8c4ab; border-radius: 999px; }
 
 .filter-group { border-bottom: 1px solid var(--line); padding: 10px 0; }
 .filter-group:last-child { border-bottom: none; }
@@ -70,8 +77,6 @@
   flex-direction: column;
   gap: 2px;
   padding: 6px 0 4px;
-  max-height: 260px;
-  overflow-y: auto;
 }
 
 .filter-checkbox-label {
