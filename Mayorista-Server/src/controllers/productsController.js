@@ -1,7 +1,7 @@
 import Product from "../mongoModels/products.mongo.js";
 import Category from "../mongoModels/categories.mongo.js";
 import mongoose from "mongoose";
-import { parseTags } from "../enums/productTags.js";
+import { parseTags, TAG_KEYWORDS } from "../enums/productTags.js";
 
 // Escapa caracteres especiales para usar texto del usuario dentro de un RegExp
 // (antes buscar algo como "(" o "+" rompía la consulta con un error 500).
@@ -113,10 +113,27 @@ export const getAllProducts = async (req, res) => {
       });
     }
 
-    // Etiquetas: el producto tiene que tener TODAS las elegidas (ej. Sin TACC + Vegano)
+    // Etiquetas: el producto tiene que cumplir TODAS las elegidas (ej. Sin TACC + Vegano).
+    // Cuenta como que la tiene si: está marcada a mano, o el nombre del
+    // producto o de alguna de sus categorías lo dice ("Alfajor sin TACC").
     const tagList = parseTags(tags);
     if (tagList && tagList.length > 0) {
-      conditions.push({ tags: { $all: tagList } });
+      const allCats = await Category.find().select("_id nombre").lean();
+      for (const tag of tagList) {
+        const words = TAG_KEYWORDS[tag] || [tag];
+        const regexes = words.map((w) => new RegExp(accentInsensitive(w), "i"));
+        const catIds = allCats
+          .filter((c) => regexes.some((r) => r.test(c.nombre || "")))
+          .map((c) => c._id);
+        conditions.push({
+          $or: [
+            { tags: tag },
+            ...regexes.map((r) => ({ title: r })),
+            ...regexes.map((r) => ({ description: r })),
+            ...(catIds.length ? [{ categoryIds: { $in: catIds } }, { categoryId: { $in: catIds } }] : []),
+          ],
+        });
+      }
     }
 
     const min = parseFloat(minPrice);
